@@ -1,0 +1,51 @@
+Custom Roslyn Tool for Real-Time Static Code Analysis
+
+The thesis will deal with the development of a real-time software tool for static code analysis to support Kentico's development teams and their specific needs. The foreseen tasks:
+1. Get familiar with the coding conventions which are used at the Kentico company;
+2. Describe and compare available tools for static code analysis on the Microsoft .NET platform;
+3. Get familiar with the .NET Compiler Platform "Roslyn" and describe its main features and possibilities;
+4. Create a Roslyn-based tool that will be used for checking specific coding rules and guidelines that are followed at Kentico. The tool will analyze source code, display warnings and provide code fixes where suitable;
+5. Analyze the performance when using the tool and discuss its added value for the company;
+
+
+--- OLD VERSION ---
+Automated Source Code Review
+
+This diploma thesis focuses on understanding the concept of software quality and implementing a tool for automated 
+code review at the Kentico company. 
+The student will describe the concept of the code quality and will focus on code reviews. 
+Since the code reviewing process at Kentico is very time consuming, the student will implement a tool for automated code reviews.
+1. Get familiar with the coding conventions which are used in Kentico;
+2. Get familiar with the .NET Compiler Platform "Roslyn" and describe its main features and possibilities;
+3. Create a Roslyn based tool with specific coding rules. The tool will analyze the code and produce warnings or an automatic code fix if suitable;
+4. Analyze the performance when using the tool;
+
+
+Custom Roslyn tool for real-time static code analysis
+
+Get familiar with the coding conventions which are used at Kentico company. 
+Describe and compare available tools for static code analysis on Microsoft .NET platform.
+Get familiar with the .NET Compiler Platform "Roslyn" and describe its main features and possibilities.
+Create a Roslyn-based tool that will be used for checking specific coding rules and guidelines that are followed at Kentico. 
+The tool will analyze the code, display warnings and provide code fixes where suitable.
+Analyze the performance when using the tool and discuss its added value for the company.
+
+-- OLD VERSION (czech) ---
+Automatizace kontroly kódu během vývoje
+ 
+Kentico slouží nejen jako CMS pro koncové uživatele, ale také jako platforma pro vývojaře. 
+Protože klademe vysoké nároky na kvalitu kódu, jednotný styl jeho psaní a vysokou škálovatelnost celého řešení, 
+existuje v naší firmě velké množství psaných i nepsaných pravidel pro to, jak by měl výsledný kód produktu vypadat 
+a jaké konstrukty jazyka či knihovny by se v něm měly používat. Tato pravidla se často kontrolují pouze manuálně při review kódu. 
+Cílem této práce je s využitím moderních technologií vytvořit nástroj, 
+který bude schopný zmíněná pravidla kontrolovat za vývojáře již během psaní kódu.
+ 
+Technologie: C#, Roslyn
+Nástroje: Microsoft Visual Studio
+ 
+Zadání pro IS fakulty:
+Seznamte se s pravidly pro psaní kódu, které musí vývojáři ve společnosti Kentico dodržovat.
+Nastudujte možnosti, které v oblasti kontroly kódu nabízí nový Microsoft kompilátor Roslyn.
+Implementujte podporu pro vybranou množinu pravidel, která mají být kontrolovány během psaní kódu, za pomoci Roslynu.
+Vyhodnoťte výkonostní dopady implementovaného řešení a jeho použitelnost. 
+Diskutujte možnosti budoucího rozvoje vyvinutého řešení.
