@@ -1,0 +1,4 @@
+19-8-2016 https://mva.microsoft.com/en-us/training-courses/building-roslyn-based-analyzers-and-diagnostics-12596
+
+Large scale projects considerations
+1-10-2016 https://github.com/dotnet/roslyn/wiki/Performance-considerations-for-large-solutions
