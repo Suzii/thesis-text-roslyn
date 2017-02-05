@@ -1,0 +1,17 @@
+/*
+ * An instance of SemanticModel caches local symbols and semantic information. Thus, it is much more efficient to use a single
+ *  instance of SemanticModel when asking multiple questions about a syntax tree, because information from the first question may be reused.
+ *  This also means that holding onto an instance of SemanticModel for a long time may keep a significant amount of memory from being garbage collected.
+ *  https://github.com/dotnet/roslyn/blob/56f605c41915317ccdb925f66974ee52282609e7/src/Samples/CSharp/APISampleUnitTests/FAQ.cs#L466
+ *  https://joshvarty.wordpress.com/2014/10/30/learn-roslyn-now-part-7-introducing-the-semantic-model/
+ */
+ 
+ IDEAS for text:
+ BH1000 - WhereLike as MemberAccessExpressionSyntax checks for method group usages as well, coz whole method is forbidden as is
+ but!
+ BH1001 - EventLogProvider.LogEvent(...) is only analyzed as InvocationExpression and only then casted to MemberAccessExpressionSyntax. This is because the usage is forbidden only if its first argument is one of "I", "W", "E"
+therefore, not all member accesses are ingeritly bad. Thus what we really would need to check would be invocation expressions as whole and only the if the method invoked is a delegate, check for its underlying definition and analyze it 
+
+
+https://msdn.microsoft.com/en-us/magazine/dn879356.aspx 18/10/2016
+A key point to note is that a top-level action registered with any Register method should never stash any state in instance fields on the analyzer type. Visual Studio will reuse one instance of that analyzer type for the whole Visual Studio session to avoid repeated allocations. Any state you store and reuse is likely to be stale when analyzing a future compilation and could even be a memory leak if it keeps old syntax nodes or symbols from being garbage collected.
