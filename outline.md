@@ -1,3 +1,7 @@
+Official assignment: 13. 3.- 20. 3. 2017
+Due date: 22. 5. 2017
+Defence: 19. 6.- 23. 6. 2017 
+
 1. Introduction
   - motivation for the thesis, how static code analysis helps code reviews, why kentico needs a tool like this
 2. Static code analysis, 
@@ -20,9 +24,13 @@
   - new DotNetAnalyzers available thanks to Roslyn
   - ...
 4. Current situation in Kentico
+  - Not really an "automated code review" - only specific ruleset will be implemented in Roslyn and rules will be applied live while writing code in VS. -- it does not really replace manual code review, only takes the burden off reviewer to check for most common mistakes.
   - existing BugHunter as console application
     - what is it used for,
     - running on build-boxes, 
+  - ?? clearly state the scope of the thesis - no naming conventions etc. 
+     - Conventions like CamelCase syntax and similair are should not be scope of this thesis. 
+     - There are already tons of tools providing these checks (Resharper, StyleCop, FxCop...).
   - attempts to rewrite BH to Roslyn 
     - not so successful Bachelor thesis by another student (huge performance problems, implementation basically one to one with the old console app, does not leverage of Roslyn type system, everything based on strings, therefore many missed diagnostic problems)
   - using Resharper and FxCop 
@@ -63,6 +71,7 @@
   - sum up the feedback from developers that use tool daily (more details should be in Appendix)
 7. Deployment of the analyzers
   - this chapter will describe the current state of the project and how the analyzers were deployed, how they are used at the time of writing at Kentico
+  - https://github.com/dotnet/roslyn/issues/6195
 8. Conclusion
   - how to maintain the tool, 
   - how easy it is to add new analyzers, 
