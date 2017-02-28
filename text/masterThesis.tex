@@ -79,7 +79,7 @@ Ideas:
 
 What is code quality, why is it important, tool that support it.. compilers, diversion ... aaaand here comes Roslyn which provides compiler as a platform.  
 
-In~the~.NET world, the~compiler used~to~be a~black box that given the~file paths to~the~source text, produced an~executable (see Figure~\ref{fig:compiler-as-a-black-box}). In~order~to do that, compiler has to collect large amount of~information about the~code it is processing. This knowledge, however, was unavailable to~anyone but the~compiler itself and it was immediately forgotten once the~translated output was produced~\cite{roslyn-overview-github}. 
+In~the~.NET world, the~compiler used~to~be a~black box that given the~file paths to~the~source text, produced an~executable. In~order~to do that, compiler has to collect large amount of~information about the~code it is processing. This knowledge, however, was unavailable to~anyone but the~compiler itself and it was immediately forgotten once the~translated output was produced~\cite{roslyn-overview-github}. 
 
 Why is this an~issue when for decades this black-boxes served us well? Programmers are increasingly becoming reliant~upon the~powerful integrated development environments (IDEs). Features like IntelliSense, intelligent rename, refactoring or~"Find all references" are key~to~developers' productivity; and~even more so in~an~enterprise-size systems. 
 
@@ -98,18 +98,18 @@ TODO
 % ============================= CHAPTER 3 =========================
 % =================================================================
   \chapter{.NET Compiler Platform}
-As~per~\cite{dragon-book}, compiler is a~program that can read a~program in a~\textit{source} language and~translate it into a~semantically equivalent program in~\textit{target} language while reporting any errors detected in~the~translation process. 
+As~per~\cite{dragon-book}, compiler is a~program that can read a~program in a~\textit{source} language and~translate it into a~semantically equivalent program in~a~\textit{target} language while reporting any errors detected in~the~translation process. 
 
-In~the~.NET world, the~compiler used~to~be a~black box that given the~file paths to~the~source text, produced an~executable (see Figure~\ref{fig:compiler-as-a-black-box}). This perception was changed in~2015 when Microsoft introduced the .NET Compiler Platform (commonly referred to as "Project Roslyn").  
+In~the~.NET world, the~compiler used~to~be a~black box that given the~file paths to~the~source text, produced an~executable. This perception was changed in~2015 when Microsoft introduced the .NET Compiler Platform (commonly referred to as "Project Roslyn").  
 
-\begin{figure}[h!]
-		\centering
-			\includegraphics[scale=0.35]{img/compiler-as-a-black-box}
-		\caption{Compiler as a black box~\cite{dot-net-development-using-the-compiler-api}}
-		\label{fig:compiler-as-a-black-box}
-\end{figure}
+%\begin{figure}[h!]
+%		\centering
+%			\includegraphics[scale=0.35]{img/compiler-as-a-black-box}
+%		\caption{Compiler as a black box~\cite{dot-net-development-using-the-compiler-api}}
+%		\label{fig:compiler-as-a-black-box}
+%\end{figure}
 
-Not only have been compilers for both Visual Basic and C\# rewritten into entirely managed code, they also expose the internals of the compiler pipeline via a public .NET API~\footnote{Application Programming Interface}. This makes them a platform (also known as \textit{compiler-as-as-service}) with rich code analysis APIs that can be leveraged by developers to perform analysis, code generation or dynamic compilation in their own programs~\cite{roslyn-succinctly}. Those can be then easily integrated into the Visual Studio all without the hard work of duplicating compilers' parsing logic.
+Not only have been compilers for both Visual Basic and C\# rewritten into the entirely managed code, they also expose the internals of the compiler pipeline via a public .NET API~\footnote{Application Programming Interface}. This makes them a platform (also known as \textit{compiler-as-as-service}) with rich code analysis APIs that can be leveraged by developers to perform analysis, code generation or dynamic compilation in their own programs~\cite{roslyn-succinctly}. Those can be then easily integrated into the Visual Studio all without the hard work of duplicating compilers' parsing logic.
 
 This chapter will take a look at how the Roslyn API layers are structured, how the original source code is represented by the compiler and how developers can build tools upon the compiler's API. Lastly it will provide a short overview and evaluation of other tools that were used before Roslyn or have emerged thanks to .NET Compiler Platform.
 
@@ -117,10 +117,14 @@ Note that although Roslyn provides equivalent APIs for both VisualBasic and C\#,
   
   \section{The Compiler Pipeline}
 Roslyn compilers expose an API layer that mirrors the traditional compiler pipeline (see \ref{fig:roslyn-compiler-pipeline}). However, instead of a single process of generating the target program, each compilation step is treated as a separate component~\cite{roslyn-overview}:
+
 \begin{itemize}
-  \item \textbf{Parse phase} consists of \textit{lexical analysis} (\textit{scanner}) and \textit{syntactic analysis} (\textit{parser}). First, the lexical analyzer processes the stream of characters from the source program and groups them into a meaningful sequences called \textit{lexemes}. Those are subsequently processed by the \textit{syntax analyzer} that creates a tree-like structure of tokens based on the language's grammar~\cite{dragon-book}.
-  \item \textbf{Symbols and metadata phsase} where named symbols are generated based on the declarations from the source and imported metadata.
+  \item \textbf{Parse phase} consists of \textit{lexical analysis} (\textit{scanner}) and \textit{syntactic analysis} (\textit{parser}). First, the lexical analyzer processes the stream of characters from the source program and groups them into meaningful sequences called \textit{lexemes}. Those are subsequently processed by the \textit{syntax analyzer} that creates a tree-like structure of tokens based on the language's grammar~\cite{dragon-book}.
+
+  \item \textbf{Symbols and metadata phase} where named symbols are generated based on the declarations from the source and imported metadata.
+
   \item \textbf{Bind phase} in which the identifiers from the source code are matched to their respective symbols.
+
   \item \textbf{Emit phase} where all the gathered information is used to emmit an assembly.
 \end{itemize}
 
@@ -151,25 +155,25 @@ The immutability enables the compiler to perform parallel work without need to c
 As discussed in the previous section, the Compiler APIs offer an object model representing the results of syntactic and semantic analysis produced by the respective phases of the compiler pipeline. Moreover, it also includes an immutable snapshot of a single compiler invocation, along with assembly references, compiler options, and source files. This layer is agnostic of any Visual Studio components and as such can be used in stand-alone applications as well. There are two separate, though very similar, APIs for Visual Basic and C\#, each providing functionality tailored for specific language nuances.
 
   \subsubsection{Diagnostic APIs}
-Apart from parsing code and producing an assembly, the compiler is also capable of raising diagnostics, covering everything from syntax to semantics, and report them as errors, warnings or information messages~\cite{roslyn-succinctly}. This is achieved through the compilers' Diagnostics APIs that allow developers to effectively plug-in to compiler pipeline, analyze the source code using the exposed object models, and surface custom diagnostics along with those defined by compiler itself. These APIs are integrated to both MSBuild~\footnote{Does this needs an explanation??} and Visual Studio~\footnote{Visual Studio 2015 and newer.} providing seamless developer experience. The practical part of this thesis hugely relies on Diagnostic APIs to provide custom diagnostics and the details will be discussed in Chapter \pageref{chap:custom-roslyn-analyzers}.
+Apart from parsing code and producing an assembly, the compiler is also capable of raising diagnostics, covering everything from syntax to semantics, and report them as errors, warnings or information messages~\cite{roslyn-succinctly}. This is achieved through the compilers' Diagnostics APIs that allow developers to effectively plug-in to compiler pipeline, analyze the source code using the exposed object models, and surface custom diagnostics along with those defined by the compiler itself. These APIs are integrated to both MSBuild~\footnote{Does this needs an explanation??} and Visual Studio (2015 and newer). providing seamless developer experience. The practical part of this thesis relies on Diagnostic APIs to provide custom diagnostics and the details will be discussed in Chapter \pageref{chap:custom-roslyn-analyzers}.
 
   \subsubsection{Scripting APIs}
-As a part of the compiler layer, Microsoft team has introduced new Scripting APIs that can be used for executing code snippets. This APIs were not shipped with .NET Compiler Platform 1.0 and are part of v2.0.0 RC3\footnote{Release candidate 3, as per https://github.com/dotnet/roslyn/wiki/Scripting-API-Samples [26-02-2017].}.
+As a part of the compiler layer, Microsoft team has introduced new Scripting APIs that can be used for executing code snippets. These APIs were not shipped with .NET Compiler Platform 1.0 and are part of v2.0.0 RC3\footnote{Release candidate 3, as per https://github.com/dotnet/roslyn/wiki/Scripting-API-Samples [26-02-2017].}.
 
   \subsection{Workspaces APIs}
-Workspace represents a collections of solutions, projects and documents. It provides a single object model containing information about the projects in a solution and their respective documents; exposes all configuration options, assembly and inter-project dependencies, and provides access to syntax trees and semantic models. It is a starting point for performing code analysis and refactorings over entire solutions.
+Workspace represents a collection of solutions, projects, and documents. It provides a single object model containing information about the projects in a solution and their respective documents; exposes all configuration options, assembly and inter-project dependencies, and provides access to syntax trees and semantic models. It is a starting point for performing code analysis and refactorings over entire solutions.
 
-Although it is possible to use the Workspace outside of any host environment, the most common use case is an IDE providing an instance of Workspace that corresponds to the open solution. Since the instances of Solution are immutable, the host environment must react to every event (such as user key stroke) with an update of the \texttt{CurrentSolution} property of the Workspace.
+Although it is possible to use the \texttt{Workspace} outside of any host environment, the most common use case is an IDE providing an instance of \texttt{Workspace} that corresponds to the open solution. Since the instances of \texttt{Solution} are immutable, the host environment must react to every event (such as user key stroke) with an update of the \texttt{CurrentSolution} property of the \texttt{Workspace}.
 
   \subsection{Feature APIs}
-This layer relies on both Compiler and Workspaces layers and is designed to provide API for offering code fixes and refactorings. This layer was also utilized while working on the practical part of this thesis.
+This layer relies on both compiler and workspaces layers and is designed to provide API for offering code fixes and refactorings. This layer was also used while working on the practical part of this thesis.
   
   \section{Working with Syntax}
-As mentioned in the previous sections, the product of syntactic analysis is a syntax tree. It enables developers to work with the code in a managed way instead of working against plain text. Syntax trees are used for both analysis and refactorings, where the new code is generated either manually or as a modified version of the existing tree. While being immutable, syntax trees are thread-safe and analysis can be done in parallel.
+As mentioned in the previous sections, the product of the syntactic analysis is a syntax tree. It enables developers to work with the code in a managed way instead of working against plain text. Syntax trees are used for both analysis and refactorings, where the new code is generated either manually or as a modified version of the existing tree. While being immutable, syntax trees are thread-safe and analysis can be done in parallel.
 
-It is important to stress that in a same way the compiler constructs a syntax tree from source text, it is also possible to round-trip back to the text representation. Thus the source information is preserved in full fidelity. This means that every piece of information from source must be stored somewhere within the tree, including comments, whitespaces or end-of-line characters. 
+It is important to point out, that in a same way the compiler constructs a syntax tree from the source text, it is also possible to round-trip back to the text representation. Thus the source information is preserved in full fidelity. This means that every piece of information from source must be stored somewhere within the tree, including comments, whitespaces or end-of-line characters. 
 
-Figure~\ref{fig:roslyn-syntax-tree} shows a syntax tree of an invocation expression as obtained from Syntax Visualizer extension available in Visual Studio. This tool is useful for understanding how Roslyn represents particular language constructs and is widely utilized whenever one needs to analyze the code. Following (???) sections explain what are the main building blocks of the syntax tree and will refer to this figure:
+Figure~\ref{fig:roslyn-syntax-tree} shows a syntax tree of an invocation expression as obtained from Syntax Visualizer extension available in Visual Studio. This tool is useful for understanding how Roslyn represents particular language constructs and is widely utilized whenever one needs to analyze the code. Following sections explain what are the main building blocks of such syntax tree and will refer to this figure:
 
 \begin{figure}[h!]
 		\centering
@@ -179,10 +183,13 @@ Figure~\ref{fig:roslyn-syntax-tree} shows a syntax tree of an invocation express
 \end{figure}
 
   \subsubsection{Syntax Nodes}
-
+Syntax nodes (blue color) are non-terminal nodes of a syntax tree, meaning they always have at least one other node or token as a child. Nodes represent syntactic constructs of a language such as statements, clauses or declarations. Each type of node is represented by a single class deriving from \texttt{SyntaxNode}. Apart from common properties \texttt{Parent}, \texttt{ChildNodes} and utility methods like \texttt{DescendantNodes}, \texttt{DescendantTokens}, or \texttt{DescendantTrivia}, each subclass exposes specific methods and properties. As shown in Figure~\ref{fig:roslyn-syntax-tree}, \texttt{InvocationExpression} has two properties, \texttt{IdentifierName} and \texttt{ArgumentList} both of which are \texttt{SyntaxNodes} themselves.
+ 
   \subsubsection{Syntax Tokens}
+As opposed to nodes, syntax token (green color) represent terminals of the language grammar, such as keywords, punctuation, literals and identifiers. For the sake of efficiency, \texttt{SyntaxToken} is implemented as a value type (structure) and there is only one for all kinds of tokens. To be able to tell them apart, tokens have \texttt{Kind} property. For example, \texttt{SomeFunction} is of kind \texttt{IdentifierName} and "\texttt{(}" character is \texttt{OpenParenToken} kind.
 
   \subsubsection{Syntax Trivia}
+In order to enable refactoring features, syntax trees must also store information about whitespaces, comments and preprocessor directives that are insignificant for compilation process itself. This information is represented by another value type - \texttt{SyntaxTrivia} (white color). Trivia are not really parts of the tree itself, rather they are properties of tokens accessible by their \texttt{LeadingTrivia} and \texttt{TrailingTrivia} collections.
 
   \section{Working with Semantics}
 
