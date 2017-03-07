@@ -113,7 +113,7 @@ Not only have been compilers for both Visual Basic and C\# rewritten into the en
 
 This chapter will take a look at how the Roslyn API layers are structured, how the original source code is represented by the compiler and how developers can build tools upon the compiler's API. Lastly it will provide a short overview and evaluation of other tools that were used before Roslyn or have emerged thanks to .NET Compiler Platform.
 
-Note that although Roslyn provides equivalent APIs for both VisualBasic and C\#, this thesis will only focus on the latter since only it is relevant for the practical part of the thesis.  
+Note that although Roslyn provides equivalent APIs for both VisualBasic and C\#, this thesis will only focus on the latter since only that one is relevant for the practical part of the thesis.  
   
   \section{The Compiler Pipeline}
 Roslyn compilers expose an API layer that mirrors the traditional compiler pipeline (see \ref{fig:roslyn-compiler-pipeline}). However, instead of a single process of generating the target program, each compilation step is treated as a separate component~\cite{roslyn-overview}:
@@ -135,7 +135,7 @@ Roslyn compilers expose an API layer that mirrors the traditional compiler pipel
 		\label{fig:roslyn-compiler-pipeline}
 \end{figure}
 
-In each phase, the .NET Compiler Platform creates an object model containing gathered information and exposes it through the API in form of .NET objects. These object are also used internally by VisualStudio~\footnote{The new generation of VisualStuio leveraging from the Roslyn compiler are called vNext and first one was VS 2015.} to support basic IDE functionality. For instance \textbf{syntax tree}, that is the result of the parse phase, is used to support formatting and colorizing the code in the editor. The result of the second phase -- \textbf{hierarchical symbol table}, is the basis for "Object browser" and "Navigate to" functionality. Binding phase is represented as an \textbf{object model that exposes the result of the semantic analysis} and is utilized in "Find all references" or "Go to definition". Finally, the Emit phase produces the Intermediate Language (IL) byte codes and is also used for "Edit and Continue" feature~\cite{roslyn-overview}.
+In each phase, the .NET Compiler Platform creates an object model containing gathered information and exposes it through the API in form of .NET objects. These object are also used internally by Visual Studio~\footnote{The new generation of Visual Stuio leveraging from the Roslyn compiler are called vNext and first one was VS 2015.} to support basic IDE functionality. For instance \textbf{syntax tree}, that is the result of the parse phase, is used to support formatting and colorizing the code in the editor. The result of the second phase -- \textbf{hierarchical symbol table}, is the basis for \textit{Object browser} and \textit{Navigate~to} functionality. Binding phase is represented as an \textbf{object model that exposes the result of the semantic analysis} and is utilized in \textit{Find all~references} or \textit{Go~to~definition}. Finally, the Emit phase produces the~Intermediate Language (IL) byte codes and is also used for \textit{Edit and~Continue} feature~\cite{roslyn-overview}.
 
   \section{The .NET Compiler Platform's Architecture}
 The Roslyn's architecture consists of two main layers - Compiler and Workspaces APIs, and one secondary layer - Features API, as seen on Figure~\ref{fig:roslyn-compiler-architecture}.
@@ -155,7 +155,7 @@ The immutability enables the compiler to perform parallel work without need to c
 As discussed in the previous section, the Compiler APIs offer an object model representing the results of syntactic and semantic analysis produced by the respective phases of the compiler pipeline. Moreover, it also includes an immutable snapshot of a single compiler invocation, along with assembly references, compiler options, and source files. This layer is agnostic of any Visual Studio components and as such can be used in stand-alone applications as well. There are two separate, though very similar, APIs for Visual Basic and C\#, each providing functionality tailored for specific language nuances.
 
   \subsubsection{Diagnostic APIs}
-Apart from parsing code and producing an assembly, the compiler is also capable of raising diagnostics, covering everything from syntax to semantics, and report them as errors, warnings or information messages~\cite{roslyn-succinctly}. This is achieved through the compilers' Diagnostics APIs that allow developers to effectively plug-in to compiler pipeline, analyze the source code using the exposed object models, and surface custom diagnostics along with those defined by the compiler itself. These APIs are integrated to both MSBuild~\footnote{Does this needs an explanation??} and Visual Studio (2015 and newer). providing seamless developer experience. The practical part of this thesis relies on Diagnostic APIs to provide custom diagnostics and the details will be discussed in Chapter \pageref{chap:custom-roslyn-analyzers}.
+Apart from parsing code and producing an assembly, the compiler is also capable of raising diagnostics, covering everything from syntax to semantics, and report them as errors, warnings or information messages~\cite{roslyn-succinctly}. This is achieved through the compilers' Diagnostics APIs that allow developers to effectively plug-in to compiler pipeline, analyze the source code using the exposed object models, and surface custom diagnostics along with those defined by the compiler itself. These APIs are integrated to both MSBuild~\footnote{The Microsoft Build Engine https://github.com/Microsoft/msbuild} and Visual Studio (2015 and newer). providing seamless developer experience. The practical part of this thesis relies on Diagnostic APIs to provide custom diagnostics and the details will be discussed in Chapter \ref{chap:custom-roslyn-analyzers}.
 
   \subsubsection{Scripting APIs}
 As a part of the compiler layer, Microsoft team has introduced new Scripting APIs that can be used for executing code snippets. These APIs were not shipped with .NET Compiler Platform 1.0 and are part of v2.0.0 RC3\footnote{Release candidate 3, as per https://github.com/dotnet/roslyn/wiki/Scripting-API-Samples [26-02-2017].}.
@@ -168,12 +168,12 @@ Although it is possible to use the \texttt{Workspace} outside of any host enviro
   \subsection{Feature APIs}
 This layer relies on both compiler and workspaces layers and is designed to provide API for offering code fixes and refactorings. This layer was also used while working on the practical part of this thesis.
   
-  \section{Working with Syntax}
+  \section{Syntax Tree}
 As mentioned in the previous sections, the product of the syntactic analysis is a syntax tree. It enables developers to work with the code in a managed way instead of working against plain text. Syntax trees are used for both analysis and refactorings, where the new code is generated either manually or as a modified version of the existing tree. While being immutable, syntax trees are thread-safe and analysis can be done in parallel.
 
-It is important to point out, that in a same way the compiler constructs a syntax tree from the source text, it is also possible to round-trip back to the text representation. Thus the source information is preserved in full fidelity. This means that every piece of information from source must be stored somewhere within the tree, including comments, whitespaces or end-of-line characters. 
+It is important to point out, that in a same way the compiler constructs a syntax tree from the source text, it is also possible to round-trip back to the text representation. Thus, the source information is always preserved in full fidelity. This means that every piece of information from source must be stored somewhere within the tree, including comments, whitespaces or end-of-line characters. 
 
-Figure~\ref{fig:roslyn-syntax-tree} shows a syntax tree of an invocation expression as obtained from Syntax Visualizer extension available in Visual Studio. This tool is useful for understanding how Roslyn represents particular language constructs and is widely utilized whenever one needs to analyze the code. Following sections explain what are the main building blocks of such syntax tree and will refer to this figure:
+Figure~\ref{fig:roslyn-syntax-tree} shows a syntax tree of an invocation expression as obtained from Syntax Visualizer\footnote{https://roslyn.codeplex.com/wikipage?title=Syntax\%20Visualizer} extension available in Visual Studio. This tool is useful for understanding how Roslyn represents particular language constructs and is widely utilized whenever one needs to analyze the code. Following sections explain what are the main building blocks of such syntax tree and will refer to this figure:
 
 \begin{figure}[h!]
 		\centering
@@ -186,13 +186,37 @@ Figure~\ref{fig:roslyn-syntax-tree} shows a syntax tree of an invocation express
 Syntax nodes (blue color) are non-terminal nodes of a syntax tree, meaning they always have at least one other node or token as a child. Nodes represent syntactic constructs of a language such as statements, clauses or declarations. Each type of node is represented by a single class deriving from \texttt{SyntaxNode}. Apart from common properties \texttt{Parent}, \texttt{ChildNodes} and utility methods like \texttt{DescendantNodes}, \texttt{DescendantTokens}, or \texttt{DescendantTrivia}, each subclass exposes specific methods and properties. As shown in Figure~\ref{fig:roslyn-syntax-tree}, \texttt{InvocationExpression} has two properties, \texttt{IdentifierName} and \texttt{ArgumentList} both of which are \texttt{SyntaxNodes} themselves.
  
   \subsubsection{Syntax Tokens}
-As opposed to nodes, syntax token (green color) represent terminals of the language grammar, such as keywords, punctuation, literals and identifiers. For the sake of efficiency, \texttt{SyntaxToken} is implemented as a value type (structure) and there is only one for all kinds of tokens. To be able to tell them apart, tokens have \texttt{Kind} property. For example, \texttt{SomeFunction} is of kind \texttt{IdentifierName} and "\texttt{(}" character is \texttt{OpenParenToken} kind.
+As opposed to nodes, syntax token (green color) represent terminals of the language grammar, such as keywords, punctuation, literals and identifiers. For the sake of efficiency, \texttt{SyntaxToken} is implemented as a value type (C\# structure) and there is only one for all kinds of tokens. To be able to tell them apart, tokens have \texttt{Kind} property. For example, \texttt{SomeFunction} is of kind \texttt{IdentifierName}, whereas "\texttt{(}" character is \texttt{OpenParenToken}.
 
   \subsubsection{Syntax Trivia}
-In order to enable refactoring features, syntax trees must also store information about whitespaces, comments and preprocessor directives that are insignificant for compilation process itself. This information is represented by another value type - \texttt{SyntaxTrivia} (white color). Trivia are not really parts of the tree itself, rather they are properties of tokens accessible by their \texttt{LeadingTrivia} and \texttt{TrailingTrivia} collections.
+In order to enable refactoring features, syntax trees must also store information about whitespaces, comments and preprocessor directives that are insignificant for compilation process itself. This information is represented by another value type -- \texttt{SyntaxTrivia} (white color). Trivia are not really parts of the tree itself, rather they are properties of tokens accessible by their \texttt{LeadingTrivia} and \texttt{TrailingTrivia} collections.
 
-  \section{Working with Semantics}
+  \section{Semantics of the Program}
+% Start with why semnatics is important in addition to syntax - some cool stuff from dragonbook. Tell about symbol tables in all compilers. Talk about ISymbol in Roslyn. Mention Compilation and wrap it up with Sematic model.
 
+Even though syntax trees are enough to describe proper form of the program (compliance to the language grammar), they cannot enforce all language rules, for example, type checking. In order to tell whether a method is called with the right number of arguments, or operator is applied to operands or right type, it's inevitable to introduce semantics. 
+
+As described in~\cite{dragon-book}, one of the core responsibilities of a compiler is to collect information about all elements and their properties from the source program. These are attributes such as identifier name, type, allocated storage, scope or for method names the number and types of arguments and their return values.
+
+All this data is being incrementally collected when parsing the source code (analysis phase) and is stored in \textit{symbol tables}. These are later used in synthesis where intermediate language representation is produced.
+
+  \subsubsection{Symbols}
+In .NET Compiler Platform, a single entry of a symbol table is represented by a class deriving from \texttt{ISymbol}. The symbol represents every distinct element (namespace, type, field, property, event, method or parameter) either declared in the source code or imported as metadata from a referenced assembly. Each specific symbol has its own methods and properties often directly referring to other symbols. For example \texttt{IMethodSymbol} has a \texttt{ReturnType} property specifying what is the type symbol the method returns.
+
+  \subsubsection{Compilation}
+An important immutable type, that represents everything needed to compile a C\# (or Visual Basic) program is a \texttt{Compilation}. It contains all source files, compiler options and assembly references. Compilation provides convenient ways to access any discovered symbol. For instance, it is possible to access the entire hierarchical symbol table rooted by global namespace or look up type symbols by their common metadata names.
+
+  \subsubsection{Semantic Model}
+When analyzing a single source file of a compilation, all its semantic information is available through a \textit{semantic model}. The \texttt{SmeanticModel} object can answer many questions such as:
+  \begin{itemize}
+  \item What symbol is declared at the specific location in the source?
+  \item What is the result type of an expression?
+  \item What symbols are visible from this location?
+  \item What diagnostics are reported in the document?
+  \end{itemize}
+ 
+This makes semantic model very useful when performing static code analysis concerned with more than just syntax.
+ 
   \section{Analysers and Code Refactorings}
 %  - how to perform static code analysis with Roslyn
 %    - writing anlyzers and code fixes / code refactorings  
