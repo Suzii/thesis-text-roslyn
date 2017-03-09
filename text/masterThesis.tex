@@ -72,7 +72,9 @@
 % =================================================================
 % ============================= CHAPTER 1 =========================
 % =================================================================
-\chapter{Introduction}
+  \chapter{Introduction}
+  [1-2 pages]
+  
 TODO...
 
 Ideas:
@@ -88,6 +90,8 @@ This gave a~rise to~number of~tools that analyze the~code for common issues and 
 With roslyn.. etc. etc. .. API for analysis.. use in companies for custom analyzers... etc. etc....
  https://github.com/dotnet/roslyn/wiki/Roslyn Overview -- motivation
 Make sure to stress out that ".NET Compiler Platform" and "Roslyn" names will be used interchangably as it is in Roslyn Succinctly on page 11.
+
+
 % =================================================================
 % ============================= CHAPTER 2 =========================
 % =================================================================
@@ -217,27 +221,88 @@ When analyzing a single source file of a compilation, all its semantic informati
  
 This makes semantic model very useful when performing static code analysis concerned with more than just syntax.
  
+  \pagebreak
   \section{Analysers and Code Refactorings}
+  [3 pages?]
+  
 %  - how to perform static code analysis with Roslyn
 %    - writing anlyzers and code fixes / code refactorings  
   
+  \pagebreak 
   \section{Other Tools}
-  %3. Other tools for code analysis available for C#
-%  - new DotNetAnalyzers available thanks to Roslyn
-%  - Resharper,
-%  - FxCop
-%  - StyleCop
+  [2-3 pages?]
+TODO: Should this be a separate chapter????
+
+  3. Other tools for code analysis available for C\#
+  
+  - new DotNetAnalyzers available thanks to Roslyn
+
+  - Resharper,
+  
+  - FxCop
+
+  - StyleCop
 
 % =================================================================
 % ============================= CHAPTER 4 =========================
 % =================================================================
+\chapter{Kentico CMS Internal Guidelines}
+[3-4 pages]
+
+What is Kentico CSM?
+
 Current situation \& motivation
 
+- how code reviews are done at kentico
+
+- tools that aid code reviews (??)
+
+  - original BugHunter
+
+  - use of FxCop and ReSharper
+  
 % =================================================================
-% ============================= CHAPTER 4 =========================
+% ============================= CHAPTER 5 =========================
 % =================================================================
-\chapter{Custom Roslyn Analyzers}
+\chapter{Implementation of Custom Analyzers}
 \label{chap:custom-roslyn-analyzers}
+[5-7 pages]
+
+How was the tool implemented, 
+
+Project structure,
+
+What it contains
+
+Concerns about Performance
+
+% =================================================================
+% ============================= CHAPTER 6 =========================
+% =================================================================
+\chapter{Measuring and Optimizing the Performance}
+[up to 7 pages?]
+
+Why tool needs to be super-fast (refer to chapter 4 where this should have been said)
+
+Talk about /ReportAnalyzer switch of MSBuild process (csc.exe)
+
+How the performance of the slowest analyzers (SystemIO, BaseChecks) was improved
+
+Talk about how analyzers deployment influenced the build time
+
+Questionares sent to development team, feedback from senior developers
+
+% =================================================================
+% ============================= CHAPTER 7 =========================
+% =================================================================
+\chapter{Deployment and Versioning}
+[2 pages]
+
+% =================================================================
+% ============================= CHAPTER 8 =========================
+% =================================================================
+\chapter{Conclusion}
+[1-2 pages]
 
 % =================================================================
 % =============================== STUFF ===========================
@@ -258,7 +323,7 @@ Current situation \& motivation
 % ============================ APPENDICES =========================
 % =================================================================    
 	\appendix %% Start the appendices.
-  \chapter{Upgrades and Versioning}
+  \chapter{Questionnaires}
 TODO...
 
 \end{document}
