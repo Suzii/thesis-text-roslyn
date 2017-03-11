@@ -21,7 +21,7 @@
 %% For non-Latin scripts, it may be necessary to load additional
 %% fonts:
 \usepackage{paratype}
-%%
+%%1
 %% The following section sets up the metadata of the thesis.
 \thesissetup{
     date          = 2017/5/22,
@@ -97,7 +97,27 @@ Make sure to stress out that ".NET Compiler Platform" and "Roslyn" names will be
 % =================================================================
   \chapter{Code Quality and Static Code Analysis}
 TODO
+- Generall talk about code quality, 
+  
+  \section{Code review process}
+- Code review process
+  
+  \section{Static Code Analysis}
 
+- compilers and static code analysis (some data from the dragon book)
+
+  
+  \pagebreak 
+  \section{Static Code Analysis Tools available on .NET platform}
+  [2-3 pages?]
+  - Resharper,
+  
+  - FxCop
+
+  - StyleCop
+
+  - new DotNetAnalyzers available thanks to Roslyn
+  
 % =================================================================
 % ============================= CHAPTER 3 =========================
 % =================================================================
@@ -196,8 +216,6 @@ As opposed to nodes, syntax token (green color) represent terminals of the langu
 In order to enable refactoring features, syntax trees must also store information about whitespaces, comments and preprocessor directives that are insignificant for compilation process itself. This information is represented by another value type -- \texttt{SyntaxTrivia} (white color). Trivia are not really parts of the tree itself, rather they are properties of tokens accessible by their \texttt{LeadingTrivia} and \texttt{TrailingTrivia} collections.
 
   \section{Semantics of the Program}
-% Start with why semnatics is important in addition to syntax - some cool stuff from dragonbook. Tell about symbol tables in all compilers. Talk about ISymbol in Roslyn. Mention Compilation and wrap it up with Sematic model.
-
 Even though syntax trees are enough to describe proper form of the program (compliance to the language grammar), they cannot enforce all language rules, for example, type checking. In order to tell whether a method is called with the right number of arguments, or operator is applied to operands or right type, it's inevitable to introduce semantics. 
 
 As described in~\cite{dragon-book}, one of the core responsibilities of a compiler is to collect information about all elements and their properties from the source program. These are attributes such as identifier name, type, allocated storage, scope or for method names the number and types of arguments and their return values.
@@ -227,28 +245,14 @@ This makes semantic model very useful when performing static code analysis conce
   
 %  - how to perform static code analysis with Roslyn
 %    - writing anlyzers and code fixes / code refactorings  
-  
-  \pagebreak 
-  \section{Other Tools}
-  [2-3 pages?]
-TODO: Should this be a separate chapter????
-
-  3. Other tools for code analysis available for C\#
-  
-  - new DotNetAnalyzers available thanks to Roslyn
-
-  - Resharper,
-  
-  - FxCop
-
-  - StyleCop
 
 % =================================================================
 % ============================= CHAPTER 4 =========================
 % =================================================================
-\chapter{Kentico CMS Internal Guidelines}
+  \chapter{Implementation of Custom Analyzers}
+  \label{chap:custom-roslyn-analyzers}
+  \section{CMS Internal Guidelines}
 [3-4 pages]
-
 What is Kentico CSM?
 
 Current situation \& motivation
@@ -260,14 +264,9 @@ Current situation \& motivation
   - original BugHunter
 
   - use of FxCop and ReSharper
-  
-% =================================================================
-% ============================= CHAPTER 5 =========================
-% =================================================================
-\chapter{Implementation of Custom Analyzers}
-\label{chap:custom-roslyn-analyzers}
-[5-7 pages]
 
+\noindent
+[5-7 pages]
 How was the tool implemented, 
 
 Project structure,
@@ -277,7 +276,7 @@ What it contains
 Concerns about Performance
 
 % =================================================================
-% ============================= CHAPTER 6 =========================
+% ============================= CHAPTER 5 =========================
 % =================================================================
 \chapter{Measuring and Optimizing the Performance}
 [up to 7 pages?]
@@ -293,13 +292,7 @@ Talk about how analyzers deployment influenced the build time
 Questionares sent to development team, feedback from senior developers
 
 % =================================================================
-% ============================= CHAPTER 7 =========================
-% =================================================================
-\chapter{Deployment and Versioning}
-[2 pages]
-
-% =================================================================
-% ============================= CHAPTER 8 =========================
+% ============================= CHAPTER 6 =========================
 % =================================================================
 \chapter{Conclusion}
 [1-2 pages]
@@ -325,5 +318,8 @@ Questionares sent to development team, feedback from senior developers
 	\appendix %% Start the appendices.
   \chapter{Questionnaires}
 TODO...
+
+  \chapter{Deployment and Versioning}
+[2 pages]
 
 \end{document}
