@@ -1,0 +1,32 @@
+The analysis phase of a compiler breaks up a source program into constituent
+pieces and produces an internal representation for it, called intermediate code.
+The synthesis phase translates the intermediate code into the target program.
+Analysis is organized around the "syntax" of the language to be compiled.
+The syntax of a programming language describes the proper form of its programs,
+while the semantics of the language defines what its programs mean; that
+is, what each program does when it executes.
+
+An essential function of a compiler is to record the variable names used in the
+source program and collect information about various attributes of each name.
+These attributes may provide information about the storage allocated for a
+name, its type, its scope (where in the program its value may be used), and
+in the case of procedure names, such things as the number and types of its
+arguments, the method of passing each argument (for example, by value or by
+reference), and the type returned.
+The symbol table is a data structure containing a record for each variable
+name, with fields for the attributes of the name. 
+
+The semantic analyzer uses the syntax tree and the information in the symbol
+table to check the source program for semantic consistency with the language
+definition. It also gathers type information and saves it in either the syntax tree
+or the symbol table, for subsequent use during intermediate-code generation.
+An important part of semantic analysis is type checking, where the compiler
+checks that each operator has matching operands. 
+
+Symbol tables are data structures that are used by compilers to hold information
+about source-program constructs. The information is collected incrementally by
+the analysis phases of a compiler and used by the synthesis phases to generate
+the target code. Entries in the symbol table contain information about an
+identifier such as its character string (or lexeme), its type, its position in storage,
+and any other relevant information. Symbol tables typically need to support
+multiple declarations of the same identifier within a program.
