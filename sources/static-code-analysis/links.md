@@ -3,6 +3,7 @@ https://www.tutorialspoint.com/sdlc/sdlc_overview.htm
 
 ### Code review 
 https://en.wikipedia.org/wiki/Code_review
+https://kev.inburke.com/kevin/the-best-ways-to-find-bugs-in-your-code/
 
 ### Static code analysis
 https://www.owasp.org/index.php/Static_Code_Analysis

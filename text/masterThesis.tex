@@ -95,9 +95,60 @@ Make sure to stress out that ".NET Compiler Platform" and "Roslyn" names will be
 % =================================================================
 % ============================= CHAPTER 2 =========================
 % =================================================================
+  \chapter{Compilers}
+This chapter will provide a high level overview of compilers. This is important for the following two chapters on static code analysis and .NET Compiler Platform, both of which build upon compiler's fundamentals.
+
+As~per~\cite{dragon-book}, compiler is a~program that can read a~program in a~\textit{source} language and~translate it into a~semantically equivalent program in~a~\textit{target} language while reporting any errors detected in~the~translation process. 
+
+The compiler may sometimes rely on other programs. For example, \textit{preprocessor} is responsible for collecting the source code to be fed to compiler by expanding shorthands (macros) into source language statements. 
+
+The compilation process can be divided into two parts: \textit{analysis} and \textit{synthesis}. 
+
+The purpose of the analysis part is to break up the source program into chunks and build up a grammatical structure that it corresponds to, based on the source language grammar. This structure is then transformed into an intermediate representation of the source program. Along the way, compiler collects information about the program into a data structure called \textit{symbol table}. If any errors in syntax or semantics are encountered, analysis part shall inform programmer about the problem. Otherwise, both intermediate representation and symbol table are passed to the synthesis part which is responsible for constructing a target program from them.
+
+These parts of compilation internally consist of different phases as shown in Figure~\ref{fig:compiler-phases}. Each phase transforms one representation of source language into another, and passes it to the following phase. All of them use symbol table in the process. In synthesis phase, an optional machine-independent optimizations can take place and are done on the top of intermediate representation. After target-machine code is generated, additional machine-dependent code optimizations take place.
+
+\begin{figure}[h!]
+		\centering
+			\includegraphics[scale=0.6]{img/compiler-phases}
+		\caption{TODO: Phases of the compiler~\cite{dragon-book}}
+		\label{fig:compiler-phases}
+\end{figure}
+
+For the purpose of this thesis, only analysis part is relevant and following section will elaborate on its respective phases.
+
+  \section{Lexical analysis}
+  
+  \section{Syntax Analysis}
+  
+  \section{Semantic Analysis}
+  
+  \section{Intermediate Code Generation}
+  
+  \section{Symbol Table Management}
+    
+% =================================================================
+% ============================= CHAPTER 3 =========================
+% =================================================================
+  \newpage
   \chapter{Code Quality and Static Code Analysis}
-TODO
-- Generall talk about code quality, 
+Software quality is~\cite{software-engineering-practicioners-approach}: \textit{"An effective software process applied in a manner that creates a useful product that provides measurable value for those who produce it and those who use it."} This definition can be viewed from two perspectives:
+\begin{compactitem}
+  \item \textbf{user (customer) perspective} -- \textit{a useful product}
+  \item \textbf{developer perspective} -- \textit{an effective software process}
+\end{compactitem}
+
+Software quality is represented by internal and external software characteristics~\cite{code-complete}.
+
+External quality characteristics are ones that the user of the software product is primarily concerned with. These are for example correctness, usability, efficiency, reliability, integrity, adaptability, accuracy and robustness. 
+
+On the other hand, internal characteristics such as maintainability, flexibility, portability, reusability, readability and testability; are only important for programmers and have no visible customer value. 
+
+However, these attributes influence the external ones. For example, if software is not readable internally, it is hard to find and fix bugs which directly affect users perception of software's reliability and correctness. For software company, high internal quality means less maintenance effort, faster time-to-market, fewer bug and thus reduced customer support. It enables engineers to focus on developing new features rather then dealing with unmaintainable code base. 
+  
+While external quality, or conformance to customer requirements, is mostly -?- checked -?- by functional testing, there is more to software quality. Next sections will take a look at who overall quality of code can be raised... OMG this is such a wierd paragraph... 
+
+  \section{...}
   
   \section{Code review process}
 - Code review process
@@ -119,11 +170,9 @@ TODO
   - new DotNetAnalyzers available thanks to Roslyn
   
 % =================================================================
-% ============================= CHAPTER 3 =========================
+% ============================= CHAPTER 4 =========================
 % =================================================================
   \chapter{.NET Compiler Platform}
-As~per~\cite{dragon-book}, compiler is a~program that can read a~program in a~\textit{source} language and~translate it into a~semantically equivalent program in~a~\textit{target} language while reporting any errors detected in~the~translation process. 
-
 In~the~.NET world, the~compiler used~to~be a~black box that given the~file paths to~the~source text, produced an~executable. This perception was changed in~2015 when Microsoft introduced the .NET Compiler Platform (commonly referred to as "Project Roslyn").  
 
 %\begin{figure}[h!]
@@ -135,9 +184,7 @@ In~the~.NET world, the~compiler used~to~be a~black box that given the~file paths
 
 Not only have been compilers for both Visual Basic and C\# rewritten into the entirely managed code, they also expose the internals of the compiler pipeline via a public .NET API~\footnote{Application Programming Interface}. This makes them a platform (also known as \textit{compiler-as-as-service}) with rich code analysis APIs that can be leveraged by developers to perform analysis, code generation or dynamic compilation in their own programs~\cite{roslyn-succinctly}. Those can be then easily integrated into the Visual Studio all without the hard work of duplicating compilers' parsing logic.
 
-This chapter will take a look at how the Roslyn API layers are structured, how the original source code is represented by the compiler and how developers can build tools upon the compiler's API. Lastly it will provide a short overview and evaluation of other tools that were used before Roslyn or have emerged thanks to .NET Compiler Platform.
-
-Note that although Roslyn provides equivalent APIs for both VisualBasic and C\#, this thesis will only focus on the latter since only that one is relevant for the practical part of the thesis.  
+This chapter will take a look at how the Roslyn API layers are structured, how the original source code is represented by the compiler and how developers can build tools upon the compiler's API. Note that although Roslyn provides equivalent APIs for both VisualBasic and C\#, this thesis will only focus on the latter since only that one is relevant for the practical part of the thesis.  
   
   \section{The Compiler Pipeline}
 Roslyn compilers expose an API layer that mirrors the traditional compiler pipeline (see \ref{fig:roslyn-compiler-pipeline}). However, instead of a single process of generating the target program, each compilation step is treated as a separate component~\cite{roslyn-overview}:
@@ -247,7 +294,7 @@ This makes semantic model very useful when performing static code analysis conce
 %    - writing anlyzers and code fixes / code refactorings  
 
 % =================================================================
-% ============================= CHAPTER 4 =========================
+% ============================= CHAPTER 5 =========================
 % =================================================================
   \chapter{Implementation of Custom Analyzers}
   \label{chap:custom-roslyn-analyzers}
@@ -276,7 +323,7 @@ What it contains
 Concerns about Performance
 
 % =================================================================
-% ============================= CHAPTER 5 =========================
+% ============================= CHAPTER 6 =========================
 % =================================================================
 \chapter{Measuring and Optimizing the Performance}
 [up to 7 pages?]
@@ -292,7 +339,7 @@ Talk about how analyzers deployment influenced the build time
 Questionares sent to development team, feedback from senior developers
 
 % =================================================================
-% ============================= CHAPTER 6 =========================
+% ============================= CHAPTER 7 =========================
 % =================================================================
 \chapter{Conclusion}
 [1-2 pages]
