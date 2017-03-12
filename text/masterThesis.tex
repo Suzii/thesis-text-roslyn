@@ -67,6 +67,7 @@
 \usepackage{amsfonts}
 \usepackage{url}
 \usepackage{menukeys}
+\usepackage{tikz-qtree}
 
 \begin{document}
 % =================================================================
@@ -96,7 +97,7 @@ Make sure to stress out that ".NET Compiler Platform" and "Roslyn" names will be
 % ============================= CHAPTER 2 =========================
 % =================================================================
   \chapter{Compilers}
-This chapter will provide a high level overview of compilers. This is important for the following two chapters on static code analysis and .NET Compiler Platform, both of which build upon compiler's fundamentals.
+This chapter will provide a high level overview of compiler internals that is important for the following two chapters on static code analysis and .NET Compiler Platform, both of which build upon compiler's fundamentals.
 
 As~per~\cite{dragon-book}, compiler is a~program that can read a~program in a~\textit{source} language and~translate it into a~semantically equivalent program in~a~\textit{target} language while reporting any errors detected in~the~translation process. 
 
@@ -104,9 +105,9 @@ The compiler may sometimes rely on other programs. For example, \textit{preproce
 
 The compilation process can be divided into two parts: \textit{analysis} and \textit{synthesis}. 
 
-The purpose of the analysis part is to break up the source program into chunks and build up a grammatical structure that it corresponds to, based on the source language grammar. This structure is then transformed into an intermediate representation of the source program. Along the way, compiler collects information about the program into a data structure called \textit{symbol table}. If any errors in syntax or semantics are encountered, analysis part shall inform programmer about the problem. Otherwise, both intermediate representation and symbol table are passed to the synthesis part which is responsible for constructing a target program from them.
+The purpose of the analysis part is to break up the source program into chunks and build up a grammatical structure that it corresponds to, based on the source language grammar. This structure is subsequently transformed into an intermediate representation of the source program. Along the way, compiler collects information about the program and stores it to a data structure called \textit{symbol table}. If any errors in syntax or semantics are encountered, analysis part shall inform programmer about the problem. Otherwise, both intermediate representation and symbol table are passed to the synthesis part which is responsible for constructing a target program from them.
 
-These parts of compilation internally consist of different phases as shown in Figure~\ref{fig:compiler-phases}. Each phase transforms one representation of source language into another, and passes it to the following phase. All of them use symbol table in the process. In synthesis phase, an optional machine-independent optimizations can take place and are done on the top of intermediate representation. After target-machine code is generated, additional machine-dependent code optimizations take place.
+The two main steps of compilation process internally consist of different phases as shown in Figure~\ref{fig:compiler-phases}. Each phase transforms one representation of source language into another, and passes it to the following phase, while working with the symbol table during the process. In synthesis phase, an optional machine-independent optimizations can take place and are done on the top of intermediate representation. After target-machine code is generated, additional machine-dependent code optimizations are performed.
 
 \begin{figure}[h!]
 		\centering
@@ -118,15 +119,81 @@ These parts of compilation internally consist of different phases as shown in Fi
 For the purpose of this thesis, only analysis part is relevant and following section will elaborate on its respective phases.
 
   \section{Lexical analysis}
-  
+The compilation process starts with \textit{lexical analysis} or \textit{scanning}. The scanner transforms stream of characters of the source program, as written by the programmer, into the series of meaningful sequences called \textit{lexemes}. Most programming languages allow for an arbitrary number of white spaces to be present in the source text to aid readability. However, white spaces, similarly as comments, are unimportant for the target code generation itself, and thus lexical analysis is responsible for discarding them completely.
+
+In order to be able to recognize the correct lexeme to be sent to parser, lexical analyzer may need to read ahead. For example, in C--like languages if the scanner sees \texttt{<} character, it cannot decide whether it is a lexeme for "less then" operator or it is s part of "less then or equal to" lexeme. In order to do that, it needs to read ahead and see if the following character is \texttt{=} or not. Reading ahead is usually implemented with an input buffer which the lexical analyzer can read from and push back to. The use of buffer also boosts the performance as fetching block of characters is more efficient as fetching one at a time~\cite{dragon-book}.
+
+The lexical analyzer typically uses regular expressions to identify the lexemes and for each lexeme, it outputs a \textit{token} (or \textit{token object}) of the form $$ \langle token \textnormal{-} name, attribute \textnormal{-} name \rangle $$
+\noindent
+For an input sequence 
+\begin{equation}
+  total = 42 + base * interest
+\end{equation}
+the scanner output could be
+\begin{equation}
+  \langle id, 0 \rangle 
+  \langle = \rangle 
+  \langle num, 1 \rangle 
+  \langle + \rangle 
+  \langle id, 2 \rangle 
+  \langle * \rangle 
+  \langle id, 3 \rangle
+\end{equation}
+
+Lexemes can be divided into logical groups such as identifiers, relational operators, arithmetical operators, constants or keywords as seen int the example above. Each group is defined by a regular expression. The starting nonterminals of these regular grammars are then used as terminal symbols of context free grammar (CFG) used in parsing phase.
+
+Each identifier (\texttt{id}) has an attribute which points to the symbol table entry of the discovered identifier, where information about identifier name, type or position in the source text is stored. Similar holds for constants like "42" in the example. The assignment and addition symbols do not have attributes but different representation can be used, such as $ \langle bin \textnormal{-} op, 2 \rangle $, where \texttt{bin-op} would denote it is a binary operator and number two would be a pointer to symbol table with all symbols for binary operations with the second index suggesting that it represents addition.
+
   \section{Syntax Analysis}
-  
+The stream of token objects along with partially populated symbol table is an input for the subsequent compiler phase -- \textit{syntax analysis} or \textit{parsing}. The parser has to verify that the sequence of token names can by produced by the grammar for the source language and for a well-formed program, it shall output a \textit{syntax tree}. The syntax tree is an intermediate representation of source program in which each interior node represents an operation with the children of the node representing the arguments of that operation. 
+
+The resulting syntax tree for the token stream generated in (2.2) is
+\begin{center}
+\begin{tikzpicture}
+\tikzset{every tree node/.style={align=center,anchor=north}}
+\Tree[.{$\langle = \rangle$} 
+        [.{$\langle id, 0 \rangle$} ]
+        [.{$\langle + \rangle$} 
+          [.{$\langle num, 1 \rangle $} ]
+          [.{$\langle * \rangle $} 
+            [.{$\langle id, 2 \rangle $} ]
+            [.{$\langle id, 3 \rangle $} ]
+          ]
+        ]
+      ]
+\end{tikzpicture}
+\end{center}
+The syntax analyzer uses a context free grammar (CFG) to from the syntax tree. The CFG is defined by a 4-tuple consisting of:
+\begin{description}
+  \item[Terminals] -- token names (first component of the token) as obtained from previous compilation step.
+  \item[Nonterminals] -- syntactic variables that help to impose the hierarchical structure of the language and represent set of stings.
+  \item[Start symbol] -- a special nonterminal which set of strings it denotes represents the language generated by the grammar.
+  \item[Productions] -- rules that specify how nonterminals can be rewritten to sequences of zero or more terminal and nonterminal symbols. 
+\end{description}
+
+An example of a production rule denoting the construction of a \texttt{while-cycle} would be
+\begin{equation}
+  stmt 
+  \rightarrow 
+  \textbf{while}\ 
+  \textbf{(}\ expr\ \textbf{)}\ 
+  \textbf{\{}\ stmt\ \textbf{\}} 
+  \textnormal{,}
+\end{equation}
+\noindent
+where nonterminals \textit{stmt} and \textit{expr} stand for a statement and expression respectively. Symbols in bold represent terminals of the grammar -- open and close parenthesis and curly braces, plus \texttt{while} keyword.
+
+Example of a syntax tree.
+
+Error recovery.
+
+
   \section{Semantic Analysis}
   
   \section{Intermediate Code Generation}
   
   \section{Symbol Table Management}
-    
+    85
 % =================================================================
 % ============================= CHAPTER 3 =========================
 % =================================================================
