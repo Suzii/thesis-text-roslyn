@@ -1,0 +1,28 @@
+1.2.3 Semantic Analysis
+The semantic analyzer uses the syntax tree and the information in the symbol
+table to check the source program for semantic consistency with the language
+definition. It also gathers type information and saves it in either the syntax tree
+or the symbol table, for subsequent use during intermediate-code generation.
+
+An important part of semantic analysis is type checking, where the compiler
+checks that each operator has matching operands. For example, many programming
+language definitions require an array index to be an integer; the compiler
+must report an error if a floating-point number is used to index an array.
+The language specification may permit some type conversions called coercions.
+For example, a binary arithmetic operator may be applied to either a
+pair of integers or to a pair of floating-point numbers. If the operator is applied
+to a floating-point number and an integer, the compiler may convert or coerce
+the integer into a floating-point number.
+
+[p.370]
+Type checking uses logical rules to reason about the behavior of a program
+at run time. Specifically, it ensures that the types of the operands match
+the type expected by an operator. For example, the && operator in Java
+expects its two operands to be booleans; the result is also of type boolean.
+
+[ppt]
+Typical Semantic Errors 
+Multiple declarations: a variable should be declared (in the same scope) at most once 
+Undeclared variable: a variable should not be used before being declared
+Type mismatch: type of the LHS of an assignment should match the type of the RHS
+Wrong arguments: methods should be called with the right number and types of arguments
