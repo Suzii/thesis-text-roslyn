@@ -1,0 +1,73 @@
+Code revires
+Lect 10 SQ, slides 32+
+
+========================
+http://www.dtic.mil/ndia/2009/systemengr/9104ThursdayTrack8Croll.pdf
+
+Static code analysis is the process of evaluating a system or component based on its form, structure, content, or documentation. From a software assurance perspective, static analysis addresses weaknesses in program code that might lead to vulnerabilities
+
+Such analysis may be manual, as in code inspections, or automated through the use of one or more tools 
+
+Automated static code analyzers typically check source code but there is a smaller set of analyzers that check byte code and binary code, especially useful when source code in not available (e.g for COTS components).
+
+SCA vs Testing
+- Testing requires code that is relatively complete
+- Static analysis can be performed on modules or unfinished code [4]
+- A static analysis tool is a program written to analyze other programs for flaws
+  – Such analyzers typically check source code
+  - A smaller set of analyzers can check byte code and binary code
+- Manual analysis, or code inspection, can be very time-consuming, and inspection teams must know what security vulnerabilities look like in order to effectivly examine the code 
+- Static analysis tools are faster and don’t require the tool operator to have the same level of security expertise as a code inspector [5]
+
+
+Why SCA?
+[p.9]
+By far the most widely used approach to bug finding is dynamic testing, which involves running the software and comparing its output against an expected result.
+
+[p.3]
+Being aware of common pitfalls might sound like a good way to avoid falling prey to them, but awareness by itself often proves to be insufficient.
+
+Understanding security is one thing; applying your understanding in a complete and consistent fashion to meet your security goals is quite another. For this reason, we advocate static analysis as a technique for finding common security errors in source code. 
+
+The term static analysis refers to any process for assessing code without executing it. Static analysis is powerful because it allows for the quick consideration of many possibilities. A static analysis tool can explore a large number of “what if” scenarios without having to go through all the computations necessary to execute the code for all the scenarios. 
+
+
+[p.13]
+A static analysis tool can make the code review process faster and more fruitful by hypothesizing a set of potential problems for consideration during a code review.
+
+[p.21]
+Static analysis tools are the same way. A clean run doesn’t guarantee that your code is perfect; it merely indicates that it is free of certain kinds of common problems. 
+
+[p. 23]
+Capabilitie and limitations 
+The most common complaint leveled against static analysis tools that target security is that theyproduce too much noise. Specifically, they produce too many false positives, also known as false alarms. In this context, a false positive is a problem reported in a program when no problem actually exists. A large number of false positives can cause real difficulties. 
+
+False positives are certainly undesirable, but from a security perspective, false negatives are much worse. With a false negative, a problem exists in the program, but the tool does not report it.
+
+[p.36]
+In practice, the important thing is that static analysis tools provide useful results. The fact that they are imperfect does not prevent them from having significant value. In fact, the undecidable nature of static analysis is not really the major limiting factor for statuc analysis tools.
+
+Tradeoffs and IDE integration 42
+
+[p. 22]
+What problems it solves?
+Type checking
+Style checking
+Program understanding
+Program Verification and Property Checking
+Security Review
+Bug Finding
+
+Pros 
++ no programm execution
++ automated process
++ possible to run as part of CI
+
+Cons:
+- False sense of security (as mentioned in the previous chapter no tool can guarantee 100 coverage)
+- possible overhead
+
+
+Analyzing source vs. compiled code
+
+

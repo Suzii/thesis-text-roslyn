@@ -31,8 +31,8 @@
     author        = Zuzana Dankovčíková,
     gender        = f,
     advisor       = Bruno Rossi PhD,
-    title         = {Custom Roslyn Tool for Real-Time Static Code Analysis},
-    TeXtitle      = {Custom Roslyn Tool for Real-Time Static Code Analysis},
+    title         = {Custom Roslyn Tool for Static Code Analysis},
+    TeXtitle      = {Custom Roslyn Tool for Static Code Analysis},
     keywords      = {roslyn, C\#, compilers, code review, .NET compiler platform, Kentico, analyzer, code fix...},
     TeXkeywords   = {roslyn, C\#, compilers, code review, .NET compiler platform, Kentico, analyzer, code fix..., \ldots},
 }
@@ -96,12 +96,13 @@ Make sure to stress out that ".NET Compiler Platform" and "Roslyn" names will be
 % =================================================================
 % ============================= CHAPTER 2 =========================
 % =================================================================
-  \chapter{Compilers}
+\chapter{Compilers}
+\label{chap:compilers}
 This chapter will provide a high level overview of compiler internals that is important for the following two chapters on static code analysis and .NET Compiler Platform, both of which build upon compiler's fundamentals.
 
 As~per~\cite{dragon-book}, compiler is a~program that can read a~program in a~\textit{source} language and~translate it into a~semantically equivalent program in~a~\textit{target} language while reporting any errors detected in~the~translation process. The compiler may sometimes rely on other programs. For example, \textit{preprocessor} is responsible for collecting the source code to be fed to compiler by expanding shorthands (macros) into source language statements. 
 
-The compilation process can be divided into two parts: \textit{analysis} and \textit{synthesis}. 
+The compilation process can be divided into two parts: \textit{analysis} and \textit{synthesis}, commonly referred to as \textit{front end} and \textit{back end} of the compiler.
 
 The purpose of the analysis part is to break up the source program into chunks and build up a grammatical structure that it corresponds to, based on the source language grammar. This structure is subsequently transformed into an intermediate representation of the source program. Along the way, compiler collects information about the program and stores it to a data structure called \textit{symbol table}. If any errors in syntax or semantics are encountered, analysis part shall inform programmer about the problem. Otherwise, both intermediate representation and symbol table are passed to the synthesis part where they are used for construction of the target program.
 
@@ -209,10 +210,10 @@ Semantic analyzer utilizes the information from symbol table to perform all sort
 \end{compactitem}
     
   \section{Intermediate Code Generation}
-The semantic analysis is followed by the \textit{intermediate code generation} which completes the analysis part of compilation process. Depending on the specific compiler implementation, the \textit{intermediate representation} (\textit{IR}) that is the result of this phase can take different forms. The IR should be easy to produce and easy to translate into the target machine code. For some compilers, the IR may be the abstract syntax tree itself.
+The semantic analysis is followed by the \textit{intermediate code generation} which completes the fornt end part of compilation process. Depending on the specific compiler implementation, the \textit{intermediate representation} (\textit{IR}) that is the result of this phase can take different forms. The IR should be easy to produce and easy to translate into the target machine code. For some compilers, the IR may be the abstract syntax tree itself.
 
 \bigskip
-Together with symbol table, IR is passed to synthesis part of compiler where machine independent optimizations can be performed. These contain \textit{control flow analysis} where control flow graph is constructed and utilized in subsequent \textit{data flow analysis}. As a result of these optimizations, compiler might remove dead code from the IR or perform other optimizations that will lead to shorter and more efficient target code.
+Together with symbol table, IR is passed to back end part of compiler -- synthesis, where machine independent optimizations can be performed. These contain \textit{control flow analysis} where control flow graph is constructed and utilized in subsequent \textit{data flow analysis}. As a result of these optimizations, compiler might remove dead code from the IR or perform other optimizations that will lead to shorter and more efficient target code.
 
 \bigskip
 TODO:
@@ -223,7 +224,7 @@ Compilers are a large topic and the purpose of this chapter was to introduce the
 % ============================= CHAPTER 3 =========================
 % =================================================================
   \newpage
-  \chapter{Code Quality and Static Code Analysis}
+\chapter{Code Quality and Static Code Analysis}
 Software quality is~\cite{software-engineering-practicioners-approach}: \textit{"An effective software process applied in a manner that creates a useful product that provides measurable value for those who produce it and those who use it."} This definition can be viewed from two perspectives:
 \begin{compactitem}
   \item \textbf{user (customer) perspective} -- \textit{a useful product}
@@ -236,35 +237,138 @@ External quality characteristics are ones that the user of the software product 
 
 On the other hand, internal characteristics such as maintainability, flexibility, portability, reusability, readability and testability; are only important for programmers and have no visible customer value. 
 
-However, these attributes influence the external ones. For example, if software is not readable internally, it is hard to find and fix bugs which directly affect users perception of software's reliability and correctness. For software company, high internal quality means less maintenance effort, faster time-to-market, fewer bug and thus reduced customer support. It enables engineers to focus on developing new features rather then dealing with unmaintainable code base. 
+However, these attributes influence the external characteristics. For example, if software is not readable internally, it is hard to find and fix bugs which directly affect users perception of software's reliability and correctness. For a software company, high internal quality means less maintenance effort, faster time-to-market, fewer bug and thus reduced customer support. It enables engineers to focus on developing new features rather then dealing with unmaintainable code base. 
   
 While external quality, or conformance to customer requirements, is mostly -?- checked -?- by functional testing, there is more to software quality. Next sections will take a look at who overall quality of code can be raised... OMG this is such a wierd paragraph... 
 
-  \section{...}
+\section{...}
   
-  \section{Code review process}
-- Code review process
+\section{Code review process}
+- Code review process = manual inspections of the code
+- types of code review: pair programming, formal, informal
+-where does the SCA fit here
+
+"A static analysis
+tool can make the code review process faster and more fruitful by hypothesizing
+a set of potential problems for consideration during a code review." [secure-programming p.13]
+
+Pridat obrzok z SQ lecture 10 slide 48 a premostit tak ku SCA "The Review Cycle" Secure programming p 48
+
+\subsection{How does it fit to SDLC}
+- integration to IDE, 
+- SCA part of code review process
+- is cheaper when it finds bug than testing
   
-  \section{Static Code Analysis}
+\section{Static Code Analysis}
+Static code analysis refers to a process of assessing the program based on its form, structure, content and documentation and reasoning over its possible behaviours without actually executing the code. The aim of static analysis is to check the compliance to specific rules and identify parts of the program that might lead to possible vulnerabilities. The term static code analysis is mostly used when speaking about an automated tool. In contrast, \textit{code inspections} or \textit{code reviews} are performed by humans and can leverage from using static code analysis tools. Although most of the tools check the source code, some analyzers can operate on the byte code or compiled binary code~\cite{oswap-sca, ppt-sca}.
 
-- compilers and static code analysis (some data from the dragon book)
+\subsection{How It Works}
+NOTE: more or less everything from secure programming book - add more citations??? .. use papre on SCA somewhere
 
+There are many tools for static code analysis and each can analyse different flaws in the program. However, the basic structure for most them looks same as depicted in Figure~\ref{fig:static-code-analysis-internals}.
+
+\begin{figure}[h!]
+		\centering
+			\includegraphics[scale=0.6]{img/static-code-analysis-internals}
+		\caption{The process of static analysis~\cite{secure-programming-sca}}
+		\label{fig:static-code-analysis-internals}
+\end{figure}
+
+\subsubsection{Build a Model}
+\textit{"You can't check code you can't parse"}~\cite{coverity-sca}.
+In order to analyze the program, the analysis tool must first understand it. Therefore, the initial task is to \textit{create a structured model} that represents the source code. This model has a lot in common with the AST and symbol tables that were discussed in Chapter~\ref{chap:compilers}. In fact, model building phase of static code analyzers closely mimics the front end part of the compilation process, performing lexical analysis, parsing and semantic analysis.
+
+\subsubsection{Perform the analysis}
+After obtaining the model, the next step is to perform the actual analysis. Many different algorithms can be applied in this step and it is common that they are combined into one solution. The approaches are often derived from techniques used by compilers themselves. Some examples:
+
+\noindent
+\textbf{Tracking Control Flow} \\
+\noindent
+To explore different execution paths that can take place when program is executed, the static code analysis tool can construct a \textit{control flow graph} on the top of the AST. The nodes of the graph represent basic blocs -- sequences of program instructions that will be all executed once block is entered. The edges between basic blocks represent different paths that the program can take depending on matched conditions. Any back edges in the graph signalize potential loops in the program execution.
+
+\noindent
+\textbf{Tracking Data Flow} \\
+\noindent
+Data flow analysis is used to examine how data passes through the program. Compilers utilize data flow analysis when doing code optimizations in order to remove unreachable code and also allocate registers. An example how data flow analysis can be used by static analysis tools is to check that memory is always freed only once -- function \texttt{free(p)} was called exactly with address stored in pointer \texttt{p}.
+
+\noindent
+\textbf{Taint Analysis} \\
+\noindent
+According to~\ref{oswap-sca}, taint analysis attempts to identify variables containing user input which might be tainted using data flow analysis technique. If these variables are used as arguments to vulnerable functions without being sanitized first, the tool reports their usage as vulnerable. The taint propagation analysis is particularly relevant for security analysis, a prime example being the detection of a possible SQL injection.
+
+\subsubsection{Rules}
+As stated in~\cite{secure-programming}, the rules that specify what the static analysis tool should report are just as important (or even more important) as the heuristics and algorithms implemented by the tool. Without the rules there would be no problems reported. Best tools for static code analysis externalize the rule set in order to easily add, remove or alter the rules, without modifying the tool itself.
+
+\subsubsection{Report the results}
+An often overlooked part of the static analysis is the result reporting. If a programmer cannot understand the output of the static analysis, the results are effectively useless as misunderstood explanation ends up with error being ignored or, worse, interpreted as a false positive~\cite{coverity-sca}.
+
+A good static analysis tool should provide means of \textit{grouping and sorting} the results, \textit{suppressing the unwanted results} (either directly in the code with pragmas or code annotations or alternatively in a configuration file) and mainly \textit{explaining the results}. Every issue that is detected by the tool should provide a short title followed by a detailed description of the problem, severity of the issue, recommendations on how the problem can be fixed and possible further references on the topic. The tool can additionally provide a confidence level estimating the likelihood that the finding is really correct.
+
+\subsection{What problems can be solved by SCA}
+There are different types of problems the static analysis tool can tackle. This section will list some of the categories that are suitable for static code analysis~\cite{secure-programming-sca}.
+
+\subsubsection{Type checking}
+The integral part of every compiler for statically typed language. Rules are typically implied by language itself.
+
+\subsubsection{Style checking}
+The style checker defines rules for spacing, naming, commenting and genreal program structure that typically affect the readability and the maintainability of the program. 
+
+\subsubsection{Program understanding}
+These tools aim to provide a high-level program understanding beneficial mainly for larger codebases. They are mostly helpful when integrated into the IDEs where they can support "go to declaration" or "find al references" features or even automatic program refactorings such as renaming or extracting a variable.
+
+\subsubsection{Bug Finding}
+The  purpose of this type of static analyzer is to point out common mistakes in the code. They report warnings in parts of program that are compliant with the language specification but might not express the programmer's intent, such as ignoring the return value of the function call.
+
+Special type of bug finding checker is \textit{security review}, where specific vulnerabilities found in the source code are reported. Security review searches for possible exploitations like buffer overflow or tainted inputs.
   
-  \pagebreak 
-  \section{Static Code Analysis Tools available on .NET platform}
-  [2-3 pages?]
-  - Resharper,
+\subsection{Compiled code vs source code analysis}
+
+\subsection{Advantages}
+  -- warning this section is mostly from my own head so it may look a bit messy
+One of the main factors that advocate use of tools for static analysis, is how early in the development process they can be applied.
+code-quality 472
+- Uncovers potential bugs very early in the development process - during writing code - a lot lower cost for fixing the defects, then if it were to be fixed after running tests or worse after customer reports the bug.
+- Does not rteally find bug, but rather detects a symptom - 1-step (no need to look for a bug) rater then testign which points out what the problem is but not really where to look for it which requires additional effort.
+- Can be run on non unfinished code and separate modules - IDE integration
+- Help in code reviews - less time consuming, can chceck for things inspector might not know about or forget to check for
+- scalability, repeatability - part of CI
+- for easily automated tasks - high confidence in result
+- cheap bug detection right in the development phase
+- code quidelines complience + education
+- higher code quality
   
-  - FxCop
+\subsection{Disadvantages}
 
-  - StyleCop
+Same as with testing - absence of an error does not mean it is completely error free - false negatives, ommited rule...
+Even if imperfect, static analysis tools are still valuable asset in development process.
 
-  - new DotNetAnalyzers available thanks to Roslyn
+- undecidable problem (halting theorem) wiki
+
+- too many false positives
+- critical false negatives
+- beed t obuild a model from the program - complience with language version, duplicated compiler logic
+- tradeoffs between precision depth and scalability
+
+Capabilities and limitations   
+  
+\pagebreak 
+\section{Static Code Analysis Tools available on .NET platform}
+[2-3 pages?]
+\subsection{Resharper}
+
+\subsection{StyleCop}
+
+\subsection{FxCop}
+  
+\subsection{DotNetAnalyzers}
+  available thanks to Roslyn
+\subsubsection{StyleCop}
+\subsubsection{Code Cracker}
   
 % =================================================================
 % ============================= CHAPTER 4 =========================
 % =================================================================
-  \chapter{.NET Compiler Platform}
+\chapter{.NET Compiler Platform}
 In~the~.NET world, the~compiler used~to~be a~black box that given the~file paths to~the~source text, produced an~executable. This perception was changed in~2015 when Microsoft introduced the .NET Compiler Platform (commonly referred to as "Project Roslyn").  
 
 %\begin{figure}[h!]
@@ -278,7 +382,7 @@ Not only have been compilers for both Visual Basic and C\# rewritten into the en
 
 This chapter will take a look at how the Roslyn API layers are structured, how the original source code is represented by the compiler and how developers can build tools upon the compiler's API. Note that although Roslyn provides equivalent APIs for both VisualBasic and C\#, this thesis will only focus on the latter since only that one is relevant for the practical part of the thesis.  
   
-  \section{The Compiler Pipeline}
+\section{The Compiler Pipeline}
 Roslyn compilers expose an API layer that mirrors the traditional compiler pipeline (see \ref{fig:roslyn-compiler-pipeline}). However, instead of a single process of generating the target program, each compilation step is treated as a separate component~\cite{roslyn-overview}:
 
 \begin{itemize}
@@ -300,7 +404,7 @@ Roslyn compilers expose an API layer that mirrors the traditional compiler pipel
 
 In each phase, the .NET Compiler Platform creates an object model containing gathered information and exposes it through the API in form of .NET objects. These object are also used internally by Visual Studio~\footnote{The new generation of Visual Stuio leveraging from the Roslyn compiler are called vNext and first one was VS 2015.} to support basic IDE functionality. For instance \textbf{syntax tree}, that is the result of the parse phase, is used to support formatting and colorizing the code in the editor. The result of the second phase -- \textbf{hierarchical symbol table}, is the basis for \textit{Object browser} and \textit{Navigate~to} functionality. Binding phase is represented as an \textbf{object model that exposes the result of the semantic analysis} and is utilized in \textit{Find all~references} or \textit{Go~to~definition}. Finally, the Emit phase produces the~Intermediate Language (IL) byte codes and is also used for \textit{Edit and~Continue} feature~\cite{roslyn-overview}.
 
-  \section{The .NET Compiler Platform's Architecture}
+\section{The .NET Compiler Platform's Architecture}
 The Roslyn's architecture consists of two main layers - Compiler and Workspaces APIs, and one secondary layer - Features API, as seen on Figure~\ref{fig:roslyn-compiler-architecture}.
 
 \begin{figure}[h!]
@@ -314,24 +418,24 @@ One of the key concepts of .NET Compiler Platform is immutability. The compiler 
 
 The immutability enables the compiler to perform parallel work without need to create duplicate objects or apply any locks on them. This concept is useful for the command line compiler but it is considered extremely important for IDEs where it enables for one document to be handled by multiple analyzers in parallel.
 
-  \subsection{The Compiler APIs}
+\subsection{The Compiler APIs}
 As discussed in the previous section, the Compiler APIs offer an object model representing the results of syntactic and semantic analysis produced by the respective phases of the compiler pipeline. Moreover, it also includes an immutable snapshot of a single compiler invocation, along with assembly references, compiler options, and source files. This layer is agnostic of any Visual Studio components and as such can be used in stand-alone applications as well. There are two separate, though very similar, APIs for Visual Basic and C\#, each providing functionality tailored for specific language nuances.
 
-  \subsubsection{Diagnostic APIs}
+\subsubsection{Diagnostic APIs}
 Apart from parsing code and producing an assembly, the compiler is also capable of raising diagnostics, covering everything from syntax to semantics, and report them as errors, warnings or information messages~\cite{roslyn-succinctly}. This is achieved through the compilers' Diagnostics APIs that allow developers to effectively plug-in to compiler pipeline, analyze the source code using the exposed object models, and surface custom diagnostics along with those defined by the compiler itself. These APIs are integrated to both MSBuild~\footnote{The Microsoft Build Engine https://github.com/Microsoft/msbuild} and Visual Studio (2015 and newer). providing seamless developer experience. The practical part of this thesis relies on Diagnostic APIs to provide custom diagnostics and the details will be discussed in Chapter \ref{chap:custom-roslyn-analyzers}.
 
-  \subsubsection{Scripting APIs}
+\subsubsection{Scripting APIs}
 As a part of the compiler layer, Microsoft team has introduced new Scripting APIs that can be used for executing code snippets. These APIs were not shipped with .NET Compiler Platform 1.0 and are part of v2.0.0 RC3\footnote{Release candidate 3, as per https://github.com/dotnet/roslyn/wiki/Scripting-API-Samples [26-02-2017].}.
 
-  \subsection{Workspaces APIs}
+\subsection{Workspaces APIs}
 Workspace represents a collection of solutions, projects, and documents. It provides a single object model containing information about the projects in a solution and their respective documents; exposes all configuration options, assembly and inter-project dependencies, and provides access to syntax trees and semantic models. It is a starting point for performing code analysis and refactorings over entire solutions.
 
 Although it is possible to use the \texttt{Workspace} outside of any host environment, the most common use case is an IDE providing an instance of \texttt{Workspace} that corresponds to the open solution. Since the instances of \texttt{Solution} are immutable, the host environment must react to every event (such as user key stroke) with an update of the \texttt{CurrentSolution} property of the \texttt{Workspace}.
 
-  \subsection{Feature APIs}
+\subsection{Feature APIs}
 This layer relies on both compiler and workspaces layers and is designed to provide API for offering code fixes and refactorings. This layer was also used while working on the practical part of this thesis.
   
-  \section{Syntax Tree}
+\section{Syntax Tree}
 As mentioned in the previous sections, the product of the syntactic analysis is a syntax tree. It enables developers to work with the code in a managed way instead of working against plain text. Syntax trees are used for both analysis and refactorings, where the new code is generated either manually or as a modified version of the existing tree. While being immutable, syntax trees are thread-safe and analysis can be done in parallel.
 
 It is important to point out, that in a same way the compiler constructs a syntax tree from the source text, it is also possible to round-trip back to the text representation. Thus, the source information is always preserved in full fidelity. This means that every piece of information from source must be stored somewhere within the tree, including comments, whitespaces or end-of-line characters. 
@@ -345,29 +449,29 @@ Figure~\ref{fig:roslyn-syntax-tree} shows a syntax tree of an invocation express
 		\label{fig:roslyn-syntax-tree}
 \end{figure}
 
-  \subsubsection{Syntax Nodes}
+\subsubsection{Syntax Nodes}
 Syntax nodes (blue color) are non-terminal nodes of a syntax tree, meaning they always have at least one other node or token as a child. Nodes represent syntactic constructs of a language such as statements, clauses or declarations. Each type of node is represented by a single class deriving from \texttt{SyntaxNode}. Apart from common properties \texttt{Parent}, \texttt{ChildNodes} and utility methods like \texttt{DescendantNodes}, \texttt{DescendantTokens}, or \texttt{DescendantTrivia}, each subclass exposes specific methods and properties. As shown in Figure~\ref{fig:roslyn-syntax-tree}, \texttt{InvocationExpression} has two properties, \texttt{IdentifierName} and \texttt{ArgumentList} both of which are \texttt{SyntaxNodes} themselves.
  
-  \subsubsection{Syntax Tokens}
+\subsubsection{Syntax Tokens}
 As opposed to nodes, syntax token (green color) represent terminals of the language grammar, such as keywords, punctuation, literals and identifiers. For the sake of efficiency, \texttt{SyntaxToken} is implemented as a value type (C\# structure) and there is only one for all kinds of tokens. To be able to tell them apart, tokens have \texttt{Kind} property. For example, \texttt{SomeFunction} is of kind \texttt{IdentifierName}, whereas "\texttt{(}" character is \texttt{OpenParenToken}.
 
-  \subsubsection{Syntax Trivia}
+\subsubsection{Syntax Trivia}
 In order to enable refactoring features, syntax trees must also store information about whitespaces, comments and preprocessor directives that are insignificant for compilation process itself. This information is represented by another value type -- \texttt{SyntaxTrivia} (white color). Trivia are not really parts of the tree itself, rather they are properties of tokens accessible by their \texttt{LeadingTrivia} and \texttt{TrailingTrivia} collections.
 
-  \section{Semantics of the Program}
+\section{Semantics of the Program}
 Even though syntax trees are enough to describe proper form of the program (compliance to the language grammar), they cannot enforce all language rules, for example, type checking. In order to tell whether a method is called with the right number of arguments, or operator is applied to operands or right type, it's inevitable to introduce semantics. 
 
 As described in~\cite{dragon-book}, one of the core responsibilities of a compiler is to collect information about all elements and their properties from the source program. These are attributes such as identifier name, type, allocated storage, scope or for method names the number and types of arguments and their return values.
 
 All this data is being incrementally collected when parsing the source code (analysis phase) and is stored in \textit{symbol tables}. These are later used in synthesis where intermediate language representation is produced.
 
-  \subsubsection{Symbols}
+\subsubsection{Symbols}
 In .NET Compiler Platform, a single entry of a symbol table is represented by a class deriving from \texttt{ISymbol}. The symbol represents every distinct element (namespace, type, field, property, event, method or parameter) either declared in the source code or imported as metadata from a referenced assembly. Each specific symbol has its own methods and properties often directly referring to other symbols. For example \texttt{IMethodSymbol} has a \texttt{ReturnType} property specifying what is the type symbol the method returns.
 
-  \subsubsection{Compilation}
+\subsubsection{Compilation}
 An important immutable type, that represents everything needed to compile a C\# (or Visual Basic) program is a \texttt{Compilation}. It contains all source files, compiler options and assembly references. Compilation provides convenient ways to access any discovered symbol. For instance, it is possible to access the entire hierarchical symbol table rooted by global namespace or look up type symbols by their common metadata names.
 
-  \subsubsection{Semantic Model}
+\subsubsection{Semantic Model}
 When analyzing a single source file of a compilation, all its semantic information is available through a \textit{semantic model}. The \texttt{SmeanticModel} object can answer many questions such as:
   \begin{itemize}
   \item What symbol is declared at the specific location in the source?
@@ -378,9 +482,9 @@ When analyzing a single source file of a compilation, all its semantic informati
  
 This makes semantic model very useful when performing static code analysis concerned with more than just syntax.
  
-  \pagebreak
-  \section{Analysers and Code Refactorings}
-  [3 pages?]
+\pagebreak
+\section{Analysers and Code Refactorings}
+[3 pages?]
   
 %  - how to perform static code analysis with Roslyn
 %    - writing anlyzers and code fixes / code refactorings  
@@ -388,9 +492,9 @@ This makes semantic model very useful when performing static code analysis conce
 % =================================================================
 % ============================= CHAPTER 5 =========================
 % =================================================================
-  \chapter{Implementation of Custom Analyzers}
-  \label{chap:custom-roslyn-analyzers}
-  \section{CMS Internal Guidelines}
+\chapter{Implementation of Custom Analyzers}
+\label{chap:custom-roslyn-analyzers}
+\section{CMS Internal Guidelines}
 [3-4 pages]
 What is Kentico CSM?
 
@@ -449,7 +553,7 @@ Questionares sent to development team, feedback from senior developers
 % =================================================================
 % =========================== BIBLIOGRAPHY ========================
 % =================================================================
-    \printbibliography
+  \printbibliography
 
 % =================================================================
 % ============================ APPENDICES =========================
