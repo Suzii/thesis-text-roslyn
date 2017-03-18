@@ -130,6 +130,7 @@ For an input sequence
 \begin{equation}
   total = 42 + base * interest
 \end{equation}
+ 
 the scanner output could be
 \begin{equation}
   \langle id, 0 \rangle 
@@ -226,47 +227,55 @@ Compilers are a broad topic and this chapter provided the basic overview with fo
 % =================================================================
   \newpage
 \chapter{Code Quality and Static Code Analysis}
-Software quality is~\cite{software-engineering-practicioners-approach}: \textit{"An effective software process applied in a manner that creates a useful product that provides measurable value for those who produce it and those who use it."} This definition can be viewed from two perspectives:
-\begin{compactitem}
-  \item \textbf{user (customer) perspective} -- \textit{a useful product}
-  \item \textbf{developer perspective} -- \textit{an effective software process}
-\end{compactitem}
-
-Software quality is represented by internal and external software characteristics~\cite{code-complete}.
-
-External quality characteristics are ones that the user of the software product is primarily concerned with. These are for example correctness, usability, efficiency, reliability, integrity, adaptability, accuracy and robustness. 
-
-On the other hand, internal characteristics such as maintainability, flexibility, portability, reusability, readability and testability; are only important for programmers and have no visible customer value. 
-
-However, these attributes influence the external characteristics. For example, if software is not readable internally, it is hard to find and fix bugs which directly affect users perception of software's reliability and correctness. For a software company, high internal quality means less maintenance effort, faster time-to-market, fewer bug and thus reduced customer support. It enables engineers to focus on developing new features rather then dealing with unmaintainable code base. 
-  
-While external quality, or conformance to customer requirements, is mostly -?- checked -?- by functional testing, there is more to software quality. Next sections will take a look at who overall quality of code can be raised... OMG this is such a wierd paragraph... 
-
-\section{...}
-  
-\section{Code review process}
-- Code review process = manual inspections of the code
-- types of code review: pair programming, formal, informal
--where does the SCA fit here
-
-"A static analysis
-tool can make the code review process faster and more fruitful by hypothesizing
-a set of potential problems for consideration during a code review." [secure-programming p.13]
-
-Pridat obrzok z SQ lecture 10 slide 48 a premostit tak ku SCA "The Review Cycle" Secure programming p 48
-
-\subsection{How does it fit to SDLC}
-- integration to IDE, 
-- SCA part of code review process
-- is cheaper when it finds bug than testing
+\label{chap:static-code-analysis}
+%Software quality is~\cite{software-engineering-practicioners-approach}: \textit{"An effective software process applied in a manner that creates a useful product that provides measurable value for those who produce it and those who use it."} This definition can be viewed from two perspectives:
+%\begin{compactitem}
+%  \item \textbf{user (customer) perspective} -- \textit{a useful product}
+%  \item \textbf{developer perspective} -- \textit{an effective software process}
+%\end{compactitem}
+%
+%Software quality is represented by internal and external software characteristics~\cite{code-complete}.
+%
+%External quality characteristics are ones that the user of the software product is primarily concerned with. These are for example correctness, usability, efficiency, reliability, integrity, adaptability, accuracy and robustness. 
+%
+%On the other hand, internal characteristics such as maintainability, flexibility, portability, reusability, readability and testability; are only important for programmers and have no visible customer value. 
+%
+%However, these attributes influence the external characteristics. For example, if software is not readable internally, it is hard to find and fix bugs which directly affect users perception of software's reliability and correctness. For a software company, high internal quality means less maintenance effort, faster time-to-market, fewer bug and thus reduced customer support. It enables engineers to focus on developing new features rather then dealing with unmaintainable code base. 
+%  
+%While external quality, or conformance to customer requirements, is mostly -?- checked -?- by functional testing, there is more to software quality. Next sections will take a look at who overall quality of code can be raised... OMG this is such a wierd paragraph... 
+%
+%\section{...}
+%  
+%\section{Code review process}
+%- Code review process = manual inspections of the code
+%- types of code review: pair programming, formal, informal
+%-where does the SCA fit here
+%
+%"A static analysis
+%tool can make the code review process faster and more fruitful by hypothesizing
+%a set of potential problems for consideration during a code review." [secure-programming p.13]
+%
+%Pridat obrzok z SQ lecture 10 slide 48 a premostit tak ku SCA "The Review Cycle" Secure programming p 48
+%
+%\subsection{How does it fit to SDLC}
+%- integration to IDE, 
+%- SCA part of code review process
+%- is cheaper when it finds bug than testing
   
 \section{Static Code Analysis}
-Static code analysis refers to a process of assessing the program based on its form, structure, content and documentation and reasoning over its possible behaviours without actually executing the code. The aim of static analysis is to check the compliance to specific rules and identify parts of the program that might lead to possible vulnerabilities. The term static code analysis is mostly used when speaking about an automated tool. In contrast, \textit{code inspections} or \textit{code reviews} are performed by humans and can leverage from using static code analysis tools. Although most of the tools check the source code, some analyzers can operate on the byte code or compiled binary code~\cite{oswap-sca, ppt-sca}.
+Static code analysis refers to a process of assessing the program based on its form, structure, content and documentation and reasoning over its possible behaviours without actually executing the code. The aim of the static analysis is to check the compliance to specific rules and identify parts of the program that might lead to possible vulnerabilities. The term static code analysis is mostly used when speaking about an automated tool. In contrast, \textit{code inspections} or \textit{code reviews} are performed by humans and can leverage from using static code analysis tools~\cite{oswap-sca, ppt-sca}.
+
+\subsection{Source Code vs. Compiled Code Analysis}
+There are two different approaches when analyzing program by an automated tool: analyzing the source (as seen by the compiler), and analyzing the compiled code -- either some form of byte code~\footnote{An intermediate representation of a program, also known as "portable code", which is often for just-in-time compilation by interpreters.} or an executable.
+
+Sometimes it might be very complicated, or even infeasible, to obtain the actual source code of the program to be analyzed and the only possibility is to analyze the executable. When the tool is looking at a compiled version of the program, the ambiguity of how the source will be translated by the compiler is removed and thus the analyzer does not need to guess. 
+
+However, analyzing compiled code can be very complicated. Even if the tool manages to decode the binary, it lacks the original type information. Moreover, the optimizations performed by the compiler obscure the original meaning of the program and making sense of semantics out of implementation may be impractical. To make matters worse, if the error is found, reporting it to the programmer can be challenging since there might might not be a clear mapping from binary back to source. 
+
+Although the above mentioned complications, speak clearly for analyzing source code, [it is still okay to analyze] byte code formats (such as Java bytecode), where the type and debugging information can be present. The following sections will discuss the theory behind static code analysis.
 
 \subsection{How It Works}
-NOTE: more or less everything from secure programming book - add more citations??? .. use papre on SCA somewhere
-
-There are many tools for static code analysis and each can analyse different flaws in the program. However, the basic structure for most them looks same as depicted in Figure~\ref{fig:static-code-analysis-internals}.
+There are many tools for static code analysis and each can analyse different flaws in the program. However, for majority of them, the basic structure looks the same, as depicted in Figure~\ref{fig:static-code-analysis-internals}.
 
 \begin{figure}[h!]
 		\centering
@@ -277,90 +286,76 @@ There are many tools for static code analysis and each can analyse different fla
 
 \subsubsection{Build a Model}
 \textit{"You can't check code you can't parse"}~\cite{coverity-sca}.
-In order to analyze the program, the analysis tool must first understand it. Therefore, the initial task is to \textit{create a structured model} that represents the source code. This model has a lot in common with the AST and symbol tables that were discussed in Chapter~\ref{chap:compilers}. In fact, model building phase of static code analyzers closely mimics the front end part of the compilation process, performing lexical analysis, parsing and semantic analysis.
+In order to analyze the program, the analysis tool must first understand it. Therefore, the initial task is to \textit{create a structured model} that represents the source code. This model has a lot in common with the AST and symbol tables that were discussed in Chapter~\ref{chap:compilers}. In fact, model building phase of static code analyzers closely mimics the front end part of the compilation process, executing lexical analysis, parsing and semantic analysis.
 
 \subsubsection{Perform the analysis}
-After obtaining the model, the next step is to perform the actual analysis. Many different algorithms can be applied in this step and it is common that they are combined into one solution. The approaches are often derived from techniques used by compilers themselves. Some examples:
+After obtaining the model, next step is to perform the actual analysis. Many different algorithms can be applied in this step and it is common that they are combined into one solution. The approaches are often derived from techniques used by compilers themselves:
 
-\noindent
-\textbf{Tracking Control Flow} \\
-\noindent
-To explore different execution paths that can take place when program is executed, the static code analysis tool can construct a \textit{control flow graph} on the top of the AST. The nodes of the graph represent basic blocs -- sequences of program instructions that will be all executed once block is entered. The edges between basic blocks represent different paths that the program can take depending on matched conditions. Any back edges in the graph signalize potential loops in the program execution.
+\smallskip\noindent
+\textbf{Tracking Control Flow} \\ \noindent
+In order to explore different execution paths that can take place when program is executed, the static code analysis tool can construct a \textit{control flow graph} on the top of the AST. The nodes of the graph represent basic blocs -- sequences of program instructions that will be all executed once block is entered. The edges between basic blocks represent different paths that the program can take depending on matched conditions. Any back edges in the graph signalize potential loops in the program execution.
 
-\noindent
-\textbf{Tracking Data Flow} \\
-\noindent
-Data flow analysis is used to examine how data passes through the program. Compilers utilize data flow analysis when doing code optimizations in order to remove unreachable code and also allocate registers. An example how data flow analysis can be used by static analysis tools is to check that memory is always freed only once -- function \texttt{free(p)} was called exactly with address stored in pointer \texttt{p}.
+\smallskip\noindent
+\textbf{Tracking Data Flow} \\ \noindent
+Data flow analysis is used to examine how data passes through the program. Compilers utilize data flow analysis when doing code optimizations in order to remove unreachable code and allocate registers. An example of how data flow analysis can be used by static analysis tools is to check that memory is always freed only once -- function \texttt{free(p)} was called exactly with address stored in pointer \texttt{p}.
 
-\noindent
-\textbf{Taint Analysis} \\
-\noindent
-According to~\ref{oswap-sca}, taint analysis attempts to identify variables containing user input which might be tainted using data flow analysis technique. If these variables are used as arguments to vulnerable functions without being sanitized first, the tool reports their usage as vulnerable. The taint propagation analysis is particularly relevant for security analysis, a prime example being the detection of a possible SQL injection.
+\smallskip\noindent
+\textbf{Taint Analysis} \\ \noindent
+According to~\cite{oswap-sca}, taint analysis attempts to identify variables containing possibly tainted user input using data flow analysis technique. If these variables are used as arguments to vulnerable functions without being sanitized first, the tool reports their usage as vulnerable. The taint propagation analysis is particularly relevant for security analysis, a prime example being the detection of a potential SQL injection.
 
 \subsubsection{Rules}
-As stated in~\cite{secure-programming}, the rules that specify what the static analysis tool should report are just as important (or even more important) as the heuristics and algorithms implemented by the tool. Without the rules there would be no problems reported. Best tools for static code analysis externalize the rule set in order to easily add, remove or alter the rules, without modifying the tool itself.
+As stated in~\cite{sca-for-security}: \textit{"...if a rule hasn’t been written yet to find a particular problem, the tool will never find that problem."} This implies that the rules that specify what the static analysis tool should report are just as important (or even more important) as the heuristics and algorithms implemented by the tool. Best tools for static code analysis externalize the rule set in order to easily add, remove or alter the rules, without modifying the tool itself.
 
 \subsubsection{Report the results}
-An often overlooked part of the static analysis is the result reporting. If a programmer cannot understand the output of the static analysis, the results are effectively useless as misunderstood explanation ends up with error being ignored or, worse, interpreted as a false positive~\cite{coverity-sca}.
+An often overlooked part of the static analysis is the result reporting. The~\cite{coverity-sca} asserts, that if a programmer cannot understand the output of the static analysis, the results are effectively useless as misunderstood explanation ends up with error being ignored or, worse, interpreted as a false positive.
 
-A good static analysis tool should provide means of \textit{grouping and sorting} the results, \textit{suppressing the unwanted results} (either directly in the code with pragmas or code annotations or alternatively in a configuration file) and mainly \textit{explaining the results}. Every issue that is detected by the tool should provide a short title followed by a detailed description of the problem, severity of the issue, recommendations on how the problem can be fixed and possible further references on the topic. The tool can additionally provide a confidence level estimating the likelihood that the finding is really correct.
+As discussed in~\cite{security-programming-sca}, good static analysis tool should provide means of \textit{grouping and sorting} the results, \textit{suppressing the unwanted results} (either directly in the code with pragmas or code annotations or alternatively in a configuration file) and mainly \textit{explaining the results}. Every issue that is detected by the tool should provide a short title followed by a detailed description of the problem, severity of the issue, recommendations on how the problem can be fixed and possible further references on the topic. The tool can additionally provide a confidence level estimating the likelihood that the finding is really correct.
 
 \subsection{What problems can be solved by SCA}
-There are different types of problems the static analysis tool can tackle. This section will list some of the categories that are suitable for static code analysis~\cite{secure-programming-sca}.
+There are different types of problems the static analysis tool can tackle. This section will list some of the categories that are suitable for static code analysis, as listed in~\cite{secure-programming-sca}.
 
 \subsubsection{Type checking}
-The integral part of every compiler for statically typed language. Rules are typically implied by language itself.
+The integral part of every compiler for statically typed language. Rules are typically implied by the language itself.
 
 \subsubsection{Style checking}
-The style checker defines rules for spacing, naming, commenting and genreal program structure that typically affect the readability and the maintainability of the program. 
+The style checker defines rules for spacing, naming, commenting and genreal program structure that affect mostly the readability and the maintainability of the program. 
 
 \subsubsection{Program understanding}
-These tools aim to provide a high-level program understanding beneficial mainly for larger codebases. They are mostly helpful when integrated into the IDEs where they can support "go to declaration" or "find al references" features or even automatic program refactorings such as renaming or extracting a variable.
+These tools aim to provide a high-level program understanding beneficial mainly for larger codebases. They are most effective when integrated into the IDEs where they can support "go to declaration" or "find al references" features or even automatic program refactorings such as renaming or extracting a variable.
 
 \subsubsection{Bug Finding}
-The  purpose of this type of static analyzer is to point out common mistakes in the code. They report warnings in parts of program that are compliant with the language specification but might not express the programmer's intent, such as ignoring the return value of the function call.
+The  purpose of these type of static analyzers is to point out common mistakes in the code. They report warnings in parts of program that are compliant with the language specification but might not express the programmer's intent, such as ignoring the return value of a function call.
 
 Special type of bug finding checker is \textit{security review}, where specific vulnerabilities found in the source code are reported. Security review searches for possible exploitations like buffer overflow or tainted inputs.
   
-\subsection{Compiled code vs source code analysis}
-
 \subsection{Advantages}
-  -- warning this section is mostly from my own head so it may look a bit messy
-One of the main factors that advocate use of tools for static analysis, is how early in the development process they can be applied.
-code-quality 472
-- Uncovers potential bugs very early in the development process - during writing code - a lot lower cost for fixing the defects, then if it were to be fixed after running tests or worse after customer reports the bug.
-- Does not rteally find bug, but rather detects a symptom - 1-step (no need to look for a bug) rater then testign which points out what the problem is but not really where to look for it which requires additional effort.
-- Can be run on non unfinished code and separate modules - IDE integration
-- Help in code reviews - less time consuming, can chceck for things inspector might not know about or forget to check for
-- scalability, repeatability - part of CI
-- for easily automated tasks - high confidence in result
-- cheap bug detection right in the development phase
-- code quidelines complience + education
-- higher code quality
+One of the key factors that advocate use of tools for static analysis, is how early in the development process they can be applied. As opposed to dynamic testing, static code analysis can be performed on unfinished or even uncompilable code. The longer the defect exists in the system, the more damage it can cause and the higher are the costs of fixing it. As stated in~\cite[p. 29]{code-complete}, the costs of fixing a defect introduced during construction of a program are 10-times higher if detected during system testing and 10 to 25-times higher in production, than it would be to fix it while still in development. Therefore, it is desirable to detect bugs as early as possible, which is where static code analysis excels.
+
+Static inspections detect symptoms together with causes whereas testing only points out the symptoms which means, further effort is required to find the source of the problem before it can be fixed~\cite[p. 472]{code-complete}.
+
+Manual code inspections are very time-consuming and require high level of expertise from the reviewer. Static code analysis can help to make the code review process more efficient by checking for well known flaws that do not have to be considered during code review.
+
+Another advantage of automated code analysis is repeatability and scalability. Code analysis tool can be part of CI\footnote{Continuous Integration} process, and can be also integrated to programming IDEs\footnote{Integrated Development Environment}. 
+
+As such, they are a great for less skilled junior programmers who can get instant feedback and learn more about mistakes they made. The tools enforce higher code quality and guidelines compliance. As a result, the code should be more consistent, maintainable and easier to debug.
   
 \subsection{Disadvantages}
+The Rice's theorem\footnote{https://en.wikipedia.org/wiki/Rice's\_theorem} says, that any non-trivial questions about program's semantics are undecidable, which can be proofed by a simple reduction from the \textit{halting problem}. As a consequence, there will never be a static analysis tool able to answer all the questions perfectly. The tools can produce \textit{false positives} (a problem which does not actually exist is reported) and \textit{false negatives} (the program contains a problem, but it was not reported by the tool).
 
-Same as with testing - absence of an error does not mean it is completely error free - false negatives, ommited rule...
-Even if imperfect, static analysis tools are still valuable asset in development process.
+Most common complaints against static analysis tools are about false positives. Too many of them can cause real bugs will getting lost in false positives and they also lead to programmers losing trust in the tool.
 
-- undecidable problem (halting theorem) wiki
+Worse, from the security perspective, are false negatives. Not only the bug was not found and might cause future problems, but they also provide a false sense of security to the programmers. 
 
-- too many false positives
-- critical false negatives
-- beed t obuild a model from the program - complience with language version, duplicated compiler logic
-- tradeoffs between precision depth and scalability
+As presented earlier in this chapter, vast majority of code inspection tools must build a model of source program in order to be able to analyze it. This requires duplication of compiler's logic, which itself is fairly complicated, and there is no guarantee that the tool interprets the source exactly the same as the compiler does. Moreover, for the authors of the tool it means they need to keep the parsing logic always up to date with the language versions. 
 
-Capabilities and limitations   
+\bigskip
+Even if imperfect, static analysis tools are still valuable asset in software development process. Following section presents tools for static code analysis that are commonly used on .NET platform.
   
 \pagebreak 
 \section{Static Code Analysis Tools available on .NET platform}
-[2-3 pages?]
 \subsection{Resharper}
-
 \subsection{StyleCop}
-
 \subsection{FxCop}
-  
 \subsection{DotNetAnalyzers}
   available thanks to Roslyn
 \subsubsection{StyleCop}
@@ -560,6 +555,7 @@ Questionares sent to development team, feedback from senior developers
 % ============================ APPENDICES =========================
 % =================================================================    
 	\appendix %% Start the appendices.
+  \chapter{Source Codes in IS}
   \chapter{Questionnaires}
 TODO...
 
