@@ -74,24 +74,20 @@
 % ============================= CHAPTER 1 =========================
 % =================================================================
   \chapter{Introduction}
-  [1-2 pages]
-  
 TODO...
-
-Ideas:
-
-What is code quality, why is it important, tool that support it.. compilers, diversion ... aaaand here comes Roslyn which provides compiler as a platform.  
-
-In~the~.NET world, the~compiler used~to~be a~black box that given the~file paths to~the~source text, produced an~executable. In~order~to do that, compiler has to collect large amount of~information about the~code it is processing. This knowledge, however, was unavailable to~anyone but the~compiler itself and it was immediately forgotten once the~translated output was produced~\cite{roslyn-overview-github}. 
-
-Why is this an~issue when for decades this black-boxes served us well? Programmers are increasingly becoming reliant~upon the~powerful integrated development environments (IDEs). Features like IntelliSense, intelligent rename, refactoring or~"Find all references" are key~to~developers' productivity; and~even more so in~an~enterprise-size systems. 
-
-This gave a~rise to~number of~tools that analyze the~code for common issues and are able to~suggest a~refactoring. The problem is that that such~tool needs to~parse the~code first in~order~to be~able~to~understand and~analyze it. As a result companies need to invest fair amount of resources to duplicate the logic that the .NET compiler already possesses. Not only is it possible that the compiler and the tool may disagree on some specific piece of code, but with every new version of C\# the tool needs to be updated to handle new language features\cite{dot-net-development-using-the-compiler-api}.
-
-With roslyn.. etc. etc. .. API for analysis.. use in companies for custom analyzers... etc. etc....
- https://github.com/dotnet/roslyn/wiki/Roslyn Overview -- motivation
-Make sure to stress out that ".NET Compiler Platform" and "Roslyn" names will be used interchangably as it is in Roslyn Succinctly on page 11.
-
+%Ideas:
+%
+%What is code quality, why is it important, tool that support it.. compilers, diversion ... aaaand here comes Roslyn which provides compiler as a platform.  
+%
+%In~the~.NET world, the~compiler used~to~be a~black box that given the~file paths to~the~source text, produced an~executable. In~order~to do that, compiler has to collect large amount of~information about the~code it is processing. This knowledge, however, was unavailable to~anyone but the~compiler itself and it was immediately forgotten once the~translated output was produced~\cite{roslyn-overview-github}. 
+%
+%Why is this an~issue when for decades this black-boxes served us well? Programmers are increasingly becoming reliant~upon the~powerful integrated development environments (IDEs). Features like IntelliSense, intelligent rename, refactoring or~"Find all references" are key~to~developers' productivity; and~even more so in~an~enterprise-size systems. 
+%
+%This gave a~rise to~number of~tools that analyze the~code for common issues and are able to~suggest a~refactoring. The problem is that that such~tool needs to~parse the~code first in~order~to be~able~to~understand and~analyze it. As a result companies need to invest fair amount of resources to duplicate the logic that the .NET compiler already possesses. Not only is it possible that the compiler and the tool may disagree on some specific piece of code, but with every new version of C\# the tool needs to be updated to handle new language features\cite{dot-net-development-using-the-compiler-api}.
+%
+%With roslyn.. etc. etc. .. API for analysis.. use in companies for custom analyzers... etc. etc....
+% https://github.com/dotnet/roslyn/wiki/Roslyn Overview -- motivation
+%Make sure to stress out that ".NET Compiler Platform" and "Roslyn" names will be used interchangably as it is in Roslyn Succinctly on page 11.
 
 % =================================================================
 % ============================= CHAPTER 2 =========================
@@ -352,14 +348,40 @@ As presented earlier in this chapter, vast majority of code inspection tools mus
 Even if imperfect, static analysis tools are still valuable asset in software development process. Following section presents tools for static code analysis that are commonly used on .NET platform.
   
 \section{Static Code Analysis Tools available on .NET platform}
-\subsection{Resharper}
-\subsection{StyleCop}
+TODO: some intro...
+
 \subsection{FxCop}
-\subsection{DotNetAnalyzers}
-  available thanks to Roslyn
-\subsubsection{StyleCop}
-\subsubsection{Code Cracker}
-  
+FxCop is a free tool by Microsoft for analyzing managed code assemblies (targeting .NET Framework) for conformance to .NET Framework Design Guidelines\footnote{https://msdn.microsoft.com/en-us/library/ms229042(v=vs.110).aspx} in areas such as design, localization, performance, security, naming or portability. 
+
+It comes with more than 200 predefined checks and possibility to add custom rules using FxCop SDK\footnote{Software Development Kit}. It is available in two forms: fully featured application with graphical user interface and a command line tool that is easily integrated to automated build process. 
+
+\subsection{StyleCop}
+Another tool by Microsoft is an open source project StyleCop\footnote{https://github.com/StyleCop/StyleCop} for analyzing C\# code for conformance to style and consistency with .NET Framework Design Guidelines. Unlike FxCop, StyleCop analysis is performed on the source code, which empowers it to look for different set of style violations. The rules are divided into categories such as documentation, naming, ordering, spacing and readability. 
+
+Some of the rules are: placing the opening curly brace on a new line, spaces around binary operators, method names starting with an upper-case. The tool is configurable and development team can specify its own style to be checked, for example, to enforce spaces over tabs. It comes in two versions, either a Visual Studio extension or a nuget package that can be installed to the project.
+
+\subsection{CodeRush Classic}
+CodeRush Classic\footnote{https://www.devexpress.com/Products/CodeRush/} is a solution-wide static code analysis tool by vendor DevExpress that integrates into Visual Studio. It enhances the IDE with more advanced features like assembly decompilation, automated code generation, advanced code selection, code formatting and cleanup. The tool focuses on developer's productivity by not only finding bugs but also providing an automated way of fixing them.
+
+It provides an API enabling developers to extend the basic functionality with 3rd party plugins such as spell checker or copy project. The CodeRush Classic provides static analysis not only for .NET leanguages, but also for JavaScript, HTML and XML.
+
+\subsection{Resharper}
+Very similar to CodeRush, ReSharper is a powerful Visual Studio extension for .NET developers by Jet Brains\footnote{https://www.jetbrains.com/resharper/}. It analyzes code quality of C\#, Visual Basic, ASP.NET, JavaScrtipt, TypeScript, CSS, HTML and XML, providing complete developer experience. For each of this languages it is possible to define code style and formatting to make the tool compatible whit the coding standards followed by the team. 
+
+ReSharper is packed with hundreds of quick-fixes that solve discovered problems and has support for automated solution-wide refactorings. On the top of static analysis, there exist additional plugins for performance (dotTrace) and memory (dotMemory) profiling, test runner and code coverage tool (dotCover) or .NET decompiler and assembly browser (dotPeek).
+
+
+\subsection{Analyzers Written with Roslyn}
+The tools described above have one in common -- they all need to parse the code before they can analyze it. The cost of maintaining a custom C\# parser and keep it up to date with every new language version is fairly difficult, inefficient, and of course, costly. 
+
+With release of new .NET Compiler Platform (Roslyn), which is discussed in detail in the following chapter, the need for parsing C\# and Visual Basic sources is eliminated and tools that build upon this platform can concentrate solely on analysis itself.
+
+Some vendors, like Jet Brains, who invested years of development into the creation of the tools, claim ~\cite{resharper-and-roslyn-qa}, it does not pay off to rewrite the whole program so that it uses new Microsoft compiler. Not only would it take an enormous effort to rewrite all the functionality to use new framework, but they would risk destabilizing the product and loosing years of optimizations and testing. Moreover, ReSharper is multilingual tool whereas .NET Compiler platform "only" provides C\# and Visual Basic parsers.
+
+Other companies, such as DevExpress with CodeRush\footnote{CodeRush Classic referrs to the version before Roslyn} or Microsoft with StyleCop Analyzers, seized the opportunity to use new approach. The effects on the VisualStudio performance where immediate, since solution does not have to be parsed by the tool nor duplicate syntax trees stored. As a result, the load times and memory consumption were significantly lowered.
+
+The Roslyn APIs also gave rise to more open source projects dealing with static code analysis, such as CodeCracker\footnote{https://code-cracker.github.io/}. The task once deemed impossible for many programmers is now rather easy thanks to powerful analysis APIs. Following chapter takes a look at what actually is .NET Compiler Platform and how it can be used to perform the static code analysis.
+
 % =================================================================
 % ============================= CHAPTER 4 =========================
 % =================================================================
