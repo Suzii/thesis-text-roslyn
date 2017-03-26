@@ -94,11 +94,11 @@ TODO...
 % =================================================================
 \chapter{Compilers}
 \label{chap:compilers}
-As~per~\cite{dragon-book}, compiler is a~program that can read a~program in a~\textit{source} language and~translate it into a~semantically equivalent program in~a~\textit{target} language while reporting any errors detected in~the~translation process. The compiler may sometimes rely on other programs. For example, \textit{preprocessor} is responsible for collecting the source code to be fed to the compiler by expanding shorthands (macros) into source language statements. 
+As~per~\cite{dragon-book}, a compiler is a~program that can read a~program in a~\textit{source} language and~translate it into a~semantically equivalent program in~a~\textit{target} language while reporting any errors detected in~the~translation process. The compiler may sometimes rely on other programs. For example, \textit{preprocessor} is responsible for collecting the source code to be fed to the compiler by expanding shorthands (macros) into source language statements. 
 
 The compilation process can be divided into two parts: \textit{analysis} and \textit{synthesis}; commonly referred to as \textit{front end} and \textit{back end} of the compiler.
 
-The purpose of the analysis part is to break up the source program into chunks and build up a grammatical structure that it corresponds to, based on the source language grammar. This structure is subsequently transformed into an intermediate representation of the source program. Along the way, compiler collects information about the program and stores it into a data structure called \textit{symbol table}. If any errors in syntax or semantics are encountered, analysis part shall inform programmer about the problem. Otherwise, both intermediate representation and symbol table are passed to the synthesis part where they are used for the construction of the target program.
+The purpose of the analysis part is to break up the source program into chunks and build up a grammatical structure that it corresponds to, based on the source language grammar. This structure is subsequently transformed into an intermediate representation of the source program. Along the way, the compiler collects information about the program and stores it into a data structure called \textit{symbol table}. If any errors in syntax or semantics are encountered, analysis part shall inform the programmer about the problem. Otherwise, both intermediate representation and symbol table are passed to the synthesis part where they are used for the construction of the target program.
 
 The two main steps of compilation process internally consist of different phases as shown in Figure~\ref{fig:compiler-phases}. Each phase transforms one representation of source language into another, and passes it to the following phase while working with the symbol table during the process. In synthesis phase, an optional machine-independent optimizations can take place and are done on the top of intermediate representation. After target machine code is generated, additional machine-dependent code optimizations are performed.
 
@@ -109,7 +109,7 @@ The two main steps of compilation process internally consist of different phases
 		\label{fig:compiler-phases}
 \end{figure}
 
-For the purpose of this thesis, mainly analysis part is relevant and following section will elaborate on its respective phases.
+For the purpose of this thesis, mainly the analysis part is relevant and following section will elaborate on its respective phases.
 
   \section{Lexical analysis}
 The compilation process starts with \textit{lexical analysis} or \textit{scanning}. The scanner transforms stream of characters of the source program, as written by the programmer, into the series of meaningful sequences called \textit{lexemes}. Most programming languages allow for an arbitrary number of white spaces to be present in the source text to aid readability. However, white spaces, similarly as comments, are unimportant for the target code generation itself, and thus the lexical analyzer is responsible for discarding them completely.
@@ -138,12 +138,12 @@ the scanner output could be
   \langle id, 3 \rangle
 \end{equation}
 
-Lexemes can be divided into logical groups such as identifiers, relational operators, arithmetical operators, constants or keywords as seen in the example above. Scanner often uses regular expressions to identify tokens.
+Lexemes can be divided into logical groups such as identifiers, relational operators, arithmetical operators, constants or keywords as seen in the example above. The scanner often uses regular expressions to identify tokens.
 
 Each identifier (\texttt{id}) has an attribute which points to the entry of the symbol table, where information about identifier name, type or position in the source text is stored. Similar holds for constants like "42" in the example. In the (2.3) example, the assignment and addition symbols do not have attributes but different representation can be used, such as $ \langle bin \textnormal{-} op, 2 \rangle $. In this case, \texttt{bin-op} would denote it is a binary operator and number two would be a pointer to symbol table with all symbols for binary operations while the second index suggests that it represents an addition.
 
   \section{Syntax Analysis}
-The stream of token objects along with partially populated symbol table is an input for the subsequent compiler phase -- \textit{syntax analysis} or \textit{parsing}. The parser has to verify that the sequence of token names can by produced by the grammar for the source language and for a well-formed program, it shall output a \textit{syntax tree} or often referred to as an abstract syntax tree (AST)\footnote{The AST is an intermediate representation of source program in which each interior node represents an operation (programming construct) with the children of the node representing the arguments of that operation. As opposed to \textit{parse syntax tree}, in which interior nodes are nonterminals of the grammar, ASTs are more lightweight and they might omit some nodes which exist purely as a result of grammar's production rules~\cite{secure-programming-with-sca}.}.
+The stream of token objects along with partially populated symbol table is an input for the subsequent compiler phase -- \textit{syntax analysis} or \textit{parsing}. The parser has to verify that the sequence of token names can be produced by the grammar for the source language and for a well-formed program, it shall output a \textit{syntax tree} or often referred to as an abstract syntax tree (AST)\footnote{The AST is an intermediate representation of source program in which each interior node represents an operation (programming construct) with the children of the node representing the arguments of that operation. As opposed to \textit{parse syntax tree}, in which interior nodes are nonterminals of the grammar, ASTs are more lightweight and they might omit some nodes which exist purely as a result of grammar's production rules~\cite{secure-programming-with-sca}.}.
 
 The resulting AST for the token stream generated in (2.2) is depicted in Figure~\ref{fig:compilers-abstract-syntax-tree}. The tree shows how multiplication precedence rule of the language's grammar was applied on the expression.
 
@@ -166,7 +166,7 @@ The resulting AST for the token stream generated in (2.2) is depicted in Figure~
   \label{fig:compilers-abstract-syntax-tree}
 \end{figure}
 
-The syntax analyzer uses a context free grammar (CFG) to from the syntax tree. The CFG is defined by a 4-tuple consisting of:
+The syntax analyzer uses a context free grammar (CFG) to form the syntax tree. The CFG is defined by a 4-tuple consisting of:
 \begin{description}
   \item[Terminals] -- token names (first component of the token) as obtained from the previous compilation step.
   \item[Nonterminals] -- syntactic variables that help to impose the hierarchical structure of the language and represent set of strings.
@@ -208,7 +208,7 @@ Another approach the parser can take to recover from an erroneous input is to tr
   \section{Semantic Analysis}
 While syntax analysis is able to check the conformance of the program to the grammar of the source language, it is not an ultimate tool. Some language rules cannot be implied by CFG and an additional step is needed to ensure semantic consistency. To do this, the semantic analyzer uses the AST and the information from symbol tables collected in previous phases. While working, it can also add more details about symbols or even modify the AST. 
 
-A vital part of semantic analysis for any statically typed language\footnote{In statically typed language, type errors are reported by compiler during translation process, whereas in dynamically typed programming languages conversions between incompatible types are only dicovered during runtime and can cause program failure.} is \textit{type checking}. Semantic analyzer has to ensure, that each operator is applied to matching operands. For example, a multiplication operator can be called with either a pair of integers or a pair of floating-point numbers, that also implies the result of the operation. If the semantic analyzer encounters an expression where multiplication is used with numbers of different types, it must perform a type conversion called \textit{coercion}. To coerce the integer into floating-point representation it may be necessary to alter the AST and insert an additional node to explicitly state that integer should be treated as floating-point~\cite{dragon-book}. 
+A vital part of semantic analysis for any statically typed language\footnote{In statically typed language, type errors are reported by compiler during translation process, whereas in dynamically typed programming languages conversions between incompatible types are only discovered during runtime and can cause program failure.} is \textit{type checking}. Semantic analyzer has to ensure, that each operator is applied to matching operands. For example, a multiplication operator can be called with either a pair of integers or a pair of floating-point numbers, that also implies the result of the operation. If the semantic analyzer encounters an expression where multiplication is used with numbers of different types, it must perform a type conversion called \textit{coercion}. To coerce the integer into floating-point representation it may be necessary to alter the AST and insert an additional node to explicitly state that integer should be treated as floating-point~\cite{dragon-book}. 
 
 Semantic analyzer utilizes the information from symbol table to perform all sorts of other checks, to prevent semantic errors such as:
 \begin{compactitem}
@@ -224,7 +224,7 @@ The semantic analysis is followed by the \textit{intermediate code generation} w
 Together with symbol table, IR is passed to back end part of compiler -- synthesis, where machine independent optimizations can be performed. These contain \textit{control flow analysis} where control flow graph is constructed and utilized in subsequent \textit{data flow analysis}. As a result of these optimizations, compiler might remove dead code from the IR or perform other optimizations that will lead to shorter and more efficient target code.
 
 \bigskip
-The following chapters on static code analysis and .NET compiler platform will build upon fundamentals presented here and show how these concepts can be applied further.
+The following chapters on static code analysis and .NET compiler platform will build upon fundamentals presented here and show how these concepts are relevant when considering the implementation of a static code analyzer.
 
 % =================================================================
 % ============================= CHAPTER 3 =========================
@@ -232,7 +232,7 @@ The following chapters on static code analysis and .NET compiler platform will b
   \newpage
 \chapter{Static Code Analysis}
 \label{chap:static-code-analysis}
-Static code analysis refers to a process of assessing the program based on its form, structure, content and documentation and reasoning over its possible behaviours without actually executing the code. The aim of the static analysis is to check the compliance to specific rules and identify parts of the program that might lead to possible vulnerabilities. The term static code analysis is mostly used when speaking of an automated tool. In contrast, \textit{code inspections} or \textit{code reviews} are performed by humans and can benefit from using static code analysis tools~\cite{oswap-sca, ppt-sca}.
+Static code analysis refers to a process of assessing the program based on its form, structure, content and documentation and reasoning over its possible behaviours without actually executing the code. The aim of static analysis is to check the compliance to specific rules and identify parts of the program that might lead to possible vulnerabilities. The term static code analysis is mostly used when speaking of an automated tool. In contrast, \textit{code inspections} or \textit{code reviews} are performed by humans and can benefit from using static code analysis tools~\cite{oswap-sca, ppt-sca}.
 
 % \section{Why}
 % Describe why not only testig, differences, what is code quality
@@ -271,11 +271,11 @@ Static code analysis refers to a process of assessing the program based on its f
 %- is cheaper when it finds bug than testing
 
 \section{Source Code vs. Compiled Code Analysis}
-There are two different approaches when analyzing program by an automated tool: analyzing the source code (as seen by the compiler), and analyzing the compiled code -- either some form of byte code~\footnote{An intermediate representation of a program, also known as "portable code", which is often for just-in-time compilation by interpreters.} or an executable.
+There are two different approaches when analyzing a program by an automated tool: analyzing the source code (as seen by the compiler), and analyzing the compiled code -- either some form of byte code~\footnote{An intermediate representation of a program, also known as "portable code", which is often for just-in-time compilation by interpreters.} or an executable.
 
-Sometimes it might be very complicated, or even infeasible, to obtain the actual source code of the program to be analyzed and the only possibility is to analyze the executable. When the tool is looking at a compiled version of the program, the ambiguity of how the source will be translated by the compiler is removed and thus the analyzer does not need to guess. 
+Sometimes it might be very complicated, or even infeasible, to obtain the actual source code of the program to be analyzed and the only possibility is to analyze the executable code. When the tool is looking at a compiled version of the program, the ambiguity of how the source will be translated by the compiler is removed and thus the analyzer does not need to guess. 
 
-However, analyzing compiled code can be very complicated. Even if the tool manages to decode the binary, it lacks the original type information. Moreover, the optimizations performed by the compiler obscure the original meaning of the program and making sense of semantics out of implementation may be unattainable. Likewise, if the error is found, reporting it to the programmer can be challenging since there is not always a clear mapping from binary back to source. 
+However, analyzing compiled code can be very complex. Even if the tool manages to decode the binary, it lacks the original type information. Moreover, the optimizations performed by the compiler obscure the original meaning of the program and making sense of semantics out of implementation may be unattainable. Likewise, if the error is found, reporting it to the programmer can be challenging since there is not always a clear mapping from binary back to source. 
 
 Although the above-mentioned complications speak clearly against analyzing binaries, the situation is different when analyzing byte code formats (such as Java bytecode), where the type and debugging information is present. The following sections will discuss the theory behind the static code analysis.
 
@@ -294,10 +294,10 @@ There are many tools for static code analysis and each can analyze different fla
 In order to analyze the program, the analysis tool must first understand it. Therefore, the initial task is to \textit{create a structured model} that represents the source code. This model has a lot in common with the AST and symbol tables that were discussed in Chapter~\ref{chap:compilers}. In fact, model building phase of static code analyzers closely mimics the front end part of the compilation process, executing lexical analysis, parsing and semantic analysis.
 
 \subsection{Perform the analysis}
-After obtaining the model, next step is to perform the actual analysis. Many different algorithms can be applied in this step and it is common that they are combined into one solution. The approaches are often derived from techniques used by the compilers, specifically:
+After obtaining the model, the next step is to perform the actual analysis. Many different algorithms can be applied in this step and it is common that they are combined into one solution. The approaches are often derived from techniques used by the compilers, specifically:
 
 \subsubsection{Control Flow}
-In order to explore different execution paths that can take place when the program is executed, the static code analysis tool can construct a \textit{control flow graph} on the top of the AST. The nodes of the graph represent basic blocks -- sequences of program instructions that will be all executed once block is entered. The edges between basic blocks represent different paths that the program can take depending on matched conditions. Any back edges in the graph signalize potential loops in the program execution.
+In order to explore different execution paths that can take place when the program is executed, the static code analysis tool can construct a \textit{control flow graph} on the top of the AST. The nodes of the graph represent basic blocks -- sequences of program instructions that will be all executed once block is entered. The edges between basic blocks represent different paths that the program can take depending on matched conditions. Any back edges in the graph signal potential loops in the program execution.
 
 \subsubsection{Tracking Data Flow}
 Data flow analysis is used to examine how data passes through the program. Compilers utilize data flow analysis when doing code optimizations in order to remove unreachable code and allocate registers. An example of how data flow analysis can be used by static analysis tools is to check that memory is always freed only once -- function \texttt{free(p)} was called at most once with the address stored in pointer \texttt{p}.
@@ -323,7 +323,7 @@ The integral part of every compiler for statically typed language. Rules are typ
 The style checker defines rules for spacing, naming, commenting and general program structure that affect mostly the readability and the maintainability of the program. 
 
 \subsubsection{Program understanding}
-These tools aim to provide a high-level program understanding beneficial mainly for larger codebases. They are most effective when integrated into the IDEs where they can support "go to declaration" or "find al references" features or even automatic program refactorings such as renaming or extracting a variable.
+These tools aim to provide a high-level program understanding beneficial mainly for larger codebases. They are most effective when integrated into the IDEs where they can support "go to declaration" or "find all references" features or even automatic program refactorings such as renaming or extracting a variable.
 
 \subsubsection{Bug Finding}
 The  purpose of these type of static analyzers is to point out common mistakes in the code. They report warnings in parts of program that are compliant with the language specification but might not express the programmer's intent, such as ignoring the return value of a function call.
@@ -342,7 +342,7 @@ Another advantage of automated code analysis is repeatability and scalability. C
 As such, they are a great for programmers who get instant feedback and learn more about mistakes they made. The tools enforce higher code quality and guidelines compliance. As a result, the code should be more consistent, maintainable and easier to debug.
   
 \section{Disadvantages}
-The Rice's theorem~\cite{direct-proofs-of-rices-theorem} says, that any non-trivial questions about program's semantics are undecidable. As a consequence, there will never be a static analysis tool able to answer all the questions perfectly. The tools can produce \textit{false positives} (a problem which does not actually exist is reported) and \textit{false negatives} (the program contains a problem, but it was not reported by the tool).
+The Rice's theorem~\cite{direct-proofs-of-rices-theorem} says, that any non-trivial question about program's semantics is undecidable. As a consequence, there will never be a static analysis tool able to answer all the questions perfectly. The tools can produce \textit{false positives} (a problem which does not actually exist is reported) and \textit{false negatives} (the program contains a problem, but it was not reported by the tool).
 
 Prevailing complaints against static analysis tools concern false positives. A long list of false positives means real bugs can be overlooked and programmers can eventually lose trust in the tool.
 
@@ -351,7 +351,7 @@ Worse, from the security perspective, are false negatives. Not only the bug was 
 As presented earlier in this chapter, a vast majority of code inspection tools must build a model of the source program in order to be able to analyze it. This requires duplication of compiler's logic, which itself is fairly complicated, and there is no guarantee that the tool interprets the source exactly the same as the compiler does. Moreover, for the authors of the tool, it means the parsing logic has to be always up to date with the language version in use. 
 
 \section{Static Code Analysis Tools available on .NET platform}
-Even if imperfect, static analysis tools are still valuable asset in software development process. This section presents tools for static code analysis that are commonly used on .NET platform.
+Even if imperfect, static analysis tools are still valuable asset in software development process. This section presents tools for static code analysis that are commonly used on the .NET platform.
 
 \subsection{FxCop}
 FxCop is a free tool by Microsoft for analyzing managed code assemblies (targeting .NET Framework) for conformance to .NET Framework Design Guidelines\footnote{https://msdn.microsoft.com/en-us/library/ms229042(v=vs.110).aspx} in areas such as design, localization, performance, security, naming or portability. 
@@ -375,20 +375,20 @@ ReSharper provides hundreds of quick-fixes that solve discovered problems and ha
 
 
 \subsection{Analyzers Written with Roslyn}
-The tools described above have one in common -- they all need to parse the code before they can analyze it. The cost of maintaining a custom C\# parser and keep it up to date with every new language version is fairly difficult, inefficient, and of course, costly. 
+The tools described above have one aspect in common -- they all need to parse the code before they can analyze it. The cost of maintaining a custom C\# parser and keep it up to date with every new language version is fairly difficult, inefficient, and of course, costly. 
 
-With release of new .NET Compiler Platform (Roslyn), which is discussed in detail in the following chapter, the need for parsing C\# and Visual Basic sources is eliminated and tools that build upon this platform can concentrate solely on analysis itself.
+With the release of new .NET Compiler Platform (Roslyn), which is discussed in detail in the following chapter, the need for parsing C\# and Visual Basic sources is eliminated and tools that build upon this platform can concentrate solely on analysis itself.
 
 Some vendors, like Jet Brains, who invested years of development into the creation of the tools, claim ~\cite{resharper-and-roslyn-qa}, it does not pay off to rewrite the whole program so that it uses new Microsoft compiler. Not only would it take an enormous effort to rewrite all the functionality to use new framework, but they would risk destabilizing the product and losing years of optimizations and testing. Moreover, ReSharper is multilingual tool whereas .NET Compiler platform "only" provides C\# and Visual Basic parsers.
 
 Other companies, such as DevExpress with CodeRush\footnote{CodeRush Classic referrs to the version before Roslyn} or Microsoft with StyleCop Analyzers, decided to use this new approach. The effects on the Visual Studio performance were immediate, since solution does not have to be parsed by the tool, nor duplicate syntax trees stored. As a result, the load times and memory consumption were significantly lowered.
 
-The Roslyn APIs also gave rise to more open source projects dealing with static code analysis, such as CodeCracker\footnote{https://code-cracker.github.io/}. As challenging as it was in the past, static code analysis is now rather easy, thanks to powerful analysis APIs. Following chapter takes a look at what is .NET Compiler Platform and how it can be used to perform the static code analysis.
+The Roslyn APIs also gave rise to more open source projects dealing with static code analysis, such as CodeCracker\footnote{https://code-cracker.github.io/}. As challenging as it was in the past, static code analysis is now rather easy, thanks to powerful analysis APIs. Following chapter takes a look at the .NET Compiler Platform and how it can be used to perform the static code analysis.
 
 % =================================================================
 % ============================= CHAPTER 4 =========================
 % =================================================================
-\chapter{.NET Compiler Platform}
+\chapter{The .NET Compiler Platform}
 In~the~.NET world, the~compiler used~to~be a~black box that given the~file paths to~the~source text, produced an~executable. This perception was changed in~2015 when Microsoft introduced the .NET Compiler Platform (commonly referred to as "Project Roslyn").  
 
 %\begin{figure}[h!]
