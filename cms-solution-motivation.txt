@@ -1,0 +1,41 @@
+Ondra clanky o navrhu Roslyn analyzatorov
+https://kentico.atlassian.net/wiki/display/PLATFORM/Static+code+analysis+in+CMSSolution
+https://kentico.atlassian.net/wiki/pages/viewpage.action?pageId=101024804
+
+Vita popis ako funguje BH
+https://kentico.atlassian.net/wiki/display/KID/Bug+Hunter
+
+
+====== analyzer categories ======
+Abstrtaction over implementation
+ => Separation of 3rd party components
+Current status - We still have hard references to some 3rd party components (libraries)
+Goal - Separate all 3rd party components by a thin layer without hard references (ideally through interface and implementation library such as in Search)
+Reason - Hard-referenced 3rd party libraries require clients to use particular version of the library, which may collide with references from other components that they want to use.
+https://devnet.kentico.com/articles/referencing-multiple-versions-of-the-same-assembly-in-a-single-application
+
+CmsApiReplacements
+
+CmsApiGuidelines + String culture
+TOLower, ToUpper extensions with CUltureInfo due to problems with turkish culture
+SystemIo
+ => clanok z wiki
+ https://docs.kentico.com/k10/custom-development/working-with-physical-files-using-the-api
+ The purpose of the CMS.IO library is to provide a way of customizing Kentico to support a file system of your choice. As described in the Overview page, you can achieve this by developing a custom provider based on the classes contained within CMS.IO.
+ 
+ How it's done. Why everywhere in Kentico we must use CMS.IO
+AssemblyAttributes
+ => rychlost - clanok z wiki o benchmarkoch
+https://kentico.atlassian.net/wiki/display/KID/Assembly+vs+Class+Level+Attribute
+
+====== opther info ==== 
+Update3 VS musi byt na build boxoch aj vo VS
+
+Code review 
+https://kentico.atlassian.net/wiki/display/SCRUM/Code+review?preview=%2F104301838%2F104301837%2FSC_CodeReview.PPTX
+
+Quality assurance
+file:///D:/zdank/Downloads/Kentico%20Quality%20Assurance.pdf
+
+Semantic versioning 
+http://semver.org/

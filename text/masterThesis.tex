@@ -512,36 +512,159 @@ This makes semantic model very useful when performing static code analysis conce
 % =================================================================
 \chapter{Implementation of Custom Analyzers}
 \label{chap:custom-roslyn-analyzers}
-\section{CMS Internal Guidelines}
-[3-4 pages]
-What is Kentico CSM?
+\section{Kentico CMS Internal Guidelines}
 
-Current situation \& motivation
+What is Kentico CMS?
+how big the solution is, how old, extremely much knowledge accumulated in 12 years. some technologies were developed even before Microsft had them in .NET
+Many helpers etc. code style and onther conventions
+need to be followed during development and chceked in code reviews
 
-- how code reviews are done at kentico
+What was implemented is not really an "automated code review" - only specific ruleset will be implemented in Roslyn and rules will be applied live while writing code in VS. -- it does not really replace manual code review, only takes the burden off reviewer to check for most common mistakes.
+\subsection{The Specificities of Kentico CMS Solution}
+Measurements from roslyn - number of projects, documents, nodes... show table, reference to code that produces it (shall be included in IS)
 
-- tools that aid code reviews (??)
+not only is onboarding of new employees complicated but the code review process is really hard, reviewer needs to think about many things and impacts the changes might have
+it's very easy that some bugs or uncomplient code will slip under his nose
+more and more helpers created and not everything is shared on skype/ you might miss something
 
-  - original BugHunter
+this led to need for some automated way to check the compliance with internal guidelines
 
-  - use of FxCop and ReSharper
+\subsection{Old BH}
+Tools for static code analysis in general
 
-\noindent
-[5-7 pages]
-How was the tool implemented, 
+one such tool was BH
+company did not have the motivation to invest too much into creating extremely complicated tool and at the time (YYYY) it was very difficult to create something custom which would be robust and almost perfect at the same time
 
-Project structure,
+-  first attempts to rewrite BH to Roslyn 
+not so successful Bachelor thesis by another student (huge performance problems, implementation basically one to one with the old console app, does not leverage of Roslyn type system, everything based on strings, therefore many missed diagnostic problems)
 
-What it contains
+Does run on CI
 
-Concerns about Performance
+Problems to be addressed
+
+\subsubsection{More robust model building}
+no dependance on code style, 
+fully qulified names, 
+alias imports that could ruin the following analysis
+string checks. if additional space is there, most checks will just ignore
+
+\subsubsection{Need for semantic categories}
+many cases that were not discoverable by string comparison were uncovered
+
+where old tool searched for HttpRequest.Cookies - if someone saved the request into variale no way for  old bh to diagnose the usage.. with roslyn and semantic analysis it is an easy task
+    
+\subsubsection{Ease of use}
+integrated in IDE, run in paralled with programmer typing... almost no one run BH before making push.. like this with no warning  policy they cannot do it
+
+old BH reporting not integrated in VS -> almost no one runs it locally, they need to wait for CI to tell them what went wrong
+
+
+
+\subsubsection{Configuration}
+talk about the old configuration of the BH, and how this one maps to Roslyn version (suppression pragmas vs supression files, some analyzers look at the filepath or file extension directly.. some chcecks like SystemIO had to be supressed - level set to none in ruleset file - for files that it did not make sense for... helpers that wrap the "forbidden" functionality were marked with pragma statements around the whole class so that it is clearly visible in code)
+
+cumbersome configuration - cannot ignore one usage, therefore all files/folders/projects were ignored for some checks
+
+
+\subsection{Roslyn attempts}
+tell about how resharper, fxcop and stylecop are (not)used
+talk very briefly about the intentions to rewrite bh to roslyn - bachelor thesis, not so successful, only syntax and very early stage of Roslyn itself.. too many exceptions thrown when using the tool, and therefore extremely slow performance which made it practically unusable
+
+\subsection{Limitations}
+not only C\# but also some project specific stuff in XMLs and few JS checks like no xdescribe/xit
+
+some checks were not needed anymore and were just obsolete or even turned off
+
+why we are only concerned with this and do not check the naming conventions or advanced refactoings - tools already exist for this (StyleCop and ReSharper) and were not implemented in new BH version - usings sorting and such is provided by other tools
+
+....
+wuhuuu and here comes our part..
+
+\section{Requirements and Categorization}
+There is differend concern about categorizing the domain specific stuff about the implemented analyzers and then the C\# and compiler specific things that are used when implementing it.. therefore helpers for SMAE, CAE, IE... explain... new language version - new approach but same domain is concerned '.' vs '?.'
+
+
+compare to old BH, where this was more project and file based
+define two nugets - whi Web.Analyzers - specificities for CMSApp project
+other semantic categories, what they represent
+
+
+\section{Architecture}
+Main concern are ApiReplacement and General (string) and Internal ApiGuidelines --> need for analyzing members of certain types
+
+\subsection{CMSApiReplacement}
+Example + why
+
+\subsubsection{For Member}
+define strategies for SimpleMemberAccessExpression and ConditionalAccessExpression analysis grouped by strategy for ApiReplacementForMemberAnalyzer - this one is used as strategy in all relevant analyzers and is configured via ApiReplacementConfig class defining Rule, ForbiddenMembers and ForbiddenTypes.... use examples... tell how it is important not to access semantic model straight away and do basic analysis on syntax first
+how strategies are extendable, when new language feature is presented
+how they are configurable to use any DIagnosticFormatter desired
+
+UML
+
+\subsection{For Method}
+more involved analysis.. MemberInvocationAnalyzer used by ApiReplacementForMethodAnalyzer... callback on SyntaxKind.InvocationExpression
+
+UML 
+it is easy to access semantic model first and analyze the IMethodSymbol... however.. point out how many times this callback is invoked and how many times SemanticModel would have been queried... therefore very simple semantic for getting rid of cases that do not have to be analyzed further... tell about the possible cases of InvocationExpression - nested SimpleMemberAccess.. first MemberBindingExpression, or IdentifierName... always show a graph...
+if it could be skipped based on syntax - invoked method name is for sure none of the forbidden member names, skip, otherwise, analyze further based on semantics
+
+TEMPLATE METHOD - used not only for straightworward API replacements but also for conformance toAPI usage guidelines - therefore need to be configurable - explain that the logis of 'forbidden member and type' is the same
+
+!!!!do some benchmarking how this heuristic helped with the performance!!!! show graph
+
+\subsubsection{CmsApiGuidelines}
+use mostly MethodInvocationAnalyzer and leverage its template method pattern, to dig deeper into analysing where the method was invoked or who it is invoked - which overload is called, is it using predefined constants instead of plain string etc... (limitations)
+
+\subsubsection{AbstractionOverImplementation}
+Why lucene - 3rd party libs and assembly binding, bound to IdentifierName  - tell how many, therefore it is crutial to make it fast and cout of as soon as possible
+
+\subsubsection{StringMethodsAndCulture}
+Why,
+How - do not use MethodInvocationAnalyzer - some performance gain as we do not need to configure the forbidden types from the outside, we know string is always the ReceiverType and it is a sealed class and thus no need to analyze its parents, interfaces etc.
+Invocation is analyzed if it supplied the correct arguments... StringComparison or CultureInfo
+
+Methods ToLower and ToUpper have specific overloads in Kentico that accept CultureInfo because of problems with specific turkish culture (TODO search for some reference on wiki)
+
+\subsection{CodeFixes}
+Why
+How - CMSApiReplacements - pretty straightforward, although some limitations in conditional accesses that do not have the codefix ... analyze why this is hard, can talk about the tree structure
+SystemIO does not have a codefix as this would be extremely tough to implement not a clear 1 to 1
+Lucene easy, then things like not using the DB layer from Presentation is not clear how to fix and it is needed for developer to chande the design of the solution to avoid this
+API guidelines have mostly easy fixes - suggesting different usages/overloads/methods
+
+\subsection{Tests}
+concerns about strings everywhere - attempts to use nuget with kentico libraries - many problems - could not be portable, nuget size was enormous - some wierd feeling of recurrsion... no other libraries seem to have been experiencing similair issues..
+
+so libs are only referenced in tests - explain why this is important (when creating a compilation - metadata references need to be added)
+measures taken to eliminate any typos - could not pass the test if the source code itself is not compilable - this is for example how the ever present bug in original BH was discovered Response vs Request.Redirect() !!! would not be possible without nuget and additional effor to make all tests compilable
+
+tests not only for BH but of course for all other helpers/utils/extensions
+
+(- how to actually know we are looking for right things and did not misspell something --> tests always reference current version of Kentico.Libraries (NuGet package). If there is any typo in either source code of test files or analyzers, the tests will fail (needed to manually turn this feature on since the boilerplate generated by Microsoft project did not support this))
+
+\subsection{Roslyn as SDK and Its Usage -- Considerations and Remarks}
+Changing versions ... not really well documented
+Only issues on GH provide some insight
+e.g. SkipGeneratedCoOdeAnalysis or RunAnalyzersInParallel - some discussions on GitHub but not clear outcomes, sometimes proposition does not math the actual implementation and it is generally hard to find some best practices on how to do stuff ad it is still a pretty young tech... moreover the examples are not really updated according to new versions of the API so one struggles with implemeting something on his own only to find a few weeks later that it was added or it is considered for the next milestone
+
+many useful things are marked as internal in the source code and there are many issues on GH to make them public
+
+current version used is v.1.3.X and for this on VS with Update 3 is needed... had to be installed on all build boxes to accomodete BH depoloyment
+
+... version v2 was released after the implemetnation was finished and it was considered although it was agreed we will not use it as it required VS2017 and nobody is happy about it.. talk about some cons...
+
+(  - ConfigureGeneratedCodeAnalysis - big boost when roslyn API allowed to opt out for analyzer to be run on generated code. Before, heuristics had to be performed by analyzers themselves on every callback
+   https://github.com/dotnet/roslyn/issues/6998
+   https://github.com/dotnet/roslyn/pull/7526)
+
+\subsection{Concerns about performance}
+somehow explain why... and introduce following chapter
 
 % =================================================================
 % ============================= CHAPTER 6 =========================
 % =================================================================
 \chapter{Measuring and Optimizing the Performance}
-[up to 7 pages?]
-
 Why tool needs to be super-fast (refer to chapter 4 where this should have been said)
 
 Talk about /ReportAnalyzer switch of MSBuild process (csc.exe)
@@ -556,7 +679,12 @@ Questionares sent to development team, feedback from senior developers
 % ============================= CHAPTER 7 =========================
 % =================================================================
 \chapter{Conclusion}
-[1-2 pages]
+  - what issue it solved
+  - what is the current status of the project
+  - how it helped the development teams...
+  - how to maintain the tool, 
+  - how easy it is to add new analyzers, 
+
 
 % =================================================================
 % =============================== STUFF ===========================

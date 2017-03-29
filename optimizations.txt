@@ -1,0 +1,4 @@
+vzdycky totalka najsviac SystemIO
+potom boli vyskore cisla na Base classes, tam sa spravila oprimalizacia a hladali sa symboly namiesto ClassDeclaration ktora vyzadovala advanced semanticku analyzu
+
+nasledne vela trvali string equals checky - to je jasne lebo hrozne vela metoc sa vola equals a vzdycky sa potom hladal target type ktory bol stringovy.. na to ale neporebujem pozerat vsetky interfaces a base types, lebo viem, ze string je seald classa / struct to znamena, staci mi pozriet na is special type a porovnat to na System_string.. vobec nemusim riesit porovnavanie s inym typom a getTypeByMEtadata name!!!
