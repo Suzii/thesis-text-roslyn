@@ -73,12 +73,13 @@
 % =================================================================
 % ============================= CHAPTER 1 =========================
 % =================================================================
-  \chapter{Introduction}
+\chapter{Introduction}
 TODO...
 %Ideas:
 %
 %What is code quality, why is it important, tool that support it.. compilers, diversion ... aaaand here comes Roslyn which provides compiler as a platform.  
 %
+% --- Compilers + Roslyn ---
 %In~the~.NET world, the~compiler used~to~be a~black box that given the~file paths to~the~source text, produced an~executable. In~order~to do that, compiler has to collect large amount of~information about the~code it is processing. This knowledge, however, was unavailable to~anyone but the~compiler itself and it was immediately forgotten once the~translated output was produced~\cite{roslyn-overview-github}. 
 %
 %Why is this an~issue when for decades this black-boxes served us well? Programmers are increasingly becoming reliant~upon the~powerful integrated development environments (IDEs). Features like IntelliSense, intelligent rename, refactoring or~"Find all references" are key~to~developers' productivity; and~even more so in~an~enterprise-size systems. 
@@ -89,6 +90,20 @@ TODO...
 % https://github.com/dotnet/roslyn/wiki/Roslyn Overview -- motivation
 %Make sure to stress out that ".NET Compiler Platform" and "Roslyn" names will be used interchangably as it is in Roslyn Succinctly on page 11.
 
+% --- KEntico ---
+%Kentico Software is an IT company based in Brno, developing an all-in-one solution for web content management, e-commerce and online marketing using ASP.NET architecture. The leading product is Kentico CMS (Content Management System) that has been on the market since 2004 with 11th version currently being developed. 
+%
+%Over the course of almost 13 years, feature after feature was added to the product and the solution grew to an enormous extend. To give an overview, the current version of Kentico CMS contains XY projects and YZ source files. A lot of knowledge was accumulated and many internal conventions and guidelines were set. Much of the features like globalization were developed in-house first, only to be added as an integral part of the .NET framework itself a few years later to be added.
+%
+%The size of the company grew to more than 80 developers working on the same product. It became increasingly harder to share all the knowledge about the internal conventions and even when trying to keep the track of them, one can always forget about something when writing the code. It is the role of the code review to spot those inconsistencies and make sure they are fixed. However, with the increasing complexity of the project, the main focus of the reviewer is to inspect the general architecture and analyze how the new code influences the other parts of the system, in order not to break anything. The manual and often repetitive task of checking the compliance with the internal guidelines and correct use of the API during the code review became very tiresome and dragged the focus of the reviewer from the higher perspective on the code.
+%
+%With this size of a codebase, number of internal knowledge and a large development team, the need for an automated tool checking for compliance with the internal guidelines arose. 
+
+%This led to a need for an automated tool that would take care of the repetitive checks that needed to be done by the reviewer. Tools such as ReSharper or StyleCop, mentioned in the Chapter~\ref{chap:static-code-analysis}, are easily configurable to enforce the code style (spacing and naming conventions) and suggest general code refactorings. However, if a company wants to go beyond the general best practices and enforce the internal knowledge and rules to be followed, they must either use some advanced features of the available static code analysis tools, which are often insufficient, or develop something on their own. 
+%
+%In Kentico this need led to a creation of an internal tool called \textit{BugHunter}. The BugHunter is a very simple console application that given the file path to the solution, performs set of checks and outputs the results. The output gives short desctrption on each problem along with an information on its location (source file and line number).
+%
+%However, this tool is very primitive and has many issues. Since the aim of this thesis is to check for the same rules that the old version of BugHunter does, the following sections elaborate on the downsides of this console application.
 % =================================================================
 % ============================= CHAPTER 2 =========================
 % =================================================================
@@ -501,7 +516,7 @@ When analyzing a single source file of a compilation, all its semantic informati
 This makes semantic model very useful when performing static code analysis concerned with more than just syntax.
  
 \pagebreak
-\section{Analysers and Code Refactorings}
+\section{Analyzers and Code Refactorings}
 [3 pages?]
   
 %  - how to perform static code analysis with Roslyn
@@ -510,86 +525,110 @@ This makes semantic model very useful when performing static code analysis conce
 % =================================================================
 % ============================= CHAPTER 5 =========================
 % =================================================================
+TODO nuget vs Vsix
+TODO reusing the instances of analyzers - stateful vs stateless
+
 \chapter{Implementation of Custom Analyzers}
 \label{chap:custom-roslyn-analyzers}
-\section{Kentico CMS Internal Guidelines}
+Kentico Software is an IT company based in Brno, developing an all-in-one solution for web content management, e-commerce and online marketing using the ASP.NET\footnote{TODO} architecture. The leading product is Kentico CMS (Content Management System) that has been on the market since 2004 with 11th version currently being developed. 
 
-What is Kentico CMS?
-how big the solution is, how old, extremely much knowledge accumulated in 12 years. some technologies were developed even before Microsft had them in .NET
-Many helpers etc. code style and onther conventions
-need to be followed during development and chceked in code reviews
+Over the course of almost 13 years, the solution grew to an enormous extend. To give an overview, the current version of Kentico CMS solution contains XY projects and a total of YZ source files. A lot of knowledge was accumulated with many internal utilities developed and guidelines created. Many features, such as globalization, were developed in-house first, only to be added as an integral part of the .NET Framework a few years later.
 
-What was implemented is not really an "automated code review" - only specific ruleset will be implemented in Roslyn and rules will be applied live while writing code in VS. -- it does not really replace manual code review, only takes the burden off reviewer to check for most common mistakes.
-\subsection{The Specificities of Kentico CMS Solution}
-Measurements from roslyn - number of projects, documents, nodes... show table, reference to code that produces it (shall be included in IS)
+The size of the company grew to more than 80 developers working on one product. It became significantly harder to share all the knowledge about the internal best practices and the process of onboarding new employees was challenging. With the increasing complexity of the project, the main focus of the code reviews was shifted to the general architecture and inspection of how the new code influences the other parts of the system, in order not to break anything. The manual and often repetitive tasks of checking the compliance with the conventions and correct use of the API during the code review became very tiresome and dragged the focus of the reviewer away from the higher perspective on the code. This led to a need for an automated tool that would take care of the repetitive checks that needed to be done by the reviewer.
 
-not only is onboarding of new employees complicated but the code review process is really hard, reviewer needs to think about many things and impacts the changes might have
-it's very easy that some bugs or uncomplient code will slip under his nose
-more and more helpers created and not everything is shared on skype/ you might miss something
+%company did not have the motivation to invest too much into creating extremely complicated tool and at the time (YYYY) it was very difficult to create something custom which would be robust and almost perfect at the same time
 
-this led to need for some automated way to check the compliance with internal guidelines
+%-  first attempts to rewrite BH to Roslyn 
+%not so successful Bachelor thesis by another student (huge performance problems, implementation basically one to one with the old console app, does not leverage of Roslyn type system, everything based on strings, therefore many missed diagnostic problems)
 
-\subsection{Old BH}
-Tools for static code analysis in general
+%why we are only concerned with this and do not check the naming conventions or advanced refactoings - tools already exist for this (StyleCop and ReSharper) and were not implemented in new BH version - usings sorting and such is provided by other tools
 
-one such tool was BH
-company did not have the motivation to invest too much into creating extremely complicated tool and at the time (YYYY) it was very difficult to create something custom which would be robust and almost perfect at the same time
+% TODO tell how ReSharper or StyleCop are used in Kentico
+\section{The Original BugHunter}
+BugHunter is a simple console application developed at Kentico that searches for violations of internal rules and best practices in the the CMS solution. Given the file path to the solution folder, the BugHunter performs the checks and outputs the results to a file. Each issue found is reported with a short message plus additional information on its location in the code (source file and line number). It contains various checks not, only for C\#, but also a few for JavaScript (like no skipped tests allowed), ASPX\footnote{TODO} (preferred usage of Kentico controls to default ones) and XML files.
 
--  first attempts to rewrite BH to Roslyn 
-not so successful Bachelor thesis by another student (huge performance problems, implementation basically one to one with the old console app, does not leverage of Roslyn type system, everything based on strings, therefore many missed diagnostic problems)
+Following sections explain what were the downsides of the old BugHunter and why an advanced tool was needed.
 
-Does run on CI
+\subsection{Need for Semantic Analysis}
+The biggest disadvantage of the previous BugHunter is that the tool performs the checks purely by string comparison. It does not build any model of the analyzed code and therefore possesses no knowledge about the semantics. 
 
-Problems to be addressed
+This causes an enormous number of false negatives. A typical example would be the tool trying to prevents the access to \texttt{Cookies} property of the \texttt{HttpRequest} object. The old BugHunter check looks something like this:
 
-\subsubsection{More robust model building}
-no dependance on code style, 
-fully qulified names, 
-alias imports that could ruin the following analysis
-string checks. if additional space is there, most checks will just ignore
+$$
+if (line.Contains("Request.Cookies")) \\
+\{
+  \textnormal{// report an error}
+\}
+$$
 
-\subsubsection{Need for semantic categories}
-many cases that were not discoverable by string comparison were uncovered
+If the programmer uses the most common approach\footnote{Accessing the static property of the class that is handling the request.} of accessing the \texttt{Cookies} collection on the \texttt{Request} object everything is fine and the BugHunter correctly reports the problem. However, it has no means of detecting other possible accesses to the property. If the \texttt{Request} object is stored in a variable, or passed it to a function as an argument the accesses of the cookies collection will not be detected by BugHunter. 
 
-where old tool searched for HttpRequest.Cookies - if someone saved the request into variale no way for  old bh to diagnose the usage.. with roslyn and semantic analysis it is an easy task
-    
-\subsubsection{Ease of use}
-integrated in IDE, run in paralled with programmer typing... almost no one run BH before making push.. like this with no warning  policy they cannot do it
+There are other posibilities that can lead to false negatives when using just primitive string comparisons. For example, in C\# it would be perfectly okay to put an arbitrary number of whitespace characters between the object, the dot token, and the property being accessed. This can be solved by using a bit more complicated regular expression, but it still covers only a fraction of use cases. Things like using variable or even alias usings\footnote{https://msdn.microsoft.com/en-us/library/aa664765(v=vs.71).aspx} will still be missed by the tool. The only way to solve this is to introduce the semantics into the analysis which is a relatively easy task for new Roslyn anlyzers developed as part of this thesis.
 
-old BH reporting not integrated in VS -> almost no one runs it locally, they need to wait for CI to tell them what went wrong
+\subsection{Ease of Use}
+As mentioned in the Chapter~\ref{chap:static-code-analysis}, the key to success of a static code analysis tool is the ease of use. This means that running the tool should not be complicated and also that interpreting the results should be straightforward. If this is not the case, programmers will not use the tool or they will ignore the results it produces. 
 
+With the original BugHunter, developer had to run the separate application that took for about 30 seconds. Then he or she had to analyze the results before going back to the IDE in order to look up the reported issues and fix them. 
 
+In a discussion with developers at Kentico, they all admitted, that more often then not, they submit the changes to the version control system without running the BugHunter locally. 
 
-\subsubsection{Configuration}
-talk about the old configuration of the BH, and how this one maps to Roslyn version (suppression pragmas vs supression files, some analyzers look at the filepath or file extension directly.. some chcecks like SystemIO had to be supressed - level set to none in ruleset file - for files that it did not make sense for... helpers that wrap the "forbidden" functionality were marked with pragma statements around the whole class so that it is clearly visible in code)
+The console application is run by the build server itself as part of the continuous integration. If the BugHunter detects any issues the developer who caused them is notified by an email and must fix them as part of the no-warning policy. This process prolongs the time it takes to finish the implementation and generates a demand for a more developer friendly solution. Since Roslyn analyzers are part of the Visual Studio IDE, programmers get an instant feedback and see the warnings before submitting the code without the need to run an external application.
 
-cumbersome configuration - cannot ignore one usage, therefore all files/folders/projects were ignored for some checks
+\subsection{Suppressing the Results}
+Another downside of the previous solution was the way certain portions of the code were excluded from the analysis. Since the BugHunter is a console application and the CMS solution is completely independent of it, the configuration had to be placed in BugHunter itself. This was deemed as not transparent, as it was not clear, why in one file certain code was okay whereas in the other it was reported as an issue without taking a look into the huge configuration file.
 
+Moreover, the only way to exclude a certain piece of code from the analysis was to put the whole file in which it appeared to the configuration of the rule to be suppressed. This way of configuration lacked the granularity and was opaque. 
 
-\subsection{Roslyn attempts}
-tell about how resharper, fxcop and stylecop are (not)used
-talk very briefly about the intentions to rewrite bh to roslyn - bachelor thesis, not so successful, only syntax and very early stage of Roslyn itself.. too many exceptions thrown when using the tool, and therefore extremely slow performance which made it practically unusable
+On the other hand, Roslyn provides numerous ways to turn off a certain rule for a project, a file, or even a line of code. More information on which approach was taken when deploying the analyzers can be fount in the !!!!TODO !!!!.
 
-\subsection{Limitations}
-not only C\# but also some project specific stuff in XMLs and few JS checks like no xdescribe/xit
-
-some checks were not needed anymore and were just obsolete or even turned off
-
-why we are only concerned with this and do not check the naming conventions or advanced refactoings - tools already exist for this (StyleCop and ReSharper) and were not implemented in new BH version - usings sorting and such is provided by other tools
-
-....
-wuhuuu and here comes our part..
-
-\section{Requirements and Categorization}
-There is differend concern about categorizing the domain specific stuff about the implemented analyzers and then the C\# and compiler specific things that are used when implementing it.. therefore helpers for SMAE, CAE, IE... explain... new language version - new approach but same domain is concerned '.' vs '?.'
-
-
-compare to old BH, where this was more project and file based
-define two nugets - whi Web.Analyzers - specificities for CMSApp project
-other semantic categories, what they represent
+\bigskip\noindent
+Following sections will present the new version of BugHunter analyzers implemented using new Roslyn compiler platform as implementation part of this thesis.
 
 
 \section{Architecture}
+The main solution with new Roslyn analyzers (BugHunter.sln) consists of 6 projects within 2 folders: TODO - Do leave the Vsix project there or delete???
+
+TODO - replace with a screenshot???
+\begin{description}
+  \item[Analyzers folder] with Roslyn analyzers
+  \begin{itemize}
+    \item BugHunter.Core
+    \item BugHunter.Analyzers
+    \item BugHunter.Web.Analyzers
+  \end{itemize}
+  
+  \item[Tests folder] with tests:
+  \begin{itemize}
+    \item BugHunter.TestUtils
+    \item BugHunter.Core.Test
+    \item BugHunter.Analyzers.Test
+    \item BugHunter.Web.Analyzers.Test
+  \end{itemize}
+\end{description}
+
+TODO Describe each project.. why 2 for analyzers
+
+\subsection{Analyzer Categories}
+The \texttt{Category} property of the \texttt{Microsoft.CodeAnalysis.DiagnosticDescriptor} class provides a way for semantically structuring the analyzers and giving an additional informatino on what type of problem the analyzers within the category are concerned with. The projects with analyzers use the categories also for folder structure with each folder contaning separate subfolders for analyzers and code fixes respectively.
+
+
+The following sections briefly describe what categories were defined and what they represent. 
+
+\subsubsection{Abstraction over Implementation}
+
+\subsubsection{CMS API Guidelines}
+
+\subsubsection{CMS API Replacements}
+
+\subsubsection{CMS Base Classes}
+
+\subsubsection{String and Culture}
+
+
+
+
+%There is different concern about categorizing the domain specific stuff about the implemented analyzers and then the C\# and compiler specific things that are used when implementing it.. therefore helpers for SMAE, CAE, IE... explain... new language version - new approach but same domain is concerned '.' vs '?.'
+
 Main concern are ApiReplacement and General (string) and Internal ApiGuidelines --> need for analyzing members of certain types
 
 \subsection{CMSApiReplacement}
@@ -643,6 +682,8 @@ tests not only for BH but of course for all other helpers/utils/extensions
 
 (- how to actually know we are looking for right things and did not misspell something --> tests always reference current version of Kentico.Libraries (NuGet package). If there is any typo in either source code of test files or analyzers, the tests will fail (needed to manually turn this feature on since the boilerplate generated by Microsoft project did not support this))
 
+no fixes for api replacement when conditional access is used, why.. link the issue on gitub for roslyn refactorings mentioning this
+
 \subsection{Roslyn as SDK and Its Usage -- Considerations and Remarks}
 Changing versions ... not really well documented
 Only issues on GH provide some insight
@@ -665,6 +706,12 @@ somehow explain why... and introduce following chapter
 % ============================= CHAPTER 6 =========================
 % =================================================================
 \chapter{Measuring and Optimizing the Performance}
+Why - how many nodes, where are callbacks...
+Measurements from roslyn - number of projects, documents, nodes... show table, reference to code that produces it (shall be included in IS)
+
+https://msdn.microsoft.com/en-us/magazine/dn879356.aspx 18/10/2016
+A key point to note is that a top-level action registered with any Register method should never stash any state in instance fields on the analyzer type. Visual Studio will reuse one instance of that analyzer type for the whole Visual Studio session to avoid repeated allocations. Any state you store and reuse is likely to be stale when analyzing a future compilation and could even be a memory leak if it keeps old syntax nodes or symbols from being garbage collected.
+
 Why tool needs to be super-fast (refer to chapter 4 where this should have been said)
 
 Talk about /ReportAnalyzer switch of MSBuild process (csc.exe)
@@ -685,6 +732,7 @@ Questionares sent to development team, feedback from senior developers
   - how to maintain the tool, 
   - how easy it is to add new analyzers, 
 
+- talk about kentico selling it's source code, so after stabilization, BH vcan also be available for them as nuget package and aid with the development practices 
 
 % =================================================================
 % =============================== STUFF ===========================
@@ -711,5 +759,7 @@ TODO...
 
   \chapter{Deployment and Versioning}
 [2 pages]
+talk about the old configuration of the BH, and how this one maps to Roslyn version (suppression pragmas vs supression files, some analyzers look at the filepath or file extension directly.. some chcecks like SystemIO had to be supressed - level set to none in ruleset file - for files that it did not make sense for... helpers that wrap the "forbidden" functionality were marked with pragma statements around the whole class so that it is clearly visible in code)
+
 
 \end{document}
