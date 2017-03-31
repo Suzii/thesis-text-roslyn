@@ -532,7 +532,9 @@ TODO reusing the instances of analyzers - stateful vs stateless
 \label{chap:custom-roslyn-analyzers}
 Kentico Software is an IT company based in Brno, developing an all-in-one solution for web content management, e-commerce and online marketing using the ASP.NET\footnote{TODO} architecture. The leading product is Kentico CMS (Content Management System) that has been on the market since 2004 with 11th version currently being developed. 
 
-Over the course of almost 13 years, the solution grew to an enormous extend. To give an overview, the current version of Kentico CMS solution contains XY projects and a total of YZ source files. A lot of knowledge was accumulated with many internal utilities developed and guidelines created. Many features, such as globalization, were developed in-house first, only to be added as an integral part of the .NET Framework a few years later.
+% TODO - mention Kentico is selling  the product for other developer - eg. they are selling api and the code, hosting and other stuff must be done by the customer
+
+Over the course of almost 13 years, the solution grew to an enormous extent. To give an overview, the current version of the Kentico CMS solution contains XY projects and a total of YZ C\# documents. A lot of knowledge was accumulated with many internal utilities developed and guidelines created. Many features, such as globalization, were developed in-house first, only to be added as an integral part of the .NET Framework a few years later.
 
 The size of the company grew to more than 80 developers working on one product. It became significantly harder to share all the knowledge about the internal best practices and the process of onboarding new employees was challenging. With the increasing complexity of the project, the main focus of the code reviews was shifted to the general architecture and inspection of how the new code influences the other parts of the system, in order not to break anything. The manual and often repetitive tasks of checking the compliance with the conventions and correct use of the API during the code review became very tiresome and dragged the focus of the reviewer away from the higher perspective on the code. This led to a need for an automated tool that would take care of the repetitive checks that needed to be done by the reviewer.
 
@@ -561,29 +563,49 @@ if (line.Contains("Request.Cookies")) \\
 \}
 $$
 
-If the programmer uses the most common approach\footnote{Accessing the static property of the class that is handling the request.} of accessing the \texttt{Cookies} collection on the \texttt{Request} object everything is fine and the BugHunter correctly reports the problem. However, it has no means of detecting other possible accesses to the property. If the \texttt{Request} object is stored in a variable, or passed it to a function as an argument the accesses of the cookies collection will not be detected by BugHunter. 
+If the programmer uses the most common approach\footnote{Accessing the static property of the class that is handling the request.} of accessing the \texttt{Cookies} collection on the \texttt{Request} object, everything is fine and the BugHunter correctly reports the problem. However, it has no means of detecting other possible accesses to the property. If the \texttt{Request} object is passed to a function as an argument, or stored in a variable, the accesses of the cookies collection will not be detected by BugHunter. 
 
 There are other posibilities that can lead to false negatives when using just primitive string comparisons. For example, in C\# it would be perfectly okay to put an arbitrary number of whitespace characters between the object, the dot token, and the property being accessed. This can be solved by using a bit more complicated regular expression, but it still covers only a fraction of use cases. Things like using variable or even alias usings\footnote{https://msdn.microsoft.com/en-us/library/aa664765(v=vs.71).aspx} will still be missed by the tool. The only way to solve this is to introduce the semantics into the analysis which is a relatively easy task for new Roslyn anlyzers developed as part of this thesis.
 
 \subsection{Ease of Use}
-As mentioned in the Chapter~\ref{chap:static-code-analysis}, the key to success of a static code analysis tool is the ease of use. This means that running the tool should not be complicated and also that interpreting the results should be straightforward. If this is not the case, programmers will not use the tool or they will ignore the results it produces. 
+As mentioned in the Chapter~\ref{chap:static-code-analysis}, the key to success of a static code analysis tool is the ease of use. This means that running the tool should not be complicated and interpreting the results should be straightforward. If this is not the case, programmers will not use the tool or they will ignore the results it produces. 
 
 With the original BugHunter, developer had to run the separate application that took for about 30 seconds. Then he or she had to analyze the results before going back to the IDE in order to look up the reported issues and fix them. 
 
 In a discussion with developers at Kentico, they all admitted, that more often then not, they submit the changes to the version control system without running the BugHunter locally. 
 
-The console application is run by the build server itself as part of the continuous integration. If the BugHunter detects any issues the developer who caused them is notified by an email and must fix them as part of the no-warning policy. This process prolongs the time it takes to finish the implementation and generates a demand for a more developer friendly solution. Since Roslyn analyzers are part of the Visual Studio IDE, programmers get an instant feedback and see the warnings before submitting the code without the need to run an external application.
+The console application is run by the build server itself as part of the continuous integration. If the BugHunter detects any issues, the developer who caused them is notified by an email and must fix them as part of the no-warning policy. This process prolongs the time it takes to finish the implementation and generates a demand for a more developer friendly solution. Since Roslyn analyzers are part of the Visual Studio IDE, programmers get an instant feedback and see the warnings before submitting the code without the need to run an external application.
 
 \subsection{Suppressing the Results}
-Another downside of the previous solution was the way certain portions of the code were excluded from the analysis. Since the BugHunter is a console application and the CMS solution is completely independent of it, the configuration had to be placed in BugHunter itself. This was deemed as not transparent, as it was not clear, why in one file certain code was okay whereas in the other it was reported as an issue without taking a look into the huge configuration file.
+Another downside of the previous solution was the way certain portions of the code were excluded from the analysis. Since the BugHunter is a console application and the CMS solution is completely independent of it, the configuration had to be placed in BugHunter itself. This was deemed as not transparent, as it was not clear, why in one file certain code was okay whereas in the other it was reported as an issue, without taking a look into a huge configuration file.
 
 Moreover, the only way to exclude a certain piece of code from the analysis was to put the whole file in which it appeared to the configuration of the rule to be suppressed. This way of configuration lacked the granularity and was opaque. 
 
 On the other hand, Roslyn provides numerous ways to turn off a certain rule for a project, a file, or even a line of code. More information on which approach was taken when deploying the analyzers can be fount in the !!!!TODO !!!!.
 
 \bigskip\noindent
-Following sections will present the new version of BugHunter analyzers implemented using new Roslyn compiler platform as implementation part of this thesis.
+Following sections will present the new version of BugHunter analyzers implemented as part of this thesis using new Roslyn compiler platform.
 
+
+\section{Analyzer Categories}
+The \texttt{Category} property of the \texttt{Microsoft.CodeAnalysis.DiagnosticDescriptor} class provides a way for semantically distinguishing the analyzers and giving an additional information on what type of problem the particular category is concerned with. The original BugHunter did not group the checks into the semantical categories but was structured rather by the technology the check was concerned with (C\#, ASPX, JavaScript, web parts, etc.). 
+
+Therefore, one of the first tasks before the implementation were to determine which checks are suitable candidates for refactoring into new Roslyn analyzers, and subsequently to group them into categories by the type of task they performed. Basically, all the checks that were not obsolete and were concerned with C\# internal guidelines were rewritten. The following sections briefly describe how the categories were defined and what they represent. 
+
+\subsection{Abstraction over Implementation}
+Analyzers in this category check that there is no "hard reference" on third party libraries in the code. Violation of this rule would require clients to use a particular version of the library which might collide with references on other components they are using, resulting in so called "dependency hell"\footnote{https://devnet.kentico.com/articles/referencing-multiple-versions-of-the-same-assembly-in-a-single-application}. Therefore, in CMS solution the hard references are replaced with a thin layer of interfaces and adapters.
+
+\subsection{CMS API Guidelines}
+These analyzers impose internal guidelines on the CMS API usage. They forbid the direct access to database from presentation layer (\texttt{ConnectionHelperExecutequeryAnalyzer}), point out usages of methods that may have a safer alternative (\texttt{WhereLikeMethodAnalyzer} or \texttt{ValidationHelperGetAnalyzer}) and guide developers to use constants as arguments where possible (\texttt{EventLogArgumentsAnalyzer}).
+
+\subsection{CMS API Replacements}
+In Kentico CMS solution there are many helpers that encapsulate the traditional .NET API and might provide an extended functionality. For example, determining the current browser of the user can be done by accessing the \texttt{Browser} property of the \texttt{HttpRequest} object. However, if this attempt fails there are still other ways to resolve it. Analyzer detects access to members that have an equivalent in CMS API and suggest a code fix. 
+
+\subsection{CMS Base Classes}
+Similar to the previous category, the analyzers search for classes that inherit from standard .NET classes and suggest internal alternatives.
+
+\subsection{String and Culture}
+This category of analyzers makes sure that string comparison (\texttt{Equals()}, \texttt{Compare}, \texttt{IndexOf} and their variants) and manipulation methods (\texttt{ToLower(), \texttt{ToUpper()}}) are always used with the overload specifying \texttt{StringComparison} or \texttt{CultureInfo} parameter explicitly. This is vital for an application like CMS that is used with culture specific data. For more information on what issues can be caused when not following this rule, like the \textit{"Turkish-I problem"}, see \cite{best-practices-for-using-strings-in-dot-net} (https://msdn.microsoft.com/en-us/library/dd465121(v=vs.110).aspx). 
 
 \section{Architecture}
 The main solution with new Roslyn analyzers (BugHunter.sln) consists of 6 projects within 2 folders: TODO - Do leave the Vsix project there or delete???
@@ -606,32 +628,15 @@ TODO - replace with a screenshot???
   \end{itemize}
 \end{description}
 
-TODO Describe each project.. why 2 for analyzers
+TODO Describe each project.. why 2 for analyzers - nuget distribution
 
-\subsection{Analyzer Categories}
-The \texttt{Category} property of the \texttt{Microsoft.CodeAnalysis.DiagnosticDescriptor} class provides a way for semantically structuring the analyzers and giving an additional informatino on what type of problem the analyzers within the category are concerned with. The projects with analyzers use the categories also for folder structure with each folder contaning separate subfolders for analyzers and code fixes respectively.
-
-
-The following sections briefly describe what categories were defined and what they represent. 
-
-\subsubsection{Abstraction over Implementation}
-
-\subsubsection{CMS API Guidelines}
-
-\subsubsection{CMS API Replacements}
-
-\subsubsection{CMS Base Classes}
-
-\subsubsection{String and Culture}
-
-
-
+The projects with analyzers use the categories also for folder structure with each folder contaning separate subfolders for analyzers and code fixes respectively.
 
 %There is different concern about categorizing the domain specific stuff about the implemented analyzers and then the C\# and compiler specific things that are used when implementing it.. therefore helpers for SMAE, CAE, IE... explain... new language version - new approach but same domain is concerned '.' vs '?.'
 
 Main concern are ApiReplacement and General (string) and Internal ApiGuidelines --> need for analyzing members of certain types
 
-\subsection{CMSApiReplacement}
+\subsection{CMS API Replacement Analyzers}
 Example + why
 
 \subsubsection{For Member}
@@ -644,6 +649,9 @@ UML
 \subsection{For Method}
 more involved analysis.. MemberInvocationAnalyzer used by ApiReplacementForMethodAnalyzer... callback on SyntaxKind.InvocationExpression
 
+use mostly MethodInvocationAnalyzer and leverage its template method pattern, to dig deeper into analysing where the method was invoked or who it is invoked - which overload is called, is it using predefined constants instead of plain string etc... (limitations)
+
+
 UML 
 it is easy to access semantic model first and analyze the IMethodSymbol... however.. point out how many times this callback is invoked and how many times SemanticModel would have been queried... therefore very simple semantic for getting rid of cases that do not have to be analyzed further... tell about the possible cases of InvocationExpression - nested SimpleMemberAccess.. first MemberBindingExpression, or IdentifierName... always show a graph...
 if it could be skipped based on syntax - invoked method name is for sure none of the forbidden member names, skip, otherwise, analyze further based on semantics
@@ -652,18 +660,8 @@ TEMPLATE METHOD - used not only for straightworward API replacements but also fo
 
 !!!!do some benchmarking how this heuristic helped with the performance!!!! show graph
 
-\subsubsection{CmsApiGuidelines}
-use mostly MethodInvocationAnalyzer and leverage its template method pattern, to dig deeper into analysing where the method was invoked or who it is invoked - which overload is called, is it using predefined constants instead of plain string etc... (limitations)
-
-\subsubsection{AbstractionOverImplementation}
-Why lucene - 3rd party libs and assembly binding, bound to IdentifierName  - tell how many, therefore it is crutial to make it fast and cout of as soon as possible
-
-\subsubsection{StringMethodsAndCulture}
-Why,
-How - do not use MethodInvocationAnalyzer - some performance gain as we do not need to configure the forbidden types from the outside, we know string is always the ReceiverType and it is a sealed class and thus no need to analyze its parents, interfaces etc.
+Note that although very similar but this template method was not used fot StringAndCulture analyzers as it was more complicated than actually needed. Some performance gain as we do not need to configure the forbidden types from the outside, we know string is always the ReceiverType and it is a sealed class and thus no need to analyze its parents, interfaces etc.
 Invocation is analyzed if it supplied the correct arguments... StringComparison or CultureInfo
-
-Methods ToLower and ToUpper have specific overloads in Kentico that accept CultureInfo because of problems with specific turkish culture (TODO search for some reference on wiki)
 
 \subsection{CodeFixes}
 Why
@@ -684,7 +682,7 @@ tests not only for BH but of course for all other helpers/utils/extensions
 
 no fixes for api replacement when conditional access is used, why.. link the issue on gitub for roslyn refactorings mentioning this
 
-\subsection{Roslyn as SDK and Its Usage -- Considerations and Remarks}
+\section{Roslyn as SDK and Its Usage -- Considerations and Remarks}
 Changing versions ... not really well documented
 Only issues on GH provide some insight
 e.g. SkipGeneratedCoOdeAnalysis or RunAnalyzersInParallel - some discussions on GitHub but not clear outcomes, sometimes proposition does not math the actual implementation and it is generally hard to find some best practices on how to do stuff ad it is still a pretty young tech... moreover the examples are not really updated according to new versions of the API so one struggles with implemeting something on his own only to find a few weeks later that it was added or it is considered for the next milestone
@@ -699,15 +697,16 @@ current version used is v.1.3.X and for this on VS with Update 3 is needed... ha
    https://github.com/dotnet/roslyn/issues/6998
    https://github.com/dotnet/roslyn/pull/7526)
 
-\subsection{Concerns about performance}
-somehow explain why... and introduce following chapter
+
+TODO
+Concerns about the performance of the tool - introduce following chapter
 
 % =================================================================
 % ============================= CHAPTER 6 =========================
 % =================================================================
 \chapter{Measuring and Optimizing the Performance}
 Why - how many nodes, where are callbacks...
-Measurements from roslyn - number of projects, documents, nodes... show table, reference to code that produces it (shall be included in IS)
+Measurements from roslyn - number of projects, documents, nodes... show table, reference to code that produces it (shall be included in IS)... why people are not using resharper etc.dd
 
 https://msdn.microsoft.com/en-us/magazine/dn879356.aspx 18/10/2016
 A key point to note is that a top-level action registered with any Register method should never stash any state in instance fields on the analyzer type. Visual Studio will reuse one instance of that analyzer type for the whole Visual Studio session to avoid repeated allocations. Any state you store and reuse is likely to be stale when analyzing a future compilation and could even be a memory leak if it keeps old syntax nodes or symbols from being garbage collected.
