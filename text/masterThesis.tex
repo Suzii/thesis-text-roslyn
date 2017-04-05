@@ -530,7 +530,7 @@ TODO reusing the instances of analyzers - stateful vs stateless
 
 \chapter{Implementation of Custom Analyzers}
 \label{chap:custom-roslyn-analyzers}
-Kentico Software is an IT company based in Brno, developing an all-in-one solution for web content management, e-commerce and online marketing using the ASP.NET\footnote{TODO} architecture. The leading product is Kentico CMS (Content Management System) that has been on the market since 2004 with 11th version currently being developed. 
+Kentico Software is an IT company based in Brno, developing an all-in-one solution for web content management, e-commerce and online marketing using the ASP.NET\footnote{TODO} architecture. The leading product is Kentico CMS (Content Management System). It has been on the market since 2004 with 11th version currently being developed. 
 
 % TODO - mention Kentico is selling  the product for other developer - eg. they are selling api and the code, hosting and other stuff must be done by the customer
 
@@ -547,14 +547,14 @@ The size of the company grew to more than 80 developers working on one product. 
 
 % TODO tell how ReSharper or StyleCop are used in Kentico
 \section{The Original BugHunter}
-BugHunter is a simple console application developed at Kentico that searches for violations of internal rules and best practices in the the CMS solution. Given the file path to the solution folder, the BugHunter performs the checks and outputs the results to a file. Each issue found is reported with a short message plus additional information on its location in the code (source file and line number). It contains various checks not, only for C\#, but also a few for JavaScript (like no skipped tests allowed), ASPX\footnote{TODO} (preferred usage of Kentico controls to default ones) and XML files.
+BugHunter is a simple console application developed at Kentico that searches for violations of internal rules and best practices in the the CMS solution. Given the file path to the solution folder, the BugHunter performs the checks and outputs the results to a file. Each issue found is reported with a short message plus additional information on its location in the code (source file and line number). It contains various checks not, only for C\#, but also a few for JavaScript (like no skipped tests allowed), ASPX\footnote{TODO} (preferred usage of Kentico controls to default ones), or XML files.
 
-Following sections explain what were the downsides of the old BugHunter and why an advanced tool was needed.
+Following sections explain what were the main downsides of the original BugHunter and how this thesis addresses them.
 
 \subsection{Need for Semantic Analysis}
-The biggest disadvantage of the previous BugHunter is that the tool performs the checks purely by string comparison. It does not build any model of the analyzed code and therefore possesses no knowledge about the semantics. 
+The biggest disadvantage of the previous BugHunter was that the tool performed the checks purely by string comparison. It did not build any model of the analyzed code and therefore possessed no knowledge about the semantics. 
 
-This causes an enormous number of false negatives. A typical example would be the tool trying to prevents the access to \texttt{Cookies} property of the \texttt{HttpRequest} object. The old BugHunter check looks something like this:
+This caused an enormous number of false negatives. A typical example would be the tool trying to prevent the access to \texttt{Cookies} property of the \texttt{HttpRequest} object. The old BugHunter check looked something like this:
 
 $$
 if (line.Contains("Request.Cookies")) \\
@@ -563,18 +563,18 @@ if (line.Contains("Request.Cookies")) \\
 \}
 $$
 
-If the programmer uses the most common approach\footnote{Accessing the static property of the class that is handling the request.} of accessing the \texttt{Cookies} collection on the \texttt{Request} object, everything is fine and the BugHunter correctly reports the problem. However, it has no means of detecting other possible accesses to the property. If the \texttt{Request} object is passed to a function as an argument, or stored in a variable, the accesses of the cookies collection will not be detected by BugHunter. 
+If the programmer used the most common approach\footnote{Accessing the static property of the class that is handling the request.} of accessing the \texttt{Cookies} collection on the \texttt{Request} object, everything was fine and the BugHunter correctly reported the problem. However, it had no means of detecting other possible accesses to the property. If the \texttt{Request} object was passed to a function as an argument, or stored in a variable, the accesses of the cookies collection were not be detected by BugHunter. 
 
-There are other posibilities that can lead to false negatives when using just primitive string comparisons. For example, in C\# it would be perfectly okay to put an arbitrary number of whitespace characters between the object, the dot token, and the property being accessed. This can be solved by using a bit more complicated regular expression, but it still covers only a fraction of use cases. Things like using variable or even alias usings\footnote{https://msdn.microsoft.com/en-us/library/aa664765(v=vs.71).aspx} will still be missed by the tool. The only way to solve this is to introduce the semantics into the analysis which is a relatively easy task for new Roslyn anlyzers developed as part of this thesis.
+There were other use cases that could lead to false negatives when using just primitive string comparisons. For example, in C\# it is allowed to put an arbitrary number of whitespace characters between the object, the dot token, and the property being accessed. This could have been solved by using a bit more complicated regular expression, but it would still covers only a fraction of use cases. Things like using variable or even alias usings\footnote{https://msdn.microsoft.com/en-us/library/aa664765(v=vs.71).aspx} would stay undetected by the tool. The only way to solve this was to introduce the semantics into the analysis which was a relatively easy task for new Roslyn anlyzers developed as part of this thesis.
 
 \subsection{Ease of Use}
 As mentioned in the Chapter~\ref{chap:static-code-analysis}, the key to success of a static code analysis tool is the ease of use. This means that running the tool should not be complicated and interpreting the results should be straightforward. If this is not the case, programmers will not use the tool or they will ignore the results it produces. 
 
 With the original BugHunter, developer had to run the separate application that took for about 30 seconds. Then he or she had to analyze the results before going back to the IDE in order to look up the reported issues and fix them. 
 
-In a discussion with developers at Kentico, they all admitted, that more often then not, they submit the changes to the version control system without running the BugHunter locally. 
+In a discussion with developers at Kentico, they all admitted, that more often then not, they submitted the changes to the version control system without running the BugHunter locally. 
 
-The console application is run by the build server itself as part of the continuous integration. If the BugHunter detects any issues, the developer who caused them is notified by an email and must fix them as part of the no-warning policy. This process prolongs the time it takes to finish the implementation and generates a demand for a more developer friendly solution. Since Roslyn analyzers are part of the Visual Studio IDE, programmers get an instant feedback and see the warnings before submitting the code without the need to run an external application.
+The console application was run by the build server itself as part of the continuous integration. If the BugHunter detected any issues, the developer who caused them was notified by an email and had to fix them as part of the no-warning policy. This process prolonged the time it took to finish the implementation and generated a demand for a more developer friendly solution. Since Roslyn analyzers are part of the Visual Studio IDE, programmers get an instant feedback and see the warnings before submitting the code without the need to run an external application.
 
 \subsection{Suppressing the Results}
 Another downside of the previous solution was the way certain portions of the code were excluded from the analysis. Since the BugHunter is a console application and the CMS solution is completely independent of it, the configuration had to be placed in BugHunter itself. This was deemed as not transparent, as it was not clear, why in one file certain code was okay whereas in the other it was reported as an issue, without taking a look into a huge configuration file.
@@ -585,7 +585,6 @@ On the other hand, Roslyn provides numerous ways to turn off a certain rule for 
 
 \bigskip\noindent
 Following sections will present the new version of BugHunter analyzers implemented as part of this thesis using new Roslyn compiler platform.
-
 
 \section{Analyzer Categories}
 The \texttt{Category} property of the \texttt{Microsoft.CodeAnalysis.DiagnosticDescriptor} class provides a way for semantically distinguishing the analyzers and giving an additional information on what type of problem the particular category is concerned with. The original BugHunter did not group the checks into the semantical categories but was structured rather by the technology the check was concerned with (C\#, ASPX, JavaScript, web parts, etc.). 
@@ -605,7 +604,7 @@ In Kentico CMS solution there are many helpers that encapsulate the traditional 
 Similar to the previous category, the analyzers search for classes that inherit from standard .NET classes and suggest internal alternatives.
 
 \subsection{String and Culture}
-This category of analyzers makes sure that string comparison (\texttt{Equals()}, \texttt{Compare}, \texttt{IndexOf} and their variants) and manipulation methods (\texttt{ToLower(), \texttt{ToUpper()}}) are always used with the overload specifying \texttt{StringComparison} or \texttt{CultureInfo} parameter explicitly. This is vital for an application like CMS that is used with culture specific data. For more information on what issues can be caused when not following this rule, like the \textit{"Turkish-I problem"}, see \cite{best-practices-for-using-strings-in-dot-net} (https://msdn.microsoft.com/en-us/library/dd465121(v=vs.110).aspx). 
+This category of analyzers makes sure that string comparison (\texttt{Equals()}, \texttt{Compare}, \texttt{IndexOf} and their variants) and manipulation methods (\texttt{ToLower(), \texttt{ToUpper()}}) are always used with the overload specifying \texttt{StringComparison} or \texttt{CultureInfo} parameter explicitly. This is vital for an application like CMS that is used with culture specific data. For more information on what issues can be caused when not following this rule, like the \textit{"Turkish-I problem"}, see \cite{best-practices-for-using-strings-in-dot-net}. 
 
 \section{Architecture}
 The main solution with new Roslyn analyzers (BugHunter.sln) consists of 6 projects within 2 folders: TODO - Do leave the Vsix project there or delete???
@@ -669,6 +668,8 @@ How - CMSApiReplacements - pretty straightforward, although some limitations in 
 SystemIO does not have a codefix as this would be extremely tough to implement not a clear 1 to 1
 Lucene easy, then things like not using the DB layer from Presentation is not clear how to fix and it is needed for developer to chande the design of the solution to avoid this
 API guidelines have mostly easy fixes - suggesting different usages/overloads/methods
+
+TODO screenshot how codefix looks like
 
 \subsection{Tests}
 concerns about strings everywhere - attempts to use nuget with kentico libraries - many problems - could not be portable, nuget size was enormous - some wierd feeling of recurrsion... no other libraries seem to have been experiencing similair issues..
