@@ -622,31 +622,32 @@ There is different concern about categorizing the domain specific stuff about th
 Main concern are ApiReplacement and General (string) and Internal ApiGuidelines --> need for analyzing members of certain types
 
 \subsection{CMS API Replacement Analyzers}
-The CMS API Replacement category contains 15 analyzers which represents almost one half of total 31 analyzers that were created. Vast majority of these analyzers search for a particular member being accessed or invoked on a particular type. Any such usage found by the analyzer shall be reported as CMS API contains a replacement for it\footnote{The only exception is the \texttt{SystemIoAnalyzer} which will be discussed in more detail in TODO.} and a code fix shall be suggested if possible.
+The CMS API Replacement category contains 15 analyzers which represents almost one half of total 31 analyzers that were created. Vast majority of these analyzers search for a particular member being accessed or invoked on a particular type. Any such usage found by the analyzer shall be reported as CMS API contains a replacement for it\footnote{The only exception is the \texttt{SystemIoAnalyzer} which will be discussed in more detail in TODO.}. A code fix shall be suggested if possible as well.
 
-In order to prevent code duplication and ease the process of adding new analyzers, the analysis logic for the analyzers in this category was extracted to two helper classes: \texttt{ApiReplacementForMemberAnalyzer} and \texttt{ApiReplacementForMethodAnalyzer}. These are instantiated and configured by the specific analyzer and then perform the analysis themselves.
+In order to prevent code duplication and ease the process of adding new analyzers, the analysis logic for the analyzers in this category was extracted into two helper classes: \texttt{ApiReplacementForMemberAnalyzer} and \texttt{ApiReplacementForMethodAnalyzer}. These are instantiated and configured by the concrete end-analyzer and then perform the analysis themselves.
 
 \subsection{Configuration of the API Replacement Analyzers}
 There are only a few things the API replacement analyzers need to know in order to perform the actual analysis. This information is encapsulated in \texttt{ApiReplacementConfig} object. The object is passed as a constructor argument upon creation of the API replacement analyzer. It contains following properties:
 
 \begin{itemize}
   \item \texttt{ForbiddenMembers} -- member names to look for (e.g. \texttt{"Cookies"}), 
-  \item \texttt{ForbiddneTypes} -- names of fully qualified types these members belong to (e.g. \texttt{"System.Web.HttpRequest"}), 
+  \item \texttt{ForbiddneTypes} -- names of fully qualified types these members belong to\footnote{The forbidden type is treated as the highest type in the inheritance hierarchy the member could belong to.
+} (e.g. \texttt{"System.Web.HttpRequest"}), 
   \item \texttt{Rule} -- an instance of \texttt{DiagnosticDescriptor} that defines the diagnostic raised upon detection of a forbidden usage.
 \end{itemize} 
 
-The main reason why \texttt{ForbiddenTypes} is an array of strings rather than a single string, is the lack of inheritance hierarchy between \texttt{HttpRequest} and \texttt{HttpRequestBase} object in .NET framework. They basically contain same members but do not derive from one another\footnote{More information on why this is so can be found in https://msdn.microsoft.com/en-us/library/system.web.httprequestwrapper.aspx} and therefore the analyzer must treat both types separately. 
+The main reason behind \texttt{ForbiddenTypes} being an array of strings rather than a single string, is the lack of inheritance hierarchy between \texttt{HttpRequest} and \texttt{HttpRequestBase} object in .NET framework. They basically contain same members but do not derive from one another\footnote{More information on why this is so can be found in https://msdn.microsoft.com/en-us/library/system.web.httprequestwrapper.aspx} and therefore the analyzer must treat both types separately. 
 
 On the other hand, allowing for multiple forbidden members on one type under one diagnostic ID may also make sense. Therefore, \texttt{ForbiddenMembers} are also defined as an array.
 
 \subsection{API Replacement For Member Analyzer}
 The task for \texttt{ApiReplacementForMemberAnalyzer} is to subscribe to all possible member accesses and analyze the particular access. If the access is regarded as forbidden, given the configuration supplied (\texttt{ApiReplacementConfig} object), the analyzer raises a diagnostic.
 
-However, it is not enough for the analyzer to subscribe only to \texttt{SyntaxKind.SimpleMemberAccessExpression}. It also needs to analyze the \texttt{SyntaxKind.ConditionalAccessExpression} which is a new C\# 6.0 language feature\footnote{https://msdn.microsoft.com/en-us/library/dn986595.aspx}. 
+It is not enough for the analyzer to subscribe only to \texttt{SimpleMemberAccessExpression} syntax kind. It also needs to analyze the \texttt{ConditionalAccessExpression} (so called null conditional operator '\texttt{?.}') which is a new C\# 6.0 language feature\footnote{https://msdn.microsoft.com/en-us/library/dn986595.aspx}. 
 
-Even though it would be possible to subscribe to both kinds of syntax nodes with one callback, the underlying syntax of these two is so much different, it would make the code too cluttered and full of if-statements. Moreover, if Microsoft decides to add another possibility how to access members with next language version, the existing code would have to be modified.
+Even though it would be possible to subscribe to both kinds of syntax nodes with one callback, the underlying syntax of these two is so much different, it would make the code too cluttered and full of if-statements. Moreover, if Microsoft decides to add another possibility how to access members in next language version, the existing code would have to be modified.
 
-Therefore, it was decided to encapsulate the strategies for analyzing a particular syntax node into a separate classes. The API replacement for member analyzer instantiates the strategy helpers, configures them, and tell them to run the analysis methods as a callbeck subscribed to particular kind of syntax node. This makes the code easily extendible.
+Therefore, it was decided to encapsulate the strategies for analyzing a particular syntax node into a separate classes. The API replacement for member analyzer instantiates the strategy helpers, configures them, and tell them to run the analysis methods as a callbacks subscribed to particular kind of syntax node. This makes the code easily extendible.
 
 \begin{figure}[h!]
 		\centering
@@ -659,58 +660,53 @@ The UML class diagram for \texttt{ApiReplacementForMemberAnalyzer} is depicted i
 
 TODO explain the UML - make sure to depic how the analyzer subscribes to SK separately and runs the analysis using the starategy classes
 
-\subsubsection{Usage}
-Activity diagram to show how it is all initialized?
+TODO: Activity diagram to show how it is all initialized?
 
 \subsection{API Replacement For Method Analyzer}
-The class \texttt{ApiReplacementForMethodAnalyzer} is very similar to analyzer for members that was introduce in the previous section. It also accepts a configuration object defining the invocations of which members if which types are forbidden. 
-Instead of subscribing to member accesses it is interested in syntax nodes of kind \texttt{SyntaxKind.InvocationExpression}. It delegated the analysis itself to a strategy defined in \texttt{MethodInvocationAnalyzer}.
+The class \texttt{ApiReplacementForMethodAnalyzer} is very similar to analyzer for members that was introduced in the previous section. It also accepts a configuration object defining the invocations of which members on which types are forbidden. 
+Instead of subscribing to member accesses it is interested in syntax nodes of kind \texttt{InvocationExpression}. It delegated the analysis itself to a strategy defined in \texttt{MethodInvocationAnalyzer}.
 
 \subsection{Method Invocation Analyzer}
-This analyzer is used as a strategy for analyzing syntax nodes of kind invocation expression. It is utilized by API replacement for method analyzer and has to be configured with types and member names to be considered for the analysis. 
-
-TODO: Tell about syntax first optimizations...
-
-However, the need for analyzing a method invocation is not limited to the API replacements. Same analysis needs to be performed when enforcing internal guidelines that are concerned with methods. It is important to locate the specific methods invoked on specific types to be able to further analyze whether or not they are used according to the internal API conventions. 
-
-
-Therefore, this analyzer is not only used as a strategy in \texttt{ApiReplacementForMethodAnalyzer} but is also leveraged in other analyzers that involve method invocation checks. There was a significant reocurring pattern within these checks. 
+This analyzer defines an algorithm for analyzing invocation expression syntax nodes. The need for analyzing the method invocations is not limited to the API replacements. The same analysis needs to be performed when enforcing internal guidelines that are concerned with methods. It is important to locate the specific methods invoked on specific types, before it is possible to analyze further whether or not they are used according to the internal API conventions. 
 
 \subsubsection{Template Method Pattern}
-TODO
-\subsubsection{Check the File Path}
-First it might be needed to filter out files that are relevant for the diagnostic. For example, when prohibiting the access to the database layer from the presentational layer, analyzer is only concerned with the invocation expressions in the presentational layer. These files can be identified by inspecting the \texttt{FilePath} property of the \texttt{SyntaxTree} where the current invocation expression is located. If the file path does not meet the requirements, the current invocation expression does not need to be analyzed further.
+This analyzer is utilized by all analyzers that involve method invocation checks. In order to be easily extendible for checking advanced criteria, it implements the template method design pattern\footnote{http://www.oodesign.com/template-method-pattern.html}. Every step of the template method defines a criteria that must be met in order to proceed with the analysis. Steps that can be overridden have default implementation that proceeds with the analysis. It is important to note that these steps are ordered in a way so that the inexpensive checks are performed first, in order to boost the performance. Following sections describe steps of the whole algorithm.
 
+TODO: UML 
+
+\subsubsection{Check the File Path}
+Sometimes, analyzer needs to filter out files that are relevant for the diagnostic. For example, when analyzing the access to the database layer from the presentational layer, analyzer is only concerned with the invocation expressions in the presentational layer. Relevant files can be identified by inspecting the \texttt{FilePath} property of the \texttt{SyntaxTree} in which the current invocation expression is located. If the file path does not meet the requirements, the current invocation expression does not need to be analyzed further. The default implementation is to continue with the analysis.
+
+\subsubsection{Can Be Skipped By Syntax Only}
+This step exists purely for performance optimization reasons and cannot be overridden by subclasses. It tries to extract the name of the method invoked and compares it to the forbidden members. If the method name is not among forbidden members, the algorithm stops and no expensive operations had to be done. In case the heuristic is not able to determine the name of the method or the name matches one of the forbidden names, the algorithm advances to the next step.
+
+%TODO: it is easy to access semantic model first and analyze the IMethodSymbol... however.. point out how many times this callback is invoked and how many times SemanticModel would have been queried... therefore very simple semantic for getting rid of cases that do not have to be analyzed further... tell about the possible cases of InvocationExpression - nested SimpleMemberAccess.. first MemberBindingExpression, or IdentifierName... always show a graph... if it could be skipped based on syntax - invoked method name is for sure none of the forbidden member names, skip, otherwise, analyze further based on semantics
+
+%!!!!do some benchmarking how this heuristic helped with the performance!!!! show graph
 
 \subsubsection{Forbidden Method on Forbidden Type}
-TODO 
+Here, semantical model is queried for \texttt{IMethodSymbol} that matches the analyzed \texttt{InvocationExpressionSyntax}. If the method symbol is found, its property \texttt{Name} is checked against forbidden member names. If the check passes, the property \texttt{ReceiverType} is inspected and only if it is one of forbidden types or its subtype, the algorithm proceeds. 
+
+This method cannot be overridden as it is the integral part of the whole algorithm. It is also the most expensive one, since the checks in this method are performed on symbols. However, thanks to the heuristics from the previous step, the majority of irrelevant cases were already filter out.
 
 \subsubsection{Usage of the Invocation}
-TODO
+If it is important to analyze the specificities of the invocation usage (mainly the arguments supplied), subclasses can override this virtual method. The template method supplies it with two parameters: the invocation expression and the method symbol obtained in the previous step.
 
- 
+\subsubsection{Raise the Diagnostic}
+If all the steps above determined the analyzed invocation is forbidden, the last step of the template method makes sure the diagnostic is raised. It uses the diagnostic descriptor provided upon creation. It is possible to configure the diagnostic creation by providing optional instance of \texttt{IDiagnosticFormatter} -- an interface defined in \texttt{BugHunter} project that determines how the diagnostic of certain syntax nodes shall be formatted. 
 
 \subsubsection{Usage}
-TODO
+Typical example how to use this template method is \texttt{EventLogArgumentAnalyzer}. It defines an inner class by subclassing the \texttt{MethodInvocationAnalyzer}. It provides the diagnostic descriptor, custom diagnostic formatter and overrides \texttt{IsForbiddenUsage()} method. Then this inner class is used by end-analyzer to perform the analysis.
 
-use mostly MethodInvocationAnalyzer and leverage its template method pattern, to dig deeper into analysing where the method was invoked or who it is invoked - which overload is called, is it using predefined constants instead of plain string etc... (limitations)
+\subsection{Analyzers for String and Culture}
+Although all analyzers in String and Culture category could use the \texttt{MethodInvocationAnalyzer}, it was decided to take a diferent approach here. The fact that they only need to analyze the invocations on \texttt{String} type, makes the complex analysis of forbidden type in \texttt{MethodInvocationAnalyzer} ineffective. String is a sealed class\footnote{Sealed classes cannot be subclassed.} and so no complicated traversal of inheritance hierarchy is needed. In fact, in C\# strings are a \textit{special type} and therefore, only a simple check is sufficient:
+$$
+receiverType.SpecialType == SpecialType.System\_String
+$$
 
+This category searches for methods like \texttt{Equals()}, \texttt{CompareTo()}, \texttt{IndexOf()}. Considering that methods with same names can be found on many other types as well (Object, Collection), the first syntax check will fail to filter out the usages. Therefore, this relatively small performance optimization is reasonable.
 
-UML 
-it is easy to access semantic model first and analyze the IMethodSymbol... however.. point out how many times this callback is invoked and how many times SemanticModel would have been queried... therefore very simple semantic for getting rid of cases that do not have to be analyzed further... tell about the possible cases of InvocationExpression - nested SimpleMemberAccess.. first MemberBindingExpression, or IdentifierName... always show a graph...
-if it could be skipped based on syntax - invoked method name is for sure none of the forbidden member names, skip, otherwise, analyze further based on semantics
-
-TEMPLATE METHOD - used not only for straightworward API replacements but also for conformance toAPI usage guidelines - therefore need to be configurable - explain that the logis of 'forbidden member and type' is the same
-
-!!!!do some benchmarking how this heuristic helped with the performance!!!! show graph
-
-\subsection{String and Culture Analyzers}
-Note that although very similar but this template method was not used fot StringAndCulture analyzers as it was more complicated than actually needed. Some performance gain as we do not need to configure the forbidden types from the outside, we know string is always the ReceiverType and it is a sealed class and thus no need to analyze its parents, interfaces etc.
-Invocation is analyzed if it supplied the correct arguments... StringComparison or CultureInfo
-
-\subsection{Diagnostic Formatters}
-
-\subsection{CodeFixes}
+\section{CodeFixes}
 Why
 How - CMSApiReplacements - pretty straightforward, although some limitations in conditional accesses that do not have the codefix ... analyze why this is hard, can talk about the tree structure
 SystemIO does not have a codefix as this would be extremely tough to implement not a clear 1 to 1
@@ -719,7 +715,7 @@ API guidelines have mostly easy fixes - suggesting different usages/overloads/me
 
 TODO screenshot how codefix looks like
 
-\subsection{Tests}
+\section{Tests}
 concerns about strings everywhere - attempts to use nuget with kentico libraries - many problems - could not be portable, nuget size was enormous - some wierd feeling of recurrsion... no other libraries seem to have been experiencing similair issues..
 
 so libs are only referenced in tests - explain why this is important (when creating a compilation - metadata references need to be added)
