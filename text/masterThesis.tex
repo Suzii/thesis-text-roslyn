@@ -563,9 +563,11 @@ if (line.Contains("Request.Cookies")) \\
 \}
 $$
 
-If the programmer used the most common approach\footnote{Accessing the static property of the class that is handling the request.} of accessing the \texttt{Cookies} collection on the \texttt{Request} object, everything was fine and the BugHunter correctly reported the problem. However, it had no means of detecting other possible accesses to the property. If the \texttt{Request} object was passed to a function as an argument, or stored in a variable, the accesses of the cookies collection were not be detected by BugHunter. 
+If the programmer used the most common approach\footnote{Accessing the static property of the class that is handling the request.} of accessing the \texttt{Cookies} collection on the \texttt{Request} object, everything was fine and the BugHunter correctly reported the problem. However, it had no means of detecting other possible accesses to the property. If the \texttt{Request} object was passed to a function as an argument, or stored in a variable, the accesses of the cookies collection could not be detected by the BugHunter. 
 
-There were other use cases that could lead to false negatives when using just primitive string comparisons. For example, in C\# it is allowed to put an arbitrary number of whitespace characters between the object, the dot token, and the property being accessed. This could have been solved by using a bit more complicated regular expression, but it would still covers only a fraction of use cases. Things like using variable or even alias usings\footnote{https://msdn.microsoft.com/en-us/library/aa664765(v=vs.71).aspx} would stay undetected by the tool. The only way to solve this was to introduce the semantics into the analysis which was a relatively easy task for new Roslyn anlyzers developed as part of this thesis.
+There were other use cases that could lead to false negatives when using just primitive string comparisons. For example, in C\# it is allowed to put an arbitrary number of whitespace characters between the object, the dot token, and the property being accessed. This could have been solved by using a bit more complicated regular expression, but it would still covers only a fraction of use cases. Things like using variable or even alias usings\footnote{https://msdn.microsoft.com/en-us/library/aa664765(v=vs.71).aspx} would stay undetected by the tool. 
+
+The only way to solve this was to introduce the semantics into the analysis which was a relatively easy task for new Roslyn anlyzers developed as part of this thesis.
 
 \subsection{Ease of Use}
 As mentioned in the Chapter~\ref{chap:static-code-analysis}, the key to success of a static code analysis tool is the ease of use. This means that running the tool should not be complicated and interpreting the results should be straightforward. If this is not the case, programmers will not use the tool or they will ignore the results it produces. 
@@ -574,79 +576,122 @@ With the original BugHunter, developer had to run the separate application that 
 
 In a discussion with developers at Kentico, they all admitted, that more often then not, they submitted the changes to the version control system without running the BugHunter locally. 
 
-The console application was run by the build server itself as part of the continuous integration. If the BugHunter detected any issues, the developer who caused them was notified by an email and had to fix them as part of the no-warning policy. This process prolonged the time it took to finish the implementation and generated a demand for a more developer friendly solution. Since Roslyn analyzers are part of the Visual Studio IDE, programmers get an instant feedback and see the warnings before submitting the code without the need to run an external application.
+The console application was run by the build server itself as part of the continuous integration. If the BugHunter detected any issues, the developer who caused them would be notified by an email and would have to fix them as part of the no-warning policy. This process prolonged the time it took to finish the implementation and generated a demand for a more developer friendly solution. 
+
+Since Roslyn analyzers are part of the Visual Studio IDE, programmers get an instant feedback and see the warnings before submitting the code without the need to run an external application.
 
 \subsection{Suppressing the Results}
-Another downside of the previous solution was the way certain portions of the code were excluded from the analysis. Since the BugHunter is a console application and the CMS solution is completely independent of it, the configuration had to be placed in BugHunter itself. This was deemed as not transparent, as it was not clear, why in one file certain code was okay whereas in the other it was reported as an issue, without taking a look into a huge configuration file.
+Another downside of the previous solution was the way certain portions of the code were excluded from the analysis. Since the BugHunter is a console application and the CMS solution is completely independent of it, the configuration had to be placed in BugHunter itself. This was deemed as not transparent, as it was not clear, why in one file certain code was okay, whereas in the other, it was reported as an issue, without taking a look into a huge configuration file.
 
 Moreover, the only way to exclude a certain piece of code from the analysis was to put the whole file in which it appeared to the configuration of the rule to be suppressed. This way of configuration lacked the granularity and was opaque. 
 
 On the other hand, Roslyn provides numerous ways to turn off a certain rule for a project, a file, or even a line of code. More information on which approach was taken when deploying the analyzers can be fount in the !!!!TODO !!!!.
 
 \bigskip\noindent
+TODO rephrase
 Following sections will present the new version of BugHunter analyzers implemented as part of this thesis using new Roslyn compiler platform.
 
-\section{Analyzer Categories}
+\section{Defining Analyzer Categories}
 The \texttt{Category} property of the \texttt{Microsoft.CodeAnalysis.DiagnosticDescriptor} class provides a way for semantically distinguishing the analyzers and giving an additional information on what type of problem the particular category is concerned with. The original BugHunter did not group the checks into the semantical categories but was structured rather by the technology the check was concerned with (C\#, ASPX, JavaScript, web parts, etc.). 
 
-Therefore, one of the first tasks before the implementation were to determine which checks are suitable candidates for refactoring into new Roslyn analyzers, and subsequently to group them into categories by the type of task they performed. Basically, all the checks that were not obsolete and were concerned with C\# internal guidelines were rewritten. The following sections briefly describe how the categories were defined and what they represent. 
+Therefore, one of the first tasks before the implementation was to determine which checks are suitable candidates for refactoring into new Roslyn analyzers, and subsequently to group them into categories by the type of task they performed. Basically, all the checks that were not obsolete and were concerned with C\# internal guidelines were rewritten. The following sections briefly elaborate on how the categories were defined and what they represent. 
 
 \subsection{Abstraction over Implementation}
-Analyzers in this category check that there is no "hard reference" on third party libraries in the code. Violation of this rule would require clients to use a particular version of the library which might collide with references on other components they are using, resulting in so called "dependency hell"\footnote{https://devnet.kentico.com/articles/referencing-multiple-versions-of-the-same-assembly-in-a-single-application}. Therefore, in CMS solution the hard references are replaced with a thin layer of interfaces and adapters.
+Analyzers in this category check that there is no "hard reference" on third party libraries in the code. Violation of this rule would require clients to use a particular version of the library which might collide with references on other components they are using, resulting in so called "dependency hell"\footnote{https://devnet.kentico.com/articles/referencing-multiple-versions-of-the-same-assembly-in-a-single-application}. Therefore, in CMS solution the hard references are replaced with a thin layer of interfaces and adapters. The analyzers make sure, interfaces are used throughout the solution.
 
 \subsection{CMS API Guidelines}
-These analyzers impose internal guidelines on the CMS API usage. They forbid the direct access to database from presentation layer (\texttt{ConnectionHelperExecutequeryAnalyzer}), point out usages of methods that may have a safer alternative (\texttt{WhereLikeMethodAnalyzer} or \texttt{ValidationHelperGetAnalyzer}) and guide developers to use constants as arguments where possible (\texttt{EventLogArgumentsAnalyzer}).
+These analyzers impose internal guidelines on the CMS API usage. They forbid the direct access to database from presentation layer (\texttt{ConnectionHelperExecutequeryAnalyzer}), point out usages of methods that may have more suitable or a safer alternative (\texttt{WhereLikeMethodAnalyzer} or \texttt{ValidationHelperGetAnalyzer}), or guide developers to use predefined constants where possible (\texttt{EventLogArgumentsAnalyzer}).
 
 \subsection{CMS API Replacements}
-In Kentico CMS solution there are many helpers that encapsulate the traditional .NET API and might provide an extended functionality. For example, determining the current browser of the user can be done by accessing the \texttt{Browser} property of the \texttt{HttpRequest} object. However, if this attempt fails there are still other ways to resolve it. Analyzer detects access to members that have an equivalent in CMS API and suggest a code fix. 
+In Kentico CMS solution there are many helpers that encapsulate the traditional .NET API and might provide an extended functionality. For example, determining the current browser of the user can be done by accessing the \texttt{Browser} property of the \texttt{HttpRequest} object. However, if this attempt fails there are still other ways to resolve it and CMS API typically has a helper for such cases. Analyzer detects access to members that have an equivalent in CMS API and suggest a code fix. 
 
 \subsection{CMS Base Classes}
 Similar to the previous category, the analyzers search for classes that inherit from standard .NET classes and suggest internal alternatives.
 
 \subsection{String and Culture}
-This category of analyzers makes sure that string comparison (\texttt{Equals()}, \texttt{Compare}, \texttt{IndexOf} and their variants) and manipulation methods (\texttt{ToLower(), \texttt{ToUpper()}}) are always used with the overload specifying \texttt{StringComparison} or \texttt{CultureInfo} parameter explicitly. This is vital for an application like CMS that is used with culture specific data. For more information on what issues can be caused when not following this rule, like the \textit{"Turkish-I problem"}, see \cite{best-practices-for-using-strings-in-dot-net}. 
+This category of analyzers makes sure that string comparison\footnote{\texttt{Equals()}, \texttt{Compare()}, \texttt{IndexOf()} and their variants} and manipulation\footnote{\texttt{ToLower()}, \texttt{ToUpper()}} methods are always used with the overload specifying \texttt{StringComparison} or \texttt{CultureInfo} parameter explicitly. This is vital for an application like CMS that is used with culture specific data. For more information on what issues can be caused when not following this rule, like the \textit{"Turkish-I problem"}, see \cite{best-practices-for-using-strings-in-dot-net}. 
 
 \section{Architecture}
-The main solution with new Roslyn analyzers (BugHunter.sln) consists of 6 projects within 2 folders: TODO - Do leave the Vsix project there or delete???
+TODO some intro...
+...
 
-TODO - replace with a screenshot???
-\begin{description}
-  \item[Analyzers folder] with Roslyn analyzers
-  \begin{itemize}
-    \item BugHunter.Core
-    \item BugHunter.Analyzers
-    \item BugHunter.Web.Analyzers
-  \end{itemize}
-  
-  \item[Tests folder] with tests:
-  \begin{itemize}
-    \item BugHunter.TestUtils
-    \item BugHunter.Core.Test
-    \item BugHunter.Analyzers.Test
-    \item BugHunter.Web.Analyzers.Test
-  \end{itemize}
-\end{description}
+There is different concern about categorizing the domain specific stuff about the implemented analyzers and then the C\# and compiler specific things that are used when implementing it.. therefore helpers for SMAE, CAE, IE... explain... new language version - new approach but same domain is concerned '.' vs '?.'
 
-TODO Describe each project.. why 2 for analyzers - nuget distribution
-
-The projects with analyzers use the categories also for folder structure with each folder contaning separate subfolders for analyzers and code fixes respectively.
-
-%There is different concern about categorizing the domain specific stuff about the implemented analyzers and then the C\# and compiler specific things that are used when implementing it.. therefore helpers for SMAE, CAE, IE... explain... new language version - new approach but same domain is concerned '.' vs '?.'
+...
 
 Main concern are ApiReplacement and General (string) and Internal ApiGuidelines --> need for analyzing members of certain types
 
 \subsection{CMS API Replacement Analyzers}
-Example + why
+The CMS API Replacement category contains 15 analyzers which represents almost one half of total 31 analyzers that were created. Vast majority of these analyzers search for a particular member being accessed or invoked on a particular type. Any such usage found by the analyzer shall be reported as CMS API contains a replacement for it\footnote{The only exception is the \texttt{SystemIoAnalyzer} which will be discussed in more detail in TODO.} and a code fix shall be suggested if possible.
 
-\subsubsection{For Member}
-define strategies for SimpleMemberAccessExpression and ConditionalAccessExpression analysis grouped by strategy for ApiReplacementForMemberAnalyzer - this one is used as strategy in all relevant analyzers and is configured via ApiReplacementConfig class defining Rule, ForbiddenMembers and ForbiddenTypes.... use examples... tell how it is important not to access semantic model straight away and do basic analysis on syntax first
-how strategies are extendable, when new language feature is presented
-how they are configurable to use any DIagnosticFormatter desired
+In order to prevent code duplication and ease the process of adding new analyzers, the analysis logic for the analyzers in this category was extracted to two helper classes: \texttt{ApiReplacementForMemberAnalyzer} and \texttt{ApiReplacementForMethodAnalyzer}. These are instantiated and configured by the specific analyzer and then perform the analysis themselves.
 
-UML
+\subsection{Configuration of the API Replacement Analyzers}
+There are only a few things the API replacement analyzers need to know in order to perform the actual analysis. This information is encapsulated in \texttt{ApiReplacementConfig} object. The object is passed as a constructor argument upon creation of the API replacement analyzer. It contains following properties:
 
-\subsection{For Method}
-more involved analysis.. MemberInvocationAnalyzer used by ApiReplacementForMethodAnalyzer... callback on SyntaxKind.InvocationExpression
+\begin{itemize}
+  \item \texttt{ForbiddenMembers} -- member names to look for (e.g. \texttt{"Cookies"}), 
+  \item \texttt{ForbiddneTypes} -- names of fully qualified types these members belong to (e.g. \texttt{"System.Web.HttpRequest"}), 
+  \item \texttt{Rule} -- an instance of \texttt{DiagnosticDescriptor} that defines the diagnostic raised upon detection of a forbidden usage.
+\end{itemize} 
+
+The main reason why \texttt{ForbiddenTypes} is an array of strings rather than a single string, is the lack of inheritance hierarchy between \texttt{HttpRequest} and \texttt{HttpRequestBase} object in .NET framework. They basically contain same members but do not derive from one another\footnote{More information on why this is so can be found in https://msdn.microsoft.com/en-us/library/system.web.httprequestwrapper.aspx} and therefore the analyzer must treat both types separately. 
+
+On the other hand, allowing for multiple forbidden members on one type under one diagnostic ID may also make sense. Therefore, \texttt{ForbiddenMembers} are also defined as an array.
+
+\subsection{API Replacement For Member Analyzer}
+The task for \texttt{ApiReplacementForMemberAnalyzer} is to subscribe to all possible member accesses and analyze the particular access. If the access is regarded as forbidden, given the configuration supplied (\texttt{ApiReplacementConfig} object), the analyzer raises a diagnostic.
+
+However, it is not enough for the analyzer to subscribe only to \texttt{SyntaxKind.SimpleMemberAccessExpression}. It also needs to analyze the \texttt{SyntaxKind.ConditionalAccessExpression} which is a new C\# 6.0 language feature\footnote{https://msdn.microsoft.com/en-us/library/dn986595.aspx}. 
+
+Even though it would be possible to subscribe to both kinds of syntax nodes with one callback, the underlying syntax of these two is so much different, it would make the code too cluttered and full of if-statements. Moreover, if Microsoft decides to add another possibility how to access members with next language version, the existing code would have to be modified.
+
+Therefore, it was decided to encapsulate the strategies for analyzing a particular syntax node into a separate classes. The API replacement for member analyzer instantiates the strategy helpers, configures them, and tell them to run the analysis methods as a callbeck subscribed to particular kind of syntax node. This makes the code easily extendible.
+
+\begin{figure}[h!]
+		\centering
+			\includegraphics[scale=0.75]{img/uml/api-replacement-for-member}
+		\caption{Class diagram for \texttt{ApiReplacementForMemberAnalyzer}}
+		\label{fig:uml-api-replacement-for-member}
+\end{figure}
+
+The UML class diagram for \texttt{ApiReplacementForMemberAnalyzer} is depicted in Figure~\ref{fig:uml-api-replacement-for-member}.
+
+TODO explain the UML - make sure to depic how the analyzer subscribes to SK separately and runs the analysis using the starategy classes
+
+\subsubsection{Usage}
+Activity diagram to show how it is all initialized?
+
+\subsection{API Replacement For Method Analyzer}
+The class \texttt{ApiReplacementForMethodAnalyzer} is very similar to analyzer for members that was introduce in the previous section. It also accepts a configuration object defining the invocations of which members if which types are forbidden. 
+Instead of subscribing to member accesses it is interested in syntax nodes of kind \texttt{SyntaxKind.InvocationExpression}. It delegated the analysis itself to a strategy defined in \texttt{MethodInvocationAnalyzer}.
+
+\subsection{Method Invocation Analyzer}
+This analyzer is used as a strategy for analyzing syntax nodes of kind invocation expression. It is utilized by API replacement for method analyzer and has to be configured with types and member names to be considered for the analysis. 
+
+TODO: Tell about syntax first optimizations...
+
+However, the need for analyzing a method invocation is not limited to the API replacements. Same analysis needs to be performed when enforcing internal guidelines that are concerned with methods. It is important to locate the specific methods invoked on specific types to be able to further analyze whether or not they are used according to the internal API conventions. 
+
+
+Therefore, this analyzer is not only used as a strategy in \texttt{ApiReplacementForMethodAnalyzer} but is also leveraged in other analyzers that involve method invocation checks. There was a significant reocurring pattern within these checks. 
+
+\subsubsection{Template Method Pattern}
+TODO
+\subsubsection{Check the File Path}
+First it might be needed to filter out files that are relevant for the diagnostic. For example, when prohibiting the access to the database layer from the presentational layer, analyzer is only concerned with the invocation expressions in the presentational layer. These files can be identified by inspecting the \texttt{FilePath} property of the \texttt{SyntaxTree} where the current invocation expression is located. If the file path does not meet the requirements, the current invocation expression does not need to be analyzed further.
+
+
+\subsubsection{Forbidden Method on Forbidden Type}
+TODO 
+
+\subsubsection{Usage of the Invocation}
+TODO
+
+ 
+
+\subsubsection{Usage}
+TODO
 
 use mostly MethodInvocationAnalyzer and leverage its template method pattern, to dig deeper into analysing where the method was invoked or who it is invoked - which overload is called, is it using predefined constants instead of plain string etc... (limitations)
 
@@ -659,8 +704,11 @@ TEMPLATE METHOD - used not only for straightworward API replacements but also fo
 
 !!!!do some benchmarking how this heuristic helped with the performance!!!! show graph
 
+\subsection{String and Culture Analyzers}
 Note that although very similar but this template method was not used fot StringAndCulture analyzers as it was more complicated than actually needed. Some performance gain as we do not need to configure the forbidden types from the outside, we know string is always the ReceiverType and it is a sealed class and thus no need to analyze its parents, interfaces etc.
 Invocation is analyzed if it supplied the correct arguments... StringComparison or CultureInfo
+
+\subsection{Diagnostic Formatters}
 
 \subsection{CodeFixes}
 Why
@@ -726,7 +774,7 @@ Questionares sent to development team, feedback from senior developers
 % ============================= CHAPTER 7 =========================
 % =================================================================
 \chapter{Conclusion}
-  - what issue it solved
+  - what issue it solved (Equals, Response vs Request.Redirect())
   - what is the current status of the project
   - how it helped the development teams...
   - how to maintain the tool, 
@@ -754,6 +802,29 @@ Questionares sent to development team, feedback from senior developers
 % =================================================================    
 	\appendix %% Start the appendices.
   \chapter{Source Codes in IS}
+  The main solution with new Roslyn analyzers (BugHunter.sln) consists of 6 projects within 2 folders: TODO - Do leave the Vsix project there or delete???
+
+TODO - replace with a screenshot???
+\begin{description}
+  \item[Analyzers folder] with Roslyn analyzers
+  \begin{itemize}
+    \item BugHunter.Core
+    \item BugHunter.Analyzers
+    \item BugHunter.Web.Analyzers
+  \end{itemize}
+  
+  \item[Tests folder] with tests:
+  \begin{itemize}
+    \item BugHunter.TestUtils
+    \item BugHunter.Core.Test
+    \item BugHunter.Analyzers.Test
+    \item BugHunter.Web.Analyzers.Test
+  \end{itemize}
+\end{description}
+
+TODO Describe each project.. why 2 for analyzers - nuget distribution
+
+The projects with analyzers use the categories also for folder structure with each folder contaning separate subfolders for analyzers and code fixes respectively.
   \chapter{Questionnaires}
 TODO...
 
