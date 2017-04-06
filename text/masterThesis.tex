@@ -611,22 +611,14 @@ Similar to the previous category, the analyzers search for classes that inherit 
 \subsection{String and Culture}
 This category of analyzers makes sure that string comparison\footnote{\texttt{Equals()}, \texttt{Compare()}, \texttt{IndexOf()} and their variants} and manipulation\footnote{\texttt{ToLower()}, \texttt{ToUpper()}} methods are always used with the overload specifying \texttt{StringComparison} or \texttt{CultureInfo} parameter explicitly. This is vital for an application like CMS that is used with culture specific data. For more information on what issues can be caused when not following this rule, like the \textit{"Turkish-I problem"}, see \cite{best-practices-for-using-strings-in-dot-net}. 
 
-\section{Architecture}
-TODO some intro...
-...
+TODO some intro to the next section saying that only a few implementation details will be pointed out
 
-There is different concern about categorizing the domain specific stuff about the implemented analyzers and then the C\# and compiler specific things that are used when implementing it.. therefore helpers for SMAE, CAE, IE... explain... new language version - new approach but same domain is concerned '.' vs '?.'
-
-...
-
-Main concern are ApiReplacement and General (string) and Internal ApiGuidelines --> need for analyzing members of certain types
-
-\subsection{CMS API Replacement Analyzers}
+\section{CMS API Replacement Analyzers}
 The CMS API Replacement category contains 15 analyzers which represents almost one half of total 31 analyzers that were created. Vast majority of these analyzers search for a particular member being accessed or invoked on a particular type. Any such usage found by the analyzer shall be reported as CMS API contains a replacement for it\footnote{The only exception is the \texttt{SystemIoAnalyzer} which will be discussed in more detail in TODO.}. A code fix shall be suggested if possible as well.
 
 In order to prevent code duplication and ease the process of adding new analyzers, the analysis logic for the analyzers in this category was extracted into two helper classes: \texttt{ApiReplacementForMemberAnalyzer} and \texttt{ApiReplacementForMethodAnalyzer}. These are instantiated and configured by the concrete end-analyzer and then perform the analysis themselves.
 
-\subsection{Configuration of the API Replacement Analyzers}
+\subsection{Configuration}
 There are only a few things the API replacement analyzers need to know in order to perform the actual analysis. This information is encapsulated in \texttt{ApiReplacementConfig} object. The object is passed as a constructor argument upon creation of the API replacement analyzer. It contains following properties:
 
 \begin{itemize}
@@ -640,7 +632,7 @@ The main reason behind \texttt{ForbiddenTypes} being an array of strings rather 
 
 On the other hand, allowing for multiple forbidden members on one type under one diagnostic ID may also make sense. Therefore, \texttt{ForbiddenMembers} are also defined as an array.
 
-\subsection{API Replacement For Member Analyzer}
+\subsection{Analyzer for Member Replacement}
 The task for \texttt{ApiReplacementForMemberAnalyzer} is to subscribe to all possible member accesses and analyze the particular access. If the access is regarded as forbidden, given the configuration supplied (\texttt{ApiReplacementConfig} object), the analyzer raises a diagnostic.
 
 It is not enough for the analyzer to subscribe only to \texttt{SimpleMemberAccessExpression} syntax kind. It also needs to analyze the \texttt{ConditionalAccessExpression} (so called null conditional operator '\texttt{?.}') which is a new C\# 6.0 language feature\footnote{https://msdn.microsoft.com/en-us/library/dn986595.aspx}. 
@@ -662,14 +654,14 @@ TODO explain the UML - make sure to depic how the analyzer subscribes to SK sepa
 
 TODO: Activity diagram to show how it is all initialized?
 
-\subsection{API Replacement For Method Analyzer}
+\subsection{Analyzer for Method Replacement}
 The class \texttt{ApiReplacementForMethodAnalyzer} is very similar to analyzer for members that was introduced in the previous section. It also accepts a configuration object defining the invocations of which members on which types are forbidden. 
 Instead of subscribing to member accesses it is interested in syntax nodes of kind \texttt{InvocationExpression}. It delegated the analysis itself to a strategy defined in \texttt{MethodInvocationAnalyzer}.
 
-\subsection{Method Invocation Analyzer}
+\section{Method Invocation Analyzer}
 This analyzer defines an algorithm for analyzing invocation expression syntax nodes. The need for analyzing the method invocations is not limited to the API replacements. The same analysis needs to be performed when enforcing internal guidelines that are concerned with methods. It is important to locate the specific methods invoked on specific types, before it is possible to analyze further whether or not they are used according to the internal API conventions. 
 
-\subsubsection{Template Method Pattern}
+\subsection{Template Method Pattern}
 This analyzer is utilized by all analyzers that involve method invocation checks. In order to be easily extendible for checking advanced criteria, it implements the template method design pattern\footnote{http://www.oodesign.com/template-method-pattern.html}. Every step of the template method defines a criteria that must be met in order to proceed with the analysis. Steps that can be overridden have default implementation that proceeds with the analysis. It is important to note that these steps are ordered in a way so that the inexpensive checks are performed first, in order to boost the performance. Following sections describe steps of the whole algorithm.
 
 TODO: UML 
@@ -680,6 +672,24 @@ Sometimes, analyzer needs to filter out files that are relevant for the diagnost
 \subsubsection{Can Be Skipped By Syntax Only}
 This step exists purely for performance optimization reasons and cannot be overridden by subclasses. It tries to extract the name of the method invoked and compares it to the forbidden members. If the method name is not among forbidden members, the algorithm stops and no expensive operations had to be done. In case the heuristic is not able to determine the name of the method or the name matches one of the forbidden names, the algorithm advances to the next step.
 
+Since there are no constraints for what kind of syntax node the \texttt{Expression} property of the \texttt{InvocationExpressionSyntax} node could be, the algorithm guesses based on these three cases:
+\begin{enumerate}
+  \item \texttt{Identifier name}
+  The simplest case where the method being invoked is a member of the enclosing class.
+
+  TODO example + graph
+  
+  \item \texttt{Simple member access expression}
+  Invocation on member that is being accessed on object, or class. Accesses can be possibly chained.
+  
+  TODO example + graph
+    
+  \item \texttt{Conditional access expression}
+  Similar to previous case but the access is conditional. The whole syntax tree is evaluated from the left-to-right as opposed to right-to-left evaluation of simple member access.  
+  
+  TODO example + graph
+  
+\end{enumerate} 
 %TODO: it is easy to access semantic model first and analyze the IMethodSymbol... however.. point out how many times this callback is invoked and how many times SemanticModel would have been queried... therefore very simple semantic for getting rid of cases that do not have to be analyzed further... tell about the possible cases of InvocationExpression - nested SimpleMemberAccess.. first MemberBindingExpression, or IdentifierName... always show a graph... if it could be skipped based on syntax - invoked method name is for sure none of the forbidden member names, skip, otherwise, analyze further based on semantics
 
 %!!!!do some benchmarking how this heuristic helped with the performance!!!! show graph
@@ -706,20 +716,23 @@ $$
 
 This category searches for methods like \texttt{Equals()}, \texttt{CompareTo()}, \texttt{IndexOf()}. Considering that methods with same names can be found on many other types as well (Object, Collection), the first syntax check will fail to filter out the usages. Therefore, this relatively small performance optimization is reasonable.
 
-\section{CodeFixes}
-Why
-How - CMSApiReplacements - pretty straightforward, although some limitations in conditional accesses that do not have the codefix ... analyze why this is hard, can talk about the tree structure
-SystemIO does not have a codefix as this would be extremely tough to implement not a clear 1 to 1
-Lucene easy, then things like not using the DB layer from Presentation is not clear how to fix and it is needed for developer to chande the design of the solution to avoid this
-API guidelines have mostly easy fixes - suggesting different usages/overloads/methods
+\section{Code Fixes}
+Almost all analyzer that were implemented also provide a code fix. There are only two exceptions -- \texttt{SystemIoAnalyzer}, since there is no one to one mapping between \texttt{CMS.IO} and \texttt{System.IO} APIs so it is not feasible to provide a code fix in every situation; and \texttt{ConnectionHelperExecuteQueryAnalyzer} which detects database access from presentation layer that is rather a design flaw without an automated solution.
 
-TODO screenshot how codefix looks like
+Where suitable, more options are suggested, for example multiple string comparison options for string and culture diagnostics. 
+
+% TODO consider deleting this
+The code fixes have one significant limitation -- providing a fix to an API replacement when the forbidden access is conditional. This is due to the nature of the C\# grammar and the way how null conditional operator is represented in the syntax tree. It would be very difficult to handle all use cases of conditional access correctly and therefore it was decided not to provide the code fix in such complicated cases. 
+
+There were two ways for preventing code fix from being suggested. First one was to give the diagnostic on conditional access different diagnostic id from the normal member access. This was deemed as not user friendly and other options were sought.
+
+The approach taken was to provide an additional information to the diagnostic via the \texttt{Properties} property\footnote{http://www.coderesx.com/roslyn/html/93197CDD.htm}. It is a data structure were arbitrary key-value pairs can be stored when diagnostic is raised and can be later read in the code fix class. The analyzer stores a flag, identifying the diagnostic is raised on conditional member access. When code fix method is invoked, it can decide whether or not it is capable of providing a particular fix even for conditional member access.
 
 \section{Tests}
 concerns about strings everywhere - attempts to use nuget with kentico libraries - many problems - could not be portable, nuget size was enormous - some wierd feeling of recurrsion... no other libraries seem to have been experiencing similair issues..
 
 so libs are only referenced in tests - explain why this is important (when creating a compilation - metadata references need to be added)
-measures taken to eliminate any typos - could not pass the test if the source code itself is not compilable - this is for example how the ever present bug in original BH was discovered Response vs Request.Redirect() !!! would not be possible without nuget and additional effor to make all tests compilable
+measures taken to eliminate any typos - could not pass the test if the source code itself is not compilable -- this is for example how the ever present bug in original BH was discovered Response vs Request.Redirect() !!! would not be possible without nuget and additional effor to make all tests compilable
 
 tests not only for BH but of course for all other helpers/utils/extensions
 
