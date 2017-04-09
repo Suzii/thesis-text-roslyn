@@ -590,12 +590,12 @@ On the other hand, Roslyn provides numerous ways to turn off a certain rule for 
 \bigskip\noindent
 TODO rephrase
 
-Following sections will present the new version of BugHunter analyzers implemented as part of this thesis using new Roslyn compiler platform.
+Following sections will present the new version of BugHunter analyzers implemented as part of this thesis using the .NET Compiler Platform.
 
 \section{Defining Analyzer Categories}
-The \texttt{Category} property of the \texttt{Microsoft.CodeAnalysis.DiagnosticDescriptor} class provides a way for semantically distinguishing the analyzers and giving an additional information on what type of problem the particular category is concerned with. The original BugHunter did not group the checks into the semantical categories but was structured rather by the technology the check was concerned with (C\#, ASPX, JavaScript, web parts, etc.). 
+The \texttt{Category} property of the \texttt{Microsoft.CodeAnalysis.DiagnosticDescriptor} class provides a way for semantically distinguishing the analyzers and giving an additional information on what type of problem the particular category is concerned with. The original BugHunter did not group the checks into the semantical categories but was structured rather by the technology targeted by the check (C\#, ASPX, JavaScript, web parts, etc.). 
 
-Therefore, one of the first tasks before the implementation was to determine which checks are suitable candidates for refactoring into new Roslyn analyzers, and subsequently to group them into categories by the type of task they performed. Basically, all the checks that were not obsolete and were concerned with C\# internal guidelines were rewritten. The following sections briefly elaborate on how the categories were defined and what they represent. 
+Therefore, one of the first tasks before the implementation was to determine which checks are suitable candidates for refactoring into new Roslyn analyzers, and subsequently group them into categories by the type of the task they performed. Basically, all the checks that were not obsolete and were concerned with C\# internal guidelines were rewritten. The following sections briefly elaborate on how the categories were defined and what they represent. 
 
 \subsection{Abstraction over Implementation}
 Analyzers in this category check that there is no "hard reference" on third party libraries in the code. Violation of this rule would require clients to use a particular version of the library which might collide with references on other components they are using, resulting in so called "dependency hell"\footnote{https://devnet.kentico.com/articles/referencing-multiple-versions-of-the-same-assembly-in-a-single-application}. Therefore, in CMS solution the hard references are replaced with a thin layer of interfaces and adapters. The analyzers make sure, interfaces are used throughout the solution.
@@ -604,10 +604,10 @@ Analyzers in this category check that there is no "hard reference" on third part
 These analyzers impose internal guidelines on the CMS API usage. They forbid the direct access to database from presentation layer (\texttt{ConnectionHelperExecutequeryAnalyzer}), point out usages of methods that may have more suitable or a safer alternative (\texttt{WhereLikeMethodAnalyzer} or \texttt{ValidationHelperGetAnalyzer}), or guide developers to use predefined constants where possible (\texttt{EventLogArgumentsAnalyzer}).
 
 \subsection{CMS API Replacements}
-In Kentico CMS solution there are many helpers that encapsulate the traditional .NET API and might provide an extended functionality. For example, determining the current browser of the user can be done by accessing the \texttt{Browser} property of the \texttt{HttpRequest} object. However, if this attempt fails there are still other ways to resolve it and CMS API typically has a helper for such cases. Analyzer detects access to members that have an equivalent in CMS API and suggest a code fix. 
+In Kentico CMS solution there are many helpers that encapsulate the traditional .NET API and might provide an extended functionality. For example, determining the current browser of the user can be done by accessing the \texttt{Browser} property of the \texttt{HttpRequest} object. However, if this attempt fails there are still other ways to resolve it and the CMS API typically has a helper for such cases. Analyzer detects access to members that have an equivalent in CMS API and suggest a code fix. 
 
 \subsection{CMS Base Classes}
-Similar to the previous category, the analyzers search for classes that inherit from standard .NET classes and suggest internal alternatives.
+Similar to the previous category, the analyzers search for classes that inherit from standard .NET classes and suggest CMS alternatives.
 
 \subsection{String and Culture}
 This category of analyzers makes sure that string comparison\footnote{\texttt{Equals()}, \texttt{Compare()}, \texttt{IndexOf()} and their variants} and manipulation\footnote{\texttt{ToLower()}, \texttt{ToUpper()}} methods are always used with the overload specifying \texttt{StringComparison} or \texttt{CultureInfo} parameter explicitly. This is vital for an application like CMS that is used with culture specific data. For more information on what issues can be caused when not following this rule, like the \textit{"Turkish-I problem"}, see \cite{best-practices-for-using-strings-in-dot-net}. 
@@ -616,7 +616,7 @@ This category of analyzers makes sure that string comparison\footnote{\texttt{Eq
 TODO some intro to the next section saying that only a few implementation details will be pointed out
 
 \section{CMS API Replacement Analyzers}
-The CMS API Replacement category contains 15 analyzers which represents almost one half of total 31 analyzers that were created. Vast majority of these analyzers search for a particular member being accessed or invoked on a particular type. Any such usage found by the analyzer shall be reported as CMS API contains a replacement for it\footnote{The only exception is the \texttt{SystemIoAnalyzer} which will be discussed in more detail in TODO.}. A code fix shall be suggested if possible as well.
+The CMS API Replacement category contains 15 analyzers which represents almost one half of total 31 analyzers that were created. Vast majority of these analyzers search for a particular member being accessed or invoked on a particular type. Any such usage found by the analyzer shall be reported as CMS API contains a replacement for it. A code fix shall be suggested if possible as well.
 
 In order to prevent code duplication and ease the process of adding new analyzers, the analysis logic for the analyzers in this category was extracted into two helper classes: \texttt{ApiReplacementForMemberAnalyzer} and \texttt{ApiReplacementForMethodAnalyzer}. These are instantiated and configured by the concrete end-analyzer to perform the analysis on their behalf.
 
@@ -637,11 +637,11 @@ On the other hand, allowing for multiple forbidden members on one type under one
 \subsection{Analyzer for Member Replacement}
 The task for \texttt{ApiReplacementForMemberAnalyzer} is to subscribe to all possible member accesses and analyze them. If the particualr access is regarded as forbidden, given the configuration supplied (\texttt{ApiReplacementConfig} object), the analyzer raises a diagnostic.
 
-It is not enough for the analyzer to subscribe only to \texttt{SimpleMemberAccessExpression} syntax kind. It also needs to analyze the \texttt{ConditionalAccessExpression} (so called null conditional operator '\texttt{?.}') which is a new C\# 6.0 language feature\footnote{https://msdn.microsoft.com/en-us/library/dn986595.aspx}. 
+It is not enough for the analyzer to subscribe only to \texttt{SimpleMemberAccessExpression} syntax kind. It also needs to analyze the \texttt{ConditionalAccessExpression} (null conditional operator, '\texttt{?.}') which is a new C\# 6.0 language feature\footnote{https://msdn.microsoft.com/en-us/library/dn986595.aspx}. 
 
 Even though it would be possible to subscribe to both kinds of syntax nodes with one callback, the underlying syntax of these two is so much different, it would make the code cluttered and full of if-statements. Moreover, if Microsoft decides to add another possibility to access members in next language version, the existing code would have to be modified.
 
-Therefore, it was decided to encapsulate the strategies for analyzing a particular syntax node into a separate classes. The API replacement for member analyzer instantiates the strategy helpers, configures them, and tell them to run the analysis methods as a callbacks subscribed to particular kind of syntax node. This makes the code easily extendible.
+Therefore, it was decided to encapsulate the strategies for analyzing a particular syntax node into a separate classes. The API replacement for member analyzer instantiates the strategy helpers, configures them, and tell them to run the analysis methods as a callbacks subscribed syntax node of particular kind. This makes the code easily extendible.
 
 \begin{figure}[h!]
 		\centering
@@ -651,8 +651,6 @@ Therefore, it was decided to encapsulate the strategies for analyzing a particul
 \end{figure}
 
 The UML class diagram for \texttt{ApiReplacementForMemberAnalyzer} is depicted in Figure~\ref{fig:uml-api-replacement-for-member}.
-
-TODO explain the UML - make sure to depic how the analyzer subscribes to SK separately and runs the analysis using the starategy classes
 
 TODO: Activity diagram to show how it is all initialized?
 
@@ -664,30 +662,34 @@ Instead of subscribing to member accesses it is interested in syntax nodes of ki
 This analyzer defines an algorithm for analyzing invocation expression syntax nodes. The need for analyzing the method invocations is not limited to the API replacements. The same analysis needs to be performed when enforcing internal guidelines that are concerned with methods. It is important to locate the specific methods invoked on specific types, before it is possible to analyze further whether or not they are used according to the internal API conventions. 
 
 \subsection{Template Method Pattern}
-This analyzer is utilized by all end-analyzers that involve method invocation checks. In order to be easily extendible for checking advanced criteria, it is implemented as the template method pattern\footnote{http://www.oodesign.com/template-method-pattern.html}. Every step of the template method defines a criteria that must be met in order for the analysis to proceed. Steps that can be overridden have default implementation that continues with the analysis. It is important to note that these steps are ordered in a way so that the inexpensive checks are performed first, in order to cut off the analysis of the irrelevant nodes without significant performance costs. Following sections describe steps of the whole algorithm.
+This analyzer is utilized by all end-analyzers that involve method invocation analysis. In order to be easily extendible for advanced checks, it is implemented as the template method pattern\footnote{http://www.oodesign.com/template-method-pattern.html}. Every step of the template method defines a criteria that must be met in order for the analysis to proceed. Steps that can be overridden have default implementation that continues with the analysis. 
 
-TODO: UML 
+It is important to note that the steps are ordered in a way so that the inexpensive checks are performed first, in order to cut off the analysis of the irrelevant nodes without significant performance costs. Figure~\ref{fig:uml-method-invocation-analyzer} shows the class diagram of the \texttt{MemberInvocationAnalyzer} depicting the use of template method design pattern. Following section elaborate on respective steps of the algorithm.
+
+\begin{figure}[h!]
+		\centering
+			\includegraphics[scale=0.75]{img/uml/method-invocation-analyzer}
+		\caption{Class diagram for \texttt{MethodInvocationAnalyzer} depicting the template method design pattern}
+		\label{fig:uml-method-invocation-analyzer}
+\end{figure}
 
 \subsubsection{Check the File Path}
 Sometimes, analyzer needs to filter out files that are relevant for the diagnostic. For example, when analyzing the access to the database layer from the presentational layer, analyzer is only concerned with the invocation expressions in the presentational layer. Relevant files can be identified by inspecting the \texttt{FilePath} property of the \texttt{SyntaxTree} in which the current invocation expression is located. If the file path does not meet the requirements, the current invocation expression does not need to be analyzed further.
 
 \subsubsection{Can Be Skipped By Syntax Only}
-This step exists purely for performance optimization reasons and cannot be overridden by subclasses. It tries to extract the name of the method invoked and compares it to the forbidden members. If the method name is not among forbidden members, the algorithm stops and no expensive operations had to be done. In case the heuristic is not able to determine the name of the method or the name matches one of the forbidden names, the algorithm advances to the next step.
+This step exists purely for performance optimization reasons and cannot be overridden by subclasses. It tries to extract the name of the method invoked and compares it to the forbidden members. If the method name is not among forbidden members, the algorithm stops and no expensive operations had to be done. Otherwise, the algorithm advances to the next step.
 
-Since there are no constraints for what kind of syntax node the \texttt{Expression} property of the \texttt{InvocationExpressionSyntax} node could be, the algorithm guesses based on these three cases:
+Since there are no constraints for what kind of syntax node the \texttt{Expression} property of the \texttt{InvocationExpressionSyntax} node could be, the heuristic inspects these three cases:
 \begin{enumerate}
-  \item \textbf{Identifier name}
-  The simplest case where the method being invoked is a member of the enclosing class.
+  \item \textbf{Identifier name} -- the simplest case where the method being invoked is a member of the enclosing class.
 
   TODO example + graph
   
-  \item \textbf{Simple member access expression}
-  Invocation on member that is being accessed on object, or class. Accesses can be possibly chained.
+  \item \textbf{Simple member access expression} -- invocation on member that is being accessed on object, or class. Accesses can be possibly chained.
   
   TODO example + graph
     
-  \item \textbf{Conditional access expression}
-  Similar to previous case but the access is conditional. The whole syntax tree is evaluated from the left-to-right as opposed to right-to-left evaluation of simple member access.  
+  \item \textbf{Conditional access expression} -- similar to previous case but the access is conditional. The whole syntax tree is evaluated from the left-to-right as opposed to right-to-left evaluation of simple member access.  
   
   TODO example + graph
   
@@ -708,19 +710,15 @@ If it is important to analyze the specificities of the invocation usage (mainly 
 If all the steps above determined the analyzed invocation is forbidden, the last step of the template method makes sure the diagnostic is raised, using the diagnostic descriptor provided upon creation. It is possible to configure the diagnostic creation by providing optional instance of \texttt{IDiagnosticFormatter} -- an interface defined in \texttt{BugHunter} project that determines how the diagnostic of certain syntax nodes shall be formatted (location and message text of the diagnostic).
 
 \subsubsection{Usage}
-Typical example how to use this template method is \texttt{EventLogArgumentAnalyzer}. It defines an inner class by subclassing the \texttt{MethodInvocationAnalyzer}. It provides the diagnostic descriptor, custom diagnostic formatter and overrides \texttt{IsForbiddenUsage()} method. Then this inner class is used by end-analyzer to perform the analysis.
+Typical example how to use this template method is \texttt{EventLogArgumentAnalyzer}. It defines an inner class by subclassing the \texttt{MethodInvocationAnalyzer}. It provides the diagnostic descriptor, custom diagnostic formatter and overrides \texttt{IsForbiddenUsage()} method. Then, this inner class is used by end-analyzer to perform the analysis.
 
 \subsection{Analyzers for String and Culture Checks}
-The analyzers in this category search for methods like \texttt{Equals()}, \texttt{CompareTo()}, or \texttt{IndexOf()}. Considering that methods with same names can be found on many other types as well (Object, Collection), the first syntax check for method name will often fail to filter out the usages. Although all these analyzers could use the \texttt{MethodInvocationAnalyzer} as a strategy, it was decided to take a diferent approach here. 
+The analyzers in this category search for methods like \texttt{Equals()}, \texttt{CompareTo()}, or \texttt{IndexOf()}. Considering that methods with same names can be found on many other types as well (\texttt{Object}, \texttt{Collection}), the first syntax check for method name will often fail to filter out the irrelevant usages. Although all these analyzers could use the \texttt{MethodInvocationAnalyzer} as a strategy, it was decided to take a diferent approach here. 
 
 The fact that they only need to analyze the invocations on \texttt{String} type, makes the complex analysis of the forbidden types in \texttt{MethodInvocationAnalyzer} ineffective. String is a sealed class\footnote{Sealed classes cannot be subclassed.}, and so no complicated traversal of inheritance hierarchy is needed. In fact, in C\# strings are a \textit{special type} and therefore, only a simple check like this is sufficient:
 $$
 receiverType.SpecialType == SpecialType.System\_String
 $$
-
-\section{Analyzers for CMS Base Class Replacements}
-TODO?
-Class declaration vs named symbol analysis
 
 \section{Code Fixes}
 Almost all analyzer that were implemented also provide a code fix. There are only two exceptions -- \texttt{SystemIoAnalyzer}, since there is no one to one mapping between \texttt{CMS.IO} and \texttt{System.IO} APIs so it is not feasible to provide a code fix in every situation; and \texttt{ConnectionHelperExecuteQueryAnalyzer} which detects database access from presentation layer without an automated solution.
