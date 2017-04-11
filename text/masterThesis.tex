@@ -591,7 +591,7 @@ TODO rephrase
 Following sections present the~new version of BugHunter analyzers implemented using the~.NET Compiler Platform. 
 
 \section{Defining Analyzer Categories}
-The \texttt{Category} property of the~\texttt{Microsoft.CodeAnalysis.DiagnosticDescriptor} class provides a way for semantically distinguishing the~analyzers and giving an~additional information on what type of problem the~particular category is concerned with. The original BugHunter did not group the~checks into the~semantical categories but was structured rather by the~technology targeted by the~check (C\#, ASPX, JavaScript, web parts, etc.). 
+The \texttt{Category} property of the~\texttt{Microsoft.CodeAnalysis.DiagnosticDescriptor} class provides a way for semantically distinguishing the~analyzers and giving an~additional information on what type of problem the~particular category is concerned with. The original BugHunter did not group the~checks into the~semantic categories but was structured rather by the~technology targeted by the~check (C\#, ASPX, JavaScript, web parts, etc.). 
 
 Therefore, one of the~first tasks before the~implementation was to determine which checks are suitable candidates for refactoring into new Roslyn analyzers and subsequently group them into categories by the~type of the~task they performed. Basically, all the~checks that were not obsolete and were concerned with C\# internal guidelines were rewritten. Next sections briefly elaborates on how the~categories were defined and what they represent. 
 
@@ -708,7 +708,7 @@ If all the~steps above determined the~analyzed invocation is forbidden, the~last
 Typical example how to use this template method is \texttt{EventLogArgumentAnalyzer}. It defines an~inner class by subclassing the~\texttt{MethodInvocationAnalyzer}. It provides the~diagnostic descriptor, custom diagnostic formatter and overrides \texttt{IsForbiddenUsage()} method. Then, this inner class is utilized by the~end-analyzer to perform the~analysis.
 
 \subsection{Analyzers for String and Culture Checks}
-The analyzers in this category search for methods like \texttt{Equals()}, \texttt{CompareTo()}, or \texttt{IndexOf()}. Considering that methods with same names can be found on many other types as well (\texttt{Object}, \texttt{Collection}), the~first syntax check for method name will often fail to filter out the~unrelated usages. Although all these analyzers could use the~\texttt{MethodInvocationAnalyzer} as a~strategy, it was decided to take a~diferent approach here. 
+The analyzers in this category search for methods like \texttt{Equals()}, \texttt{CompareTo()}, or \texttt{IndexOf()}. Considering that methods with same names can be found on many other types as well (\texttt{Object}, \texttt{Collection}), the~first syntax check for method name will often fail to filter out the~unrelated usages. Although all these analyzers could use the~\texttt{MethodInvocationAnalyzer} as a~strategy, it was decided to take a~different approach here. 
 
 The fact that they only need to analyze the~invocations on the~\texttt{String} type, makes the~complex analysis of the~forbidden types in \texttt{MethodInvocationAnalyzer} ineffective. String is a~sealed class\footnote{Sealed classes cannot be subclassed.}, and so no complicated traversal of inheritance hierarchy is needed. In fact, in C\# strings are a~\textit{special type} and therefore, only a~simple check like this is sufficient:
 $$
@@ -734,7 +734,7 @@ Since it is infeasible to test the~functionality of all the~analyzers manually b
 
 Every analyzer and its code fixes have an~extensive suite of tests covering the~functionality. The extension methods and helper classes are covered by separate unit tests as well. The pre-generated boilerplate from Visual Studio for testing analyzers was reused and rewritten using NUnit framework~\footnote{Testing framework for .NET languages https://www.nunit.org/}. Since the~default template did not allow to set anything apart from the~sources, it had to be customized and some additional features were added.
 
-A typical scenario for testing an~anlyzer is to:
+A typical scenario for testing an~analyzer is to:
 \begin{enumerate}
   \item Prepare the~source documents to be tested. Typically one C\# class stored in a~string.
   \item Create a~compilation out of the~source documents.
