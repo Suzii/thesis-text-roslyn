@@ -585,11 +585,6 @@ Moreover, the~only way to exclude a~certain piece of code from the~analysis was 
 
 On the~other hand, Roslyn provides numerous ways to turn off a~certain rule for a~project, a~file, or even a~line of code. More information on which approach was taken when deploying the~analyzers can be fount in the~Appendix !!!!TODO !!!!.
 
-\bigskip\noindent
-TODO rephrase
-
-Following sections present the~new version of BugHunter analyzers implemented using the~.NET Compiler Platform. 
-
 \section{Defining Analyzer Categories}
 The \texttt{Category} property of the~\texttt{Microsoft.CodeAnalysis.DiagnosticDescriptor} class provides a way for semantically distinguishing the~analyzers and giving an~additional information on what type of problem the~particular category is concerned with. The original BugHunter did not group the~checks into the~semantic categories but was structured rather by the~technology targeted by the~check (C\#, ASPX, JavaScript, web parts, etc.). 
 
@@ -620,14 +615,14 @@ There are only a~few things the~API replacement analyzer need to know in order t
 
 \begin{itemize}
   \item \texttt{ForbiddenMembers} -- member names to look for (e.g. \texttt{"Cookies"}), 
-  \item \texttt{ForbiddenTypes} -- names of fully qualified types the~members belong to\footnote{The forbidden type is treated as the~highest type in the~inheritance hierarchy the~member could belong to.
+  \item \texttt{ForbiddenTypes} -- names of fully qualified (super)types the~members belong to\footnote{The forbidden type is treated as the~highest type in the~inheritance hierarchy the~member could belong to.
 } (e.g. \texttt{"System.Web.HttpRequest"}), 
   \item \texttt{Rule} -- an~instance of \texttt{DiagnosticDescriptor} that defines the~diagnostic raised upon detection of a~forbidden usage.
 \end{itemize} 
 
 The main reason behind \texttt{ForbiddenTypes} being an~array of strings rather than a~single string, is the~lack of inheritance hierarchy between \texttt{HttpRequest} and \texttt{HttpRequestBase} objects in the~.NET framework. They basically contain the~same members but do not derive from one another\footnote{More information on why this is so can be found in https://msdn.microsoft.com/en-us/library/system.web.httprequestwrapper.aspx} and therefore, the~analyzer must treat both types separately. 
 
-On the~other hand, allowing for multiple forbidden members on one type under one diagnostic ID may also make sense. Therefore, \texttt{ForbiddenMembers} are also defined as an~array.
+On the~other hand, allowing for multiple forbidden members on one type under one diagnostic ID may also make sense, which is why \texttt{ForbiddenMembers} are also defined as an~array.
 
 \subsection{Analyzer for Member Replacement}
 The task for the~\texttt{ApiReplacementForMemberAnalyzer} is to subscribe to all possible member accesses and analyze them. If the~particular access is regarded as forbidden, given the~configuration supplied (\texttt{ApiReplacementConfig} object), the~analyzer raises a~diagnostic.
@@ -645,7 +640,7 @@ Therefore, it was decided to encapsulate the~strategies for analyzing a~particul
 		\label{fig:uml-api-replacement-for-member}
 \end{figure}
 
-The UML class diagram for \texttt{ApiReplacementForMemberAnalyzer} is depicted in Figure~\ref{fig:uml-api-replacement-for-member}. Note, that the~\texttt{DiagnosticAnalyzer} is an~abstract class defined by the~.NET Compiler Platform Diagnostics API and must be extended by the~custom end-analyzers.
+The UML class diagram for \texttt{ApiReplacementForMemberAnalyzer} is depicted in Figure~\ref{fig:uml-api-replacement-for-member}. Note, that the~\texttt{DiagnosticAnalyzer} is an~abstract class defined in the~.NET Compiler Platform Diagnostics API and must be extended by the~custom end-analyzers.
 
 TODO: Add an~activity diagram to show how it is all initialized?
 
@@ -669,7 +664,7 @@ It is important to note that the~steps are ordered in a~way so that the~inexpens
 \end{figure}
 
 \subsubsection{Check the~File Path}
-Sometimes, analyzer needs to filter out files that are relevant for the~diagnostic. For example, when looking for an~access to the~database layer from the~presentation layer, the~analyzer is only concerned with the~invocation expressions in the~files of presentation layer. These can be identified by inspecting the~\texttt{FilePath} property of the~\texttt{SyntaxTree} in which the~current invocation expression is located. If the~file path does not meet the~requirements, the~current invocation expression does not need to be analyzed further.
+Sometimes, analyzer needs to pre-filter files that are relevant for the~diagnostic. For example, when looking for an~access to the~database layer from the~presentation layer, the~analyzer is only concerned with the~invocation expressions in the~files of presentation layer. These can be identified by inspecting the~\texttt{FilePath} property of the~\texttt{SyntaxTree} in which the~current invocation expression is located. If the~file path does not meet the~requirements, the~current invocation expression does not need to be analyzed further.
 
 \subsubsection{Method Name Syntax Analysis}
 This step exists purely for performance optimization reasons and cannot be overridden by subclasses. It tries to extract the~name of the~method invoked and compares it to the~forbidden members. If the~method name is not among the~forbidden members, the~algorithm stops and no expensive operations had to be done. Otherwise, the~algorithm advances to the~next step.
@@ -684,7 +679,7 @@ Since there are no constraints for what kind of syntax node the~\texttt{Expressi
   
   TODO example + graph
     
-  \item \textbf{Conditional access expression} -- similar to the~previous case but the~access is conditional. The whole syntax tree is evaluated from the~left-to-right as opposed to right-to-left evaluation of the~simple member access.  
+  \item \textbf{Conditional access expression} -- similar to the~previous case but the~access is conditional. The whole syntax tree is right-folded as opposed to the~simple member access left-folded syntax tree.
   
   TODO example + graph
   
@@ -702,7 +697,7 @@ This method cannot be overridden as it is the~integral part of the~whole algorit
 If it is important to analyze the~specificities of the~invocation usage (mainly the~arguments supplied), the~subclasses can override \texttt{IsForbiddenUsage()} virtual method. The template method supplies it with two parameters: the~invocation expression and the~method symbol obtained in the~previous step.
 
 \subsubsection{Diagnostic Creation}
-If all the~steps above determined the~analyzed invocation is forbidden, the~last step of the~template method makes sure the~diagnostic is raised, using the~diagnostic descriptor provided upon creation. It is possible to configure the~diagnostic creation by providing optional instance of \texttt{IDiagnosticFormatter} -- an~interface defined in \texttt{BugHunter} project that determines how the~diagnostic of certain syntax nodes shall be formatted (location and message text of the~diagnostic).
+If all the~steps above determined the~analyzed invocation is forbidden, the~last step of the~template method makes sure the~diagnostic is raised, using the~diagnostic descriptor provided upon creation. It is possible to configure the~diagnostic creation by providing optional instance of \texttt{IDiagnosticFormatter}. It is an~interface defined in \texttt{BugHunter} project that determines how the~diagnostic of certain syntax nodes shall be formatted (location and message text of the~diagnostic).
 
 \subsubsection{Usage}
 Typical example how to use this template method is \texttt{EventLogArgumentAnalyzer}. It defines an~inner class by subclassing the~\texttt{MethodInvocationAnalyzer}. It provides the~diagnostic descriptor, custom diagnostic formatter and overrides \texttt{IsForbiddenUsage()} method. Then, this inner class is utilized by the~end-analyzer to perform the~analysis.
@@ -723,11 +718,11 @@ All analyzers that were implemented provide one or more code fixes. There are on
 \end{itemize} 
 
 % TODO consider deleting this
-The code fixes have one significant limitation -- providing a~fix to an~API replacement when the~forbidden access is conditional. This is due to the~nature of the~C\# grammar and the~way how null conditional operator is represented in the~syntax tree. It would be very difficult to handle all use cases of conditional access correctly and therefore it was decided not to provide the~code fix in such complicated cases. 
+The code fixes have one significant limitation -- providing a~fix to an~API replacement when the~forbidden access is conditional. This is due to the~nature of the~C\# grammar and the~way how null conditional operator is represented in the~syntax tree. If the access is chained, it would be very difficult to define the exact part of the syntax tree that should be replaced. In fact, there is even an issue\footnote{https://github.com/dotnet/roslyn/issues/3110} on GitHub of the Roslyn team explaining in detail why this is problematic. 
 
-There were two ways for preventing code fix from being suggested. First one was to give the~diagnostic on conditional access different diagnostic id from the~easily-fixable member access. This was deemed as not particularly user friendly and other options were sought.
+Therefore, it was decided not to provide the~code fix in such complicated cases. There were two ways for preventing code fix from being suggested. First one was to give the~diagnostic on conditional access different diagnostic id from the~easily-fixable member access. This was deemed as not particularly user friendly and other options were sought.
 
-The approach taken was to provide an~additional information to the~diagnostic via the~\texttt{Properties} property\footnote{http://www.coderesx.com/roslyn/html/93197CDD.htm}. It is a~data structure were arbitrary key-value pairs can be stored when diagnostic is raised and can be later read in the~code fix class. The analyzer stores a~flag, telling the~diagnostic is raised for conditional member access. When the~code fix method is invoked, it can decide whether or not it is capable of providing a~fix for the~conditional member access.
+The approach taken was to provide an~additional information to the~diagnostic via the~\texttt{Properties} property\footnote{http://www.coderesx.com/roslyn/html/93197CDD.htm}. It is a~data structure were arbitrary key-value pairs can be stored when diagnostic is raised and can be later read in the~code fix class. The analyzer stores a~flag, telling the~diagnostic is raised for conditional member access. When the~code fix method is invoked, it can decide whether or not it is capable of providing a~fix for the~specific conditional member access.
 
 \section{Tests}
 Since it is infeasible to test the~functionality of all the~analyzers manually by running the~Visual Studio, it is crucial that all the~requirements are covered by an~automated set of tests. 
@@ -735,12 +730,12 @@ Since it is infeasible to test the~functionality of all the~analyzers manually b
 Every analyzer and its code fixes have an~extensive suite of tests covering the~functionality. The extension methods and helper classes are covered by separate unit tests as well. The pre-generated boilerplate from Visual Studio for testing analyzers was reused and rewritten using NUnit framework~\footnote{Testing framework for .NET languages https://www.nunit.org/}. Since the~default template did not allow to set anything apart from the~sources, it had to be customized and some additional features were added.
 
 A typical scenario for testing an~analyzer is to:
-\begin{enumerate}
+\begin{compactenum}
   \item Prepare the~source documents to be tested. Typically one C\# class stored in a~string.
   \item Create a~compilation out of the~source documents.
   \item Run the~analyzer under test on the~compilation.
   \item Compare the~output of the~analyzer with the~expected diagnostics.
-\end{enumerate}
+\end{compactenum}
 
 To test the~code fix, it is run on the~source containing a~diagnostic and the~document with applied code fix is compared to the~expected result.
 
@@ -753,18 +748,17 @@ The outcomes of some analyzers are dependant on the~file path of the~analyzed do
 \subsubsection{Failing Tests on Uncompilable Sources}
 Another important feature, that was not present in Microsoft template, is that when the~source documents are uncompilable (e.g contain a~typo), the~tests will fail, no matter if the~analyzer and/or code fix worked as expected. Since the~compilers generally, and, therefore, also the~analyzers themselves, are heavily reliant on string constants, it is very important to have this kind of check present.
 
-Failing the~build upon uncompilable source was added later in the~development and it uncovered quite a~few errors. Some of them were rooted back in original BugHunter. For example it checked for \texttt{HttpRequest.Redirect()} which actually does not exist, because \texttt{Redirect()} method is member of \texttt{HttpResponse} object, not \texttt{HttpRequest}.
+Failing the~build upon uncompilable source was added later in the~development and it uncovered quite a~few errors. Some of them were rooted back in the~original BugHunter. For example it checked for \texttt{HttpRequest.Redirect()} which actually does not exist, because \texttt{Redirect()} method is member of \texttt{HttpResponse} object, not \texttt{HttpRequest}.
 
 \subsubsection{Tracking the~CMS API Changes}
-In order to supply the~Kentico DLLs to be referenced in the~tested on-demand compilation, the~test projects have a~dependency on Kentico.Libraries NuGet package. This, together with tests failing on uncompilable source, has a~very pleasant side effect. It tracks any breaking changes in CMS API that affect the~analyzers' or code fixes' logic.
+In order to supply the~Kentico DLLs to be referenced in the~tested on-demand compilation, the~test projects have a~dependency on \texttt{Kentico.Libraries} NuGet package. This, together with tests failing on uncompilable source, has a~very pleasant side effect: It tracks any breaking changes in CMS API that affect the~analyzers' or code fixes' logic.
 
 For instance, if some method from Kentico API changes the~number of arguments, code fix, that introduces the~method to the~source code, is invalid and its tests will fail. They will also provide a~detailed compiler error message, so the~developer knows instantly what issues need to be fixed after the~upgrade.
 
 Only major versions can contain a~breaking change and these are released once a~year in Kentico. To keep the~BugHunter analyzers up to date, the~referenced NuGet should to be upgraded regularly.
 
 \bigskip\noindent
-TODO \\
-Wrap up, and introduce next chapter -- concerns about the~performance of the~tool, usability
+This chapter presented selected implementation details and patterns utilized during the~development. The~next chapter focuses on~the~performance aspect of~the~tool. It describes how the~performance of~the~analyzers was measured and what was done in~order to~enhance it. It also assesses the~tool's usability based on feedback obtained from the~Kentico development team.
 
 % =================================================================
 % ============================= CHAPTER 6 =========================
