@@ -552,7 +552,7 @@ The size of the~company grew to more than 80 developers working on one product. 
 \section{The Original BugHunter}
 BugHunter is a~simple console application developed at Kentico that searches for violations of internal rules and best practices in the~the CMS solution. Given the~file path to the~solution folder, the~BugHunter performs the~checks and outputs the~results to a~file. Each issue found is reported with a~short message plus additional information on its location in the~code (source file and line number). It contains various checks not, only for C\#, but also a~few for JavaScript (like no skipped tests allowed), ASPX\footnote{TODO} (preferred usage of Kentico controls to default ones), or XML files.
 
-Following sections explain what were the~main downsides of the~original BugHunter and how this thesis addresses them.
+Following sections explain the~main downsides of the~original BugHunter and how this thesis addresses them.
 
 \subsection{Need for Semantic Analysis}
 The biggest disadvantage of the~previous BugHunter was that the~tool performed the~checks purely by string comparison. It did not build any model of the~analyzed code and therefore possessed no knowledge of the~semantics. 
@@ -584,14 +584,14 @@ The console application was run by the~build server itself as part of the~contin
 Since Roslyn analyzers are part of the~Visual Studio IDE, programmers get an~instant feedback and see the~warnings before submitting the~code without the~need to run an~external application.
 
 \subsection{Suppressing the~Results}
-Another downside of the~previous solution was the~way certain portions of the~code were excluded from the~analysis. Since the~BugHunter is a~console application and the~CMS solution is completely independent of it, the~configuration had to be placed in BugHunter itself. This was deemed as not transparent, as it was not clear, why in one file certain code was okay, whereas, in the~other, it was reported as an~issue, without taking a~look into a~huge configuration file.
+Another downside of the~previous solution was the~way certain portions of the~code were excluded from the~analysis. Since the~BugHunter is a~console application and the~CMS solution is completely independent of it, the~configuration had to be placed in BugHunter's installation directory. This was deemed as not transparent, as it was not clear, why in one file certain code was okay, whereas, in the~other, it was reported as an~issue, without taking a~look into a~huge configuration file.
 
 Moreover, the~only way to exclude a~certain piece of code from the~analysis was to put the~whole file, in which it appeared, into the~configuration of the~rule to be suppressed. This way of configuration lacked the~granularity and was opaque. 
 
 On the~other hand, Roslyn provides numerous ways to turn off a~certain rule for a~project, a~file, or even a~line of code. More information on which approach was taken when deploying the~analyzers can be fount in the~Appendix !!!!TODO !!!!.
 
 \section{Defining Analyzer Categories}
-The \texttt{Category} property of the~\texttt{Microsoft.CodeAnalysis.DiagnosticDescriptor} class provides a way for semantically distinguishing the~analyzers and giving an~additional information on what type of problem the~particular category is concerned with. The original BugHunter did not group the~checks into the~semantic categories but was structured rather by the~technology targeted by the~check (C\#, ASPX, JavaScript, web parts, etc.). 
+The \texttt{Category} property of the~\texttt{Microsoft.CodeAnalysis.DiagnosticDescriptor} class provides a way for semantically distinguishing the~analyzers and giving additional information on what type of problem the~particular category is concerned with. The original BugHunter did not group the~checks into the~semantic categories but was structured rather by the~technology targeted by the~check (C\#, ASPX, JavaScript, web parts, etc.). 
 
 Therefore, one of the~first tasks before the~implementation was to determine which checks are suitable candidates for refactoring into new Roslyn analyzers and subsequently group them into categories by the~type of the~task they performed. Basically, all the~checks that were not obsolete and were concerned with C\# internal guidelines were rewritten. Table~\ref{tab:analyzer-categories-compact-table} lists all implemented analyzers sorted into categories and following sections briefly elaborate on how the~categories were defined and what they represent. 
 
@@ -690,7 +690,7 @@ It is not enough for the~analyzer to subscribe only to \texttt{SimpleMemberAcces
 
 Even though it would be possible to subscribe to both kinds of syntax nodes with one callback, the~underlying syntax of these two is so much different, it would make the~code cluttered and full of if-statements. Moreover, if Microsoft decides to add another possibility to access members in next language version, the~existing code would have to be modified.
 
-Therefore, it was decided to encapsulate the~strategies for analyzing a~particular syntax node into a~separate classes. The API replacement for member analyzer instantiates the~strategy helpers, configures them, and tell them to run the~analysis methods as callbacks subscribed syntax node of a~particular kind. This makes the~code easily extendible.
+Therefore, it was decided to encapsulate the~strategies for analyzing a~particular syntax node into separate classes. The API replacement for member analyzer instantiates the~strategy helpers, configures them, and tells them to run the~analysis methods as callbacks subscribed syntax node of a~particular kind. This makes the~code easily extendible.
 
 \begin{figure}[h!]
 		\centering
@@ -717,13 +717,13 @@ It is important to note that the~steps are ordered in a~way so that the~inexpens
 
 \begin{figure}[h!]
 		\centering
-			\includegraphics[scale=0.75]{img/uml/method-invocation-analyzer}
+			\includegraphics[scale=0.85]{img/uml/method-invocation-analyzer}
 		\caption{Class diagram for \texttt{MethodInvocationAnalyzer} depicting the~template method design pattern}
 		\label{fig:uml-method-invocation-analyzer}
 \end{figure}
 
 \subsubsection{Check the~File Path}
-Sometimes, analyzer needs to pre-filter files that are relevant for the~diagnostic. For example, when looking for an~access to the~database layer from the~presentation layer, the~analyzer is only concerned with the~invocation expressions in the~files of presentation layer. These can be identified by inspecting the~\texttt{FilePath} property of the~\texttt{SyntaxTree} in which the~current invocation expression is located. If the~file path does not meet the~requirements, the~current invocation expression does not need to be analyzed further.
+Sometimes, an analyzer needs to pre-filter files that are relevant for the~diagnostic. For example, when looking for an~access to the~database layer from the~presentation layer, the~analyzer is only concerned with the~invocation expressions in the~files of presentation layer. These can be identified by inspecting the~\texttt{FilePath} property of the~\texttt{SyntaxTree} in which the~current invocation expression is located. If the~file path does not meet the~requirements, the~current invocation expression does not need to be analyzed further.
 
 \subsubsection{Method Name Syntax Analysis}
 This step exists purely for performance optimization reasons and cannot be overridden by subclasses. It tries to extract the~name of the~method invoked and compares it to the~forbidden members. If the~method name is not among the~forbidden members, the~algorithm stops and no expensive operations had to be done. Otherwise, the~algorithm advances to the~next step.
@@ -736,7 +736,7 @@ Since there are no constraints for what kind of syntax node the~\texttt{Expressi
   
   \item \textbf{Simple member access expression} -- invocation on member that is being accessed on object, or class. Accesses can be possibly chained.
   
-  TODO example + graph
+  TODO example + graph 
     
   \item \textbf{Conditional access expression} -- similar to the~previous case but the~access is conditional. The whole syntax tree is right-folded as opposed to the~simple member access left-folded syntax tree.
   
