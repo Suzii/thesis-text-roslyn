@@ -1,5 +1,8 @@
 books/
 
+## visio
+*.~vsdx
+
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof
