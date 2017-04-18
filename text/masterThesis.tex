@@ -522,6 +522,10 @@ This makes semantic model very useful when performing static code analysis conce
 %  - how to perform static code analysis with Roslyn
 %    - writing anlyzers and code fixes / code refactorings  
 
+%https://msdn.microsoft.com/en-us/magazine/dn879356.aspx 18/10/2016
+%A key point to note is that a~top-level action registered with any Register method should never stash any state in instance fields on the~analyzer type. Visual Studio will reuse one instance of that analyzer type for the~whole Visual Studio session to avoid repeated allocations. Any state you store and reuse is likely to be stale when analyzing a~future compilation and could even be a~memory leak if it keeps old syntax nodes or symbols from being garbage collected.
+
+
 % =================================================================
 % ============================= CHAPTER 5 =========================
 % =================================================================
@@ -635,7 +639,7 @@ Therefore, it was decided to encapsulate the~strategies for analyzing a~particul
 
 \begin{figure}[h!]
 		\centering
-			\includegraphics[scale=0.75]{img/uml/api-replacement-for-member}
+			\includegraphics[scale=0.8]{img/uml/api-replacement-for-member}
 		\caption{Class diagram for \texttt{ApiReplacementForMemberAnalyzer}}
 		\label{fig:uml-api-replacement-for-member}
 \end{figure}
@@ -700,7 +704,14 @@ If it is important to analyze the~specificities of the~invocation usage (mainly 
 If all the~steps above determined the~analyzed invocation is forbidden, the~last step of the~template method makes sure the~diagnostic is raised, using the~diagnostic descriptor provided upon creation. It is possible to configure the~diagnostic creation by providing optional instance of \texttt{IDiagnosticFormatter}. It is an~interface defined in \texttt{BugHunter} project that determines how the~diagnostic of certain syntax nodes shall be formatted (location and message text of the~diagnostic).
 
 \subsubsection{Usage}
-Typical example how to use this template method is \texttt{EventLogArgumentAnalyzer}. It defines an~inner class by subclassing the~\texttt{MethodInvocationAnalyzer}. It provides the~diagnostic descriptor, custom diagnostic formatter and overrides \texttt{IsForbiddenUsage()} method. Then, this inner class is utilized by the~end-analyzer to perform the~analysis.
+Typical example how to use this template method is \texttt{EventLogArgumentsAnalyzer}, depicted in~Figure~\ref{fig:uml-method-invocation-analyzer-object-diagram}. It defines an~inner class by subclassing the~\texttt{MethodInvocationAnalyzer}. It provides the~diagnostic descriptor, custom diagnostic formatter and overrides \texttt{IsForbiddenUsage()} method. Then, this inner class is utilized by the~end-analyzer to perform the~analysis.
+
+\begin{figure}[h!]
+		\centering
+			\includegraphics[scale=0.75]{img/uml/method-invocation-analyzer-object-diagram}
+		\caption{Object diagram for \texttt{EventLogArgumentsAnalyzer} using inner class that derives from \texttt{MethodInvocationAnalyzer}}
+		\label{fig:uml-method-invocation-analyzer-object-diagram}
+\end{figure}
 
 \subsection{Analyzers for String and Culture Checks}
 The analyzers in this category search for methods like \texttt{Equals()}, \texttt{CompareTo()}, or \texttt{IndexOf()}. Considering that methods with same names can be found on many other types as well (\texttt{Object}, \texttt{Collection}), the~first syntax check for method name will often fail to filter out the~unrelated usages. Although all these analyzers could use the~\texttt{MethodInvocationAnalyzer} as a~strategy, it was decided to take a~different approach here. 
@@ -764,24 +775,35 @@ This chapter presented selected implementation details and patterns utilized dur
 % ============================= CHAPTER 6 =========================
 % =================================================================
 \chapter{Measuring and Optimizing the~Performance}
-Why - how many nodes, where are callbacks...
-Measurements from roslyn - number of projects, documents, nodes... show table, reference to code that produces it (shall be included in IS)... why people are not using resharper etc.dd
+TODO 
+Stress the size of the CMS solution. What issues with the performance there are already in Kentico (ReSharper slowdowns, VS failing, VS2017 up to 100 projects - oh really, we have 250...)
 
-https://msdn.microsoft.com/en-us/magazine/dn879356.aspx 18/10/2016
-A key point to note is that a~top-level action registered with any Register method should never stash any state in instance fields on the~analyzer type. Visual Studio will reuse one instance of that analyzer type for the~whole Visual Studio session to avoid repeated allocations. Any state you store and reuse is likely to be stale when analyzing a~future compilation and could even be a~memory leak if it keeps old syntax nodes or symbols from being garbage collected.
+Approaches - /reportanalyzer; benchmarks not working; no tool by Microsoft; user testing
 
-Why tool needs to be super-fast (refer to chapter 4 where this should have been said)
+\section{CMS Solution Size}
+Measurements from roslyn - number of projects, documents, nodes... show table, reference to code that produces it (shall be included in IS)... 
 
-Talk about /ReportAnalyzer switch of MSBuild process (csc.exe)
+\section{Two NuGet packages with BugHunter Analyzers}
+Why, how
 
-- heuristics with syntax first check - how it speeded up the~relevat analyzers
+\section{Measuring the Performance of Separate Analyzers}
+/ReportAnalyzer switch in csc... what it does, how it was used, normalizin the results, console app and PS scripts for runnging multiple times
 
--strig and culture optimizes vs dumm versoin
+\section{Optimizations}
 
-How the~performance of the~slowest analyzers (SystemIO, BaseChecks) was improved
+\subsection{System.IO Analyzer}
 
-Talk about how analyzers deployment influenced the~build time
+\subsection{CMS Base Classes Analyzers}
 
+\subsection{Syntax Heuristics for Method Invocation Analyzer}
+stats on how much it speeded up relevant analyzers
+
+\subsection{String Analyzers}
+
+\section{BugHunter Analyzers vs Original BugHunter Build Times}
+Build times from TeamCity - compare w/o BH, old and new versions
+
+\section{Tool Usability Assessment}
 Questionares sent to development team, feedback from senior developers
 
 % =================================================================
@@ -811,7 +833,7 @@ current version used is v.1.3.X and for this on VS with Update 3 is needed... ha
    https://github.com/dotnet/roslyn/issues/6998
    https://github.com/dotnet/roslyn/pull/7526)
 
-
+- problem with Symbol location and disappearing diagnostic 
 
 % =================================================================
 % =============================== STUFF ===========================
