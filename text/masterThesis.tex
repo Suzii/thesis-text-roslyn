@@ -61,6 +61,7 @@
 \makeindex                %% helper commands for index typesetting.
 
 %% These additional packages are used within the~document:
+\usepackage{multirow}
 \usepackage{paralist}
 \usepackage{amsmath}
 \usepackage{amsthm}
@@ -592,19 +593,73 @@ On the~other hand, Roslyn provides numerous ways to turn off a~certain rule for 
 \section{Defining Analyzer Categories}
 The \texttt{Category} property of the~\texttt{Microsoft.CodeAnalysis.DiagnosticDescriptor} class provides a way for semantically distinguishing the~analyzers and giving an~additional information on what type of problem the~particular category is concerned with. The original BugHunter did not group the~checks into the~semantic categories but was structured rather by the~technology targeted by the~check (C\#, ASPX, JavaScript, web parts, etc.). 
 
-Therefore, one of the~first tasks before the~implementation was to determine which checks are suitable candidates for refactoring into new Roslyn analyzers and subsequently group them into categories by the~type of the~task they performed. Basically, all the~checks that were not obsolete and were concerned with C\# internal guidelines were rewritten. Next sections briefly elaborates on how the~categories were defined and what they represent. 
+Therefore, one of the~first tasks before the~implementation was to determine which checks are suitable candidates for refactoring into new Roslyn analyzers and subsequently group them into categories by the~type of the~task they performed. Basically, all the~checks that were not obsolete and were concerned with C\# internal guidelines were rewritten. Table~\ref{tab:analyzer-categories-compact-table} lists all implemented analyzers sorted into categories and following sections briefly elaborate on how the~categories were defined and what they represent. 
+
+% ------------------ Summary Table ------------------
+\begin{table}
+\resizebox{1.005\textwidth}{!}{%
+\begin{tabularx}{1.038\textwidth}{ll}
+\toprule
+\textbf{Category} & \textbf{Analyzer name} \\ \hline
+
+\midrule
+\textbf{AbstrOverImpl}
+  & LuceneSearchDocumentAnalyzer \\
+
+\textbf{CmsApiReplacements}
+  & HttpSessionSessionIdAnalyzer \\
+  & HttpSessionElementAccessAnalyzer \\
+  & HttpRequestCookiesAnalyzer \\
+  & HttpResponseCookiesAnalyzer \\
+  & HttpRequestUserHostAddressAnalyzer \\
+  & HttpRequestUrlAnalyzer \\
+  & HttpRequestBrowserAnalyzer \\
+  & HttpResponseRedirectAnalyzer \\
+  & HttpRequestQueryStringAnalyzer \\
+  & PageIsCallbackAnalyzer \\
+  & PageIsPostBackAnalyzer \\
+  & FormsAuthenticationSignOutAnalyzer \\
+  & ClientScriptMethodsAnalyzer \\
+  & SystemIOAnalyzer \\
+
+\textbf{CmsApiGuidelines}
+  & WhereLikeMethodAnalyzer \\
+  & EventLogArgumentsAnalyzer \\
+  & ValidationHelperGetAnalyzer \\
+  & ConnectionHelperExecuteQueryAnalyzer \\
+ 
+\textbf{CmsBaseClasses}
+  & ModuleRegistrationAnalyzer \\
+  & WebPartBaseAnalyzer \\
+  & PageBaseAnalyzer \\
+  & UserControlBaseAnalyzer \\
+
+\textbf{StringAndCulture}
+  & StringManipulationMethodsAnalyzer \\
+  & StringEqualsMethodAnalyzer \\
+  & StringCompareToMethodAnalyzer \\
+  & StringStartAndEndsWithMethodsAnalyzer \\
+  & StringIndexOfMethodsAnalyzer \\
+  & StringCompareStaticMethodAnalyzer \\
+\bottomrule
+\end{tabularx}
+}
+\caption{Analyzers sorted into categories}
+\label{tab:analyzer-categories-compact-table}
+\end{table}
+% ---------------------------------------------------
 
 \subsection{Abstraction over Implementation}
 Analyzers in this category check that there is no "hard reference" on third party libraries in the~code. Violation of this rule would require clients to use a~particular version of the~library which might collide with the~references on other components they are using, resulting in so-called "dependency hell"\footnote{https://devnet.kentico.com/articles/referencing-multiple-versions-of-the-same-assembly-in-a-single-application}. Therefore, in CMS solution the~hard references are replaced with a~thin layer of interfaces and adapters. The analyzers make sure, only the~interfaces are used throughout the~solution.
 
-\subsection{CMS API Guidelines}
-These analyzers impose internal guidelines on the~CMS API usage. They forbid the~direct access to database from presentation layer (\texttt{ConnectionHelperExecutequeryAnalyzer}), point out usages of methods that may have more suitable or a~safer alternatives1 (\texttt{WhereLikeMethodAnalyzer} or \texttt{ValidationHelperGetAnalyzer}), or guide developers to use predefined constants where possible (\texttt{EventLogArgumentsAnalyzer}).
-
 \subsection{CMS API Replacements}
 In Kentico CMS solution there are many helpers that encapsulate the~traditional .NET API and might provide an~extended functionality. For example, determining the~current browser of the~user can be done by accessing the~\texttt{Browser} property of the~\texttt{HttpRequest} object. However, if this attempt fails there are still other ways to resolve it and the~CMS API typically has a~helper for such cases. The analyzers detect accesses to members that have an~equivalent in CMS API and suggest code fixes. 
 
+\subsection{CMS API Guidelines}
+These analyzers impose internal guidelines on the~CMS API usage. They forbid the~direct access to database from presentation layer (\texttt{ConnectionHelperExecutequeryAnalyzer}), point out usages of methods that may have more suitable or a~safer alternatives1 (\texttt{WhereLikeMethodAnalyzer} or \texttt{ValidationHelperGetAnalyzer}), or guide developers to use predefined constants where possible (\texttt{EventLogArgumentsAnalyzer}).
+
 \subsection{CMS Base Classes}
-Similar to the~previous category, the~analyzers search for classes that inherit from standard .NET classes with CMS alternatives and suggest the~correct CMS replacements.
+Similar to CMS API Replacements category, the~analyzers search for classes that inherit from standard .NET classes with CMS alternatives and suggest the~correct CMS replacements.
 
 \subsection{String and Culture}
 This category of analyzers makes sure that string comparison\footnote{\texttt{Equals()}, \texttt{Compare()}, \texttt{IndexOf()} and their variants} and manipulation\footnote{\texttt{ToLower()}, \texttt{ToUpper()}} methods are always used with the~overload specifying \texttt{StringComparison} or \texttt{CultureInfo} parameter explicitly. This is vital for an~application like CMS that is used with culture specific data. For more information on what issues can be caused when not following this rule, like the~\textit{"Turkish-I problem"}, see \cite{best-practices-for-using-strings-in-dot-net}. 
@@ -722,6 +777,7 @@ receiverType.SpecialType == SpecialType.System\_String
 $$
 
 \section{Code Fixes}
+\label{sec:code-fixes}
 All analyzers that were implemented provide one or more code fixes. There are only two exceptions:
 \begin{itemize}
   \item \texttt{SystemIoAnalyzer}, since there is no one to one mapping between \texttt{CMS.IO} and \texttt{System.IO} APIs so it is not feasible to provide a~code fix in every situation,
