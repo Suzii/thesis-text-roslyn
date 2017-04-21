@@ -419,7 +419,7 @@ Not only have been compilers for both Visual Basic and C\# rewritten into the~en
 This chapter will take a~look at how the~Roslyn API layers are structured, how the~original source code is represented by the~compiler and how developers can build tools upon the~compiler's API. Note, that although Roslyn provides equivalent APIs for both VisualBasic and C\#, this thesis only focuses on the~latter since it is relevant for the~practical part of the~thesis.  
   
 \section{The Compiler Pipeline}
-Roslyn compilers expose an~API layer that mirrors the~traditional compiler pipeline (see \ref{fig:roslyn-compiler-pipeline}). Instead of a~single process of generating the~target program, each compilation step is treated as a~separate component~\cite{roslyn-overview}:
+Roslyn compilers expose an~API layer that mirrors the~traditional compiler pipeline (see Figure~\ref{fig:roslyn-compiler-pipeline}). Instead of a~single process of generating the~target program, each compilation step is treated as a~separate component~\cite{roslyn-overview}:
 
 \begin{itemize}
   \item \textbf{Parse phase} consists of \textit{lexical analysis} (\textit{scanner}) and \textit{syntactic analysis} (\textit{parser}). First, the~lexical analyzer processes the~stream of characters from the~source program and groups them into meaningful sequences called \textit{lexemes}. Those are subsequently processed by the~\textit{syntax analyzer} that creates a~tree-like structure of tokens based on the~language grammar~\cite{dragon-book}.
@@ -458,7 +458,7 @@ The immutability enables the~compiler to perform parallel work without need to c
 As discussed in the~previous section, the~Compiler APIs offer an~object model representing the~results of syntactic and semantic analysis produced by the~respective phases of the~compiler pipeline. Moreover, it also includes an~immutable snapshot of a~single compiler invocation, along with assembly references, compiler options, and source files. This layer is agnostic of any Visual Studio components, and as such can be used in stand-alone applications as well. There are two separate, though very similar, APIs for Visual Basic and C\#, each providing functionality tailored for specific language nuances.
 
 \subsubsection{Diagnostic APIs}
-Apart from parsing code and producing an~assembly, the~compiler is also capable of raising diagnostics, covering everything from syntax to semantics, and report them as errors, warnings or information messages~\cite{roslyn-succinctly}. This is achieved through the~compilers' Diagnostics APIs that allow developers to effectively plug-in to compiler pipeline, analyze the~source code using the~exposed object models, and surface custom diagnostics along with those defined by the~compiler itself. These APIs are integrated to both MSBuild~\footnote{The Microsoft Build Engine https://github.com/Microsoft/msbuild} and Visual Studio (2015 and newer). providing seamless developer experience. The practical part of this thesis relies on Diagnostic APIs to provide custom diagnostics and the~details will be discussed in Chapter \ref{chap:custom-roslyn-analyzers}.
+Apart from parsing code and producing an~assembly, the~compiler is also capable of raising diagnostics, covering everything from syntax to semantics, and report them as errors, warnings or information messages~\cite{roslyn-succinctly}. This is achieved through the~compilers' Diagnostics APIs that allow developers to effectively plug-in to compiler pipeline, analyze the~source code using the~exposed object models, and surface custom diagnostics along with those defined by the~compiler itself. These APIs are integrated to both MSBuild~\footnote{The Microsoft Build Engine https://github.com/Microsoft/msbuild} and Visual Studio (2015 and newer), providing seamless developer experience. Since the practical part of~this thesis, and~both Chapter~\ref{chap:custom-roslyn-analyzers} and~\ref{chap:performance}, rely on~Diagnostic APIs to~provide custom diagnostics, they are discussed in~more detail in~Section~\ref{sec:analyzers-and-code-fixes}.
 
 \subsubsection{Scripting APIs}
 As a~part of the~compiler layer, Microsoft team has introduced new Scripting APIs that can be used for executing code snippets. These APIs were not shipped with .NET Compiler Platform 1.0 and are part of v2.0.0 RC3\footnote{Release candidate 3, as per https://github.com/dotnet/roslyn/wiki/Scripting-API-Samples [26-02-2017].}.
@@ -474,9 +474,9 @@ This layer relies on both compiler and workspaces layers and is designed to prov
 \section{Syntax Tree}
 As mentioned in the~previous sections, the~product of the~syntactic analysis is a~syntax tree. It enables developers to work with the~code in a~managed way instead of working against plain text. Syntax trees are used for both analysis and refactorings, where the~new code is generated either manually or as a~modified version of the~existing tree. While being immutable, syntax trees are thread-safe and analysis can be done in parallel.
 
-It is important to point out, that in a~same way the~compiler constructs a~syntax tree from the~source text, it is also possible to round-trip back to the~text representation. Thus, the~source information is always preserved in full fidelity. This means that every piece of information from source must be stored somewhere within the~tree, including comments, whitespaces or end-of-line characters, which is a~major difference to the~general concept of compilers discussed in Chapter~\ref{chap:compilers}
+It is important to point out, that in a~same way the~compiler constructs a~syntax tree from the~source text, it is also possible to round-trip back to the~text representation. Thus, the~source information is always preserved in full fidelity. This means that every piece of information from source must be stored somewhere within the~tree, including comments, whitespaces or end-of-line characters, which is a~major difference to the~general concept of compilers discussed in Chapter~\ref{chap:compilers}.
 
-Figure~\ref{fig:roslyn-syntax-tree} shows a~syntax tree of an~invocation expression as obtained from Syntax Visualizer\footnote{https://roslyn.codeplex.com/wikipage?title=Syntax\%20Visualizer} extension available in Visual Studio. This tool is useful for understanding how Roslyn represents particular language constructs and is widely utilized whenever one needs to analyze the~code. Following sections explain what are the~main building blocks of such syntax tree, referring to Figure~\ref{fig:roslyn-syntax-tree}
+Figure~\ref{fig:roslyn-syntax-tree} shows a~syntax tree of an~invocation expression as obtained from Syntax Visualizer\footnote{https://roslyn.codeplex.com/wikipage?title=Syntax\%20Visualizer} extension available in Visual Studio. This tool is useful for understanding how Roslyn represents particular language constructs and is widely utilized whenever one needs to analyze the~code. Following sections explain what are the~main building blocks of such syntax tree, referring to Figure~\ref{fig:roslyn-syntax-tree}.
 
 \begin{figure}[h!]
 		\centering
@@ -517,21 +517,86 @@ When analyzing a~single source file of a~compilation, all its semantic informati
 This makes semantic model very useful when performing static code analysis concerned with more than just syntax.
  
 \pagebreak
-\section{Analyzers and Code Refactorings}
-[3 pages?]
-  
-%  - how to perform static code analysis with Roslyn
-%    - writing anlyzers and code fixes / code refactorings  
+\section{Analyzers and Code Fixes}
+\label{sec:analyzers-and-code-fixes}
+Thanks to the Compiler APIs it is possible for Visual Studio to provide live static code analysis detecting any code issues as programmer types. Apart from general analyzers that are shipped with Visual Studio, it is possible to define custom, domain specific rules. The tricky task of running the analysis on background thread, showing squiggles in the IDE, populating the \textit{Error List}, and providing the \textit{light bulb} with code fix suggestions, is left to Visual Studio.
 
+In order to understand the chapters describing the implementation part of the thesis, it is vital to know how the Diagnostic APIs work and how they can be leveraged to write a custom analyzer. This section should provide a quick introduction to analyzers and code fixes in Roslyn.
+
+\subsection{Diagnostic Analyzer}
+An analyzer is an instance of a type deriving from \texttt{Microsoft.CodeAnalysis.Diagnostics.DiagnosticAnalyzer} which must be annotated with \texttt{DiagnosticAnalyzer} attribute specifying the targeted programming language (C\# or Visual Basic)\cite{roslyn-succinctly}. In the thesis, these instances are referred to as \textit{"end-analyzers"}, in order to distinguish them from abstract analyzers or helper classes used for analysis. End-analyzer can contain one or more custom \textit{rules} for detecting domain specific errors or code issues. Each such rule is defined by \texttt{DiagnosticDescriptor}. Once the analyzer finds an issue, the diagnostic descriptor is used to create a \textit{diagnostic} which also includes data collected by the compiler, such as location.
+
+\subsubsection{Diagnostic Descriptor}
+For any Roslyn end-analyzer it is mandatory to override an immutable property \texttt{SupportedDiagnostics}, that returns an immutable array of diagnostic descriptors. These contain:
+
+\begin{compactitem}
+  \item \textbf{\texttt{DiagnosticId}} -- value uniquely identifying a single rule (for example "BH1014").
+  \item \textbf{\texttt{Title}}, \textbf{\texttt{MessageFormat}}, \textbf{\texttt{Description}} -- localizable strings that will be displayed in Error List or diagnostic's tooltip on hover. The message format can be also passed arguments upon diagnostic creation, to give more details about the concrete issue detected.
+  \item \texttt{\textbf{Category}} -- the category that the analyzer belongs to, such as code style, naming, design, etc. The list of categories defined for this thesis can be found in Section~\ref{sec:analyzer-categories}
+  \item \texttt{\textbf{DefaultSeverity}} -- one of \texttt{Error}, \texttt{Warning}, \texttt{Info}, \texttt{Hidden}, \texttt{None}. Note, that only warning prevents the project from compiling successfully.
+  \item \texttt{\textbf{IsEnabledByDefault}} -- when this flag is set to \texttt{false}, the rule must be turned on manually in rule set editor.
+  \item \texttt{\textbf{HelpLinkUri}} -- optional URI with online documentation.
+\end{compactitem}
+
+\subsubsection{Performing the analysis}
+Besides providing the code that performs the actual analysis (commonly referred to as \textit{action}), it is necessary to register the action to tell the .NET Compiler Platform when to invoked it. To do so, the end-analyzer must override the \texttt{Initialize} method. This method represents the entry point of the analyzer and is invoked exactly once per \textit{session}\footnote{For batch compilations the session is a single run of the compiler. For hosted environments, where the analysis runs on the background thread, the session can last as long as the IDE is open. For more information see~\cite{analyzer-action-semantics}}. The method accepts one argument, of type \texttt{AnalysisContext}, exposing number of methods for registering actions. Depending on when the action should be invoked, a callback with analysis logic is passed to one of these methods~\cite{analyzer-action-semantics}:
+
+\begin{compactitem}
+  \item \texttt{\textbf{RegisterSyntaxNodeAction}} -- the action will be invoked on every syntax node encountered by the compiler if the kind of the node matches one of the kinds provided upon registration.
+  
+  \item \texttt{\textbf{RegisterSymbolAction}} -- the action will be invoked on complete semantic processing of a symbol that matches one of symbol kinds that the action was registered with.
+  
+  \item \texttt{\textbf{RegisterSyntaxTreeAction}} -- the action will be invoked as soon as whole document is parsed.
+  
+  \item \texttt{\textbf{RegisterSemanticModelAction}} -- the action will be invoked once per document, after the semantic analysis of the document is finished.
+  
+  \item \texttt{\textbf{RegisterCompilationAction}} -- the action will be invoked once per compilation.
+  
+  \item \texttt{\textbf{RegisterCompilationStartAction}} -- the action will be invoked when the compilation starts, before any other actions. The context can be then used to register other actions within the compilation as well as the corresponding \texttt{\textbf{RegisterCompilationEndAction}}.
+  
+\item \texttt{\textbf{RegisterCodeBlockAction}} -- the action will be invoked once per code block.
+  
+  \item \texttt{\textbf{RegisterCodeBlockStartAction}} -- action will be invoked before any of actions applicable to syntax nodes within the code block have been invoked. Optionally the analyzer might register the code block end action (\texttt{RegisterCodeBlockEndAction}).
+  \item \texttt{\textbf{}}
+\end{compactitem}
+
+Start actions are usually used for statefull analyzers... note that more actions can be registered . Most common is syntax node on different kinds.
+
+Important not to throw an exception...
+
+... To give an overview how a typical simple diagnostic analyzer looks like,... tadaa screenshot...veeeeery simplyfied api replacement analyzer...
+
+\subsection{Code Fix Provider}
+Give screenshot of api replacement analyzer code fix preview 
+- what it can do
+
+- how
+
+- DiagnosticAnalyzer
+https://github.com/dotnet/roslyn/wiki/Getting-Started-Writing-a-Custom-Analyzer-\&-Code-Fix  
+-- registering actions
+-- stateful vs stateless
+
+- CodeFixProvider
+
+- Gotchas
+-- not storing state that wont be garbage-collected
+-- no exceptions otherwise VS will disable the analyzer / codefix
+-- performance considerations
+-- code fix vs code refactoring
+
+TODO nuget vs Vsix
+TODO reusing the~instances of analyzers - stateful vs stateless
 %https://msdn.microsoft.com/en-us/magazine/dn879356.aspx 18/10/2016
 %A key point to note is that a~top-level action registered with any Register method should never stash any state in instance fields on the~analyzer type. Visual Studio will reuse one instance of that analyzer type for the~whole Visual Studio session to avoid repeated allocations. Any state you store and reuse is likely to be stale when analyzing a~future compilation and could even be a~memory leak if it keeps old syntax nodes or symbols from being garbage collected.
 
 
+% my opininon on MS docummentation...
+
 % =================================================================
 % ============================= CHAPTER 5 =========================
 % =================================================================
-TODO nuget vs Vsix
-TODO reusing the~instances of analyzers - stateful vs stateless
+
 
 \chapter{Implementation of Custom Analyzers}
 \label{chap:custom-roslyn-analyzers}
@@ -591,6 +656,7 @@ Moreover, the~only way to exclude a~certain piece of code from the~analysis was 
 On the~other hand, Roslyn provides numerous ways to turn off a~certain rule for a~project, a~file, or even a~line of code. More information on which approach was taken when deploying the~analyzers can be fount in the~Appendix !!!!TODO !!!!.
 
 \section{Defining Analyzer Categories}
+\label{sec:analyzer-categories}
 The \texttt{Category} property of the~\texttt{Microsoft.CodeAnalysis.DiagnosticDescriptor} class provides a way for semantically distinguishing the~analyzers and giving additional information on what type of problem the~particular category is concerned with. The original BugHunter did not group the~checks into the~semantic categories but was structured rather by the~technology targeted by the~check (C\#, ASPX, JavaScript, web parts, etc.). 
 
 Therefore, one of the~first tasks before the~implementation was to determine which checks are suitable candidates for refactoring into new Roslyn analyzers and subsequently group them into categories by the~type of the~task they performed. Basically, all the~checks that were not obsolete and were concerned with C\# internal guidelines were rewritten. Table~\ref{tab:analyzer-categories-compact-table} lists all implemented analyzers sorted into categories and following sections briefly elaborate on how the~categories were defined and what they represent. 
@@ -833,6 +899,7 @@ This chapter presented selected implementation details and patterns utilized dur
 % ============================= CHAPTER 6 =========================
 % =================================================================
 \chapter{Measuring and Optimizing the~Performance}
+\label{chap:performance}
 TODO 
 Stress the size of the CMS solution. What issues with the performance there are already in Kentico (ReSharper slowdowns, VS failing, VS2017 up to 100 projects - oh really, we have 250...)
 
@@ -850,13 +917,23 @@ Why, how
 \section{Optimizations}
 
 \subsection{System.IO Analyzer}
+Most of the optimizations effort was done here...
+tell about some limits (EmptyCallback, direct SemanticModelAccess...)
+Heuristics applied
+final approach
 
-\subsection{CMS Base Classes Analyzers}
+\subsection{Other optimizations}
+\subsubsection{CMS Base Classes Analyzers}
+symbol vs syntax - perf differences
 
-\subsection{Syntax Heuristics for Method Invocation Analyzer}
+\subsubsection{Syntax Heuristics for Method Invocation Analyzer}
 stats on how much it speeded up relevant analyzers
 
-\subsection{String Analyzers}
+\subsubsection{String Analyzers}
+how not using the generic MethodInvocationAnalyzer influenced the results
+
+\section{Performance Consideration for Large Solutions}
+https://github.com/dotnet/roslyn/wiki/Performance-considerations-for-large-solutions
 
 \section{BugHunter Analyzers vs Original BugHunter Build Times}
 Build times from TeamCity - compare w/o BH, old and new versions
