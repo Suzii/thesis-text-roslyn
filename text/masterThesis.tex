@@ -713,7 +713,7 @@ This analyzer helper defines an~algorithm for analyzing invocation expression sy
 \subsection{Template Method Pattern}
 This analyzer is utilized by all end-analyzers that involve method invocation analysis. In order to be easily extendible for advanced checks, it is implemented as a~template method pattern\footnote{http://www.oodesign.com/template-method-pattern.html}. Every step of the~template method defines a~criteria that must be met in order for the~analysis to proceed. Steps that can be overridden have default implementation that continues with the~analysis. 
 
-It is important to note that the~steps are ordered in a~way so that the~inexpensive checks are performed first, in order to cut off the~analysis of the~irrelevant nodes without significant performance costs. Figure~\ref{fig:uml-method-invocation-analyzer} shows the~class diagram of the~\texttt{MemberInvocationAnalyzer} depicting the~use of template method design pattern. Following section elaborate on respective steps of the~algorithm.
+It is important to note that the~steps are ordered in a~way so that the~inexpensive checks are performed first, in order to cut off the~analysis of the~irrelevant nodes without significant performance costs. Figure~\ref{fig:uml-method-invocation-analyzer} shows the~class diagram of the~\texttt{MemberInvocationAnalyzer} depicting the~use of template method design pattern. Following section elaborate on respective steps of the~algorithm. Concrete use case depicting an instance of the analyzer can be seen in Figure~\ref{fig:uml-method-invocation-analyzer-object-diagram}.  
 
 \begin{figure}[h!]
 		\centering
@@ -758,9 +758,11 @@ If it is important to analyze the~specificities of the~invocation usage (mainly 
 \subsubsection{Diagnostic Creation}
 If all the~steps above determined the~analyzed invocation is forbidden, the~last step of the~template method makes sure the~diagnostic is raised, using the~diagnostic descriptor provided upon creation. It is possible to configure the~diagnostic creation by providing optional instance of \texttt{IDiagnosticFormatter}. It is an~interface defined in \texttt{BugHunter} project that determines how the~diagnostic of certain syntax nodes shall be formatted (location and message text of the~diagnostic).
 
-\subsubsection{Usage}
-Typical example how to use this template method is \texttt{EventLogArgumentsAnalyzer}, depicted in~Figure~\ref{fig:uml-method-invocation-analyzer-object-diagram}. It defines an~inner class by subclassing the~\texttt{MethodInvocationAnalyzer}. It provides the~diagnostic descriptor, custom diagnostic formatter and overrides \texttt{IsForbiddenUsage()} method. Then, this inner class is utilized by the~end-analyzer to perform the~analysis.
+\subsection{Usage}
+\label{sec:method-invocation-analyzer-usage}
+Prime example how to use this template method is \texttt{EventLogArgumentsAnalyzer}, depicted in~Figure~\ref{fig:uml-method-invocation-analyzer-object-diagram}. It defines an~inner class that subclasses the~\texttt{MethodInvocationAnalyzer}, overriding its \texttt{IsForbiddenUsage()} method.
 
+Then, this inner class is utilized by the~end-analyzer (\texttt{EventLogArgumentsAnalyzer}) to perform the~analysis. Upon instantiation the~end-analyzer provides it with~a~configuration object and a~custom diagnostic formatter. 
 \begin{figure}[h!]
 		\centering
 			\includegraphics[scale=0.75]{img/uml/method-invocation-analyzer-object-diagram}
