@@ -516,82 +516,77 @@ When analyzing a~single source file of a~compilation, all its semantic informati
  
 This makes semantic model very useful when performing static code analysis concerned with more than just syntax.
  
-\pagebreak
 \section{Analyzers and Code Fixes}
 \label{sec:analyzers-and-code-fixes}
 Thanks to the Compiler APIs it is possible for Visual Studio to provide live static code analysis detecting any code issues as programmer types. Apart from general analyzers that are shipped with Visual Studio, it is possible to define custom, domain specific rules. The tricky task of running the analysis on background thread, showing squiggles in the IDE, populating the \textit{Error List}, and providing the \textit{light bulb} with code fix suggestions, is left to Visual Studio.
 
-In order to understand the chapters describing the implementation part of the thesis, it is vital to know how the Diagnostic APIs work and how they can be leveraged to write a custom analyzer. This section should provide a quick introduction to analyzers and code fixes in Roslyn.
+In order to understand the chapters describing the implementation part of the thesis, it is vital to know how the Diagnostic APIs work and how they are leveraged when writing a custom analyzer.
 
 \subsection{Diagnostic Analyzer}
-An analyzer is an instance of a type deriving from \texttt{Microsoft.CodeAnalysis.Diagnostics.DiagnosticAnalyzer} which must be annotated with \texttt{DiagnosticAnalyzer} attribute specifying the targeted programming language (C\# or Visual Basic)\cite{roslyn-succinctly}. In the thesis, these instances are referred to as \textit{"end-analyzers"}, in order to distinguish them from abstract analyzers or helper classes used for analysis. End-analyzer can contain one or more custom \textit{rules} for detecting domain specific errors or code issues. Each such rule is defined by \texttt{DiagnosticDescriptor}. Once the analyzer finds an issue, the diagnostic descriptor is used to create a \textit{diagnostic} which also includes data collected by the compiler, such as location.
+An analyzer is an instance of a type deriving from \texttt{Microsoft.CodeAnalysis.Diagnostics.DiagnosticAnalyzer} which must be annotated with \texttt{DiagnosticAnalyzer} attribute specifying the targeted programming language (C\# or Visual Basic)\cite{roslyn-succinctly}. In the text of this thesis, these instances are referred to as \textit{"end-analyzers"}, in order to distinguish them from abstract analyzers or helper classes containing analysis logic. The end-analyzer can contain one or more custom \textit{rules} for detecting domain specific errors or code issues. Each such rule is defined by \texttt{DiagnosticDescriptor}. Once the analyzer finds an issue, the diagnostic descriptor is used to create a \textit{diagnostic} which also includes data collected by the compiler, such as location.
 
 \subsubsection{Diagnostic Descriptor}
-For any Roslyn end-analyzer it is mandatory to override an immutable property \texttt{SupportedDiagnostics}, that returns an immutable array of diagnostic descriptors. These contain:
+For any Roslyn end-analyzer it is mandatory to override an immutable property \texttt{SupportedDiagnostics}. It returns an immutable array of diagnostic descriptors which consist of:
 
+\smallskip
 \begin{compactitem}
-  \item \textbf{\texttt{DiagnosticId}} -- value uniquely identifying a single rule (for example "BH1014").
-  \item \textbf{\texttt{Title}}, \textbf{\texttt{MessageFormat}}, \textbf{\texttt{Description}} -- localizable strings that will be displayed in Error List or diagnostic's tooltip on hover. The message format can be also passed arguments upon diagnostic creation, to give more details about the concrete issue detected.
-  \item \texttt{\textbf{Category}} -- the category that the analyzer belongs to, such as code style, naming, design, etc. The list of categories defined for this thesis can be found in Section~\ref{sec:analyzer-categories}
-  \item \texttt{\textbf{DefaultSeverity}} -- one of \texttt{Error}, \texttt{Warning}, \texttt{Info}, \texttt{Hidden}, \texttt{None}. Note, that only warning prevents the project from compiling successfully.
-  \item \texttt{\textbf{IsEnabledByDefault}} -- when this flag is set to \texttt{false}, the rule must be turned on manually in rule set editor.
-  \item \texttt{\textbf{HelpLinkUri}} -- optional URI with online documentation.
+  \item[\texttt{\textbf{DiagnosticId}}] -- unique value identifying a single rule (e.g.~\textit{"BH103"}).
+  \item[\texttt{\textbf{Title}}, \texttt{\textbf{MessageFormat}}, \texttt{\textbf{Description}}] -- localizable strings that will be displayed in Error List or diagnostic's tooltip on hover. The message format can be also passed arguments upon diagnostic creation, to give more details about the concrete issue detected.
+  \item[\texttt{\textbf{Category}}] -- the category that the analyzer belongs to, such as code style, naming, design, etc. The list of categories defined for this thesis can be found in Section~\ref{sec:analyzer-categories}.
+  \item[\texttt{\textbf{DefaultSeverity}}] -- one of \texttt{Error}, \texttt{Warning}, \texttt{Info}, \texttt{Hidden}, \texttt{None}. Note, that only \texttt{Error} severity prevents the project from compiling successfully.
+  \item[\texttt{\textbf{IsEnabledByDefault}}] -- when this flag is set to \texttt{false}, the rule must be turned on manually in rule set editor.
+  \item[\texttt{\textbf{HelpLinkUri}}] -- optional URI with online documentation.
 \end{compactitem}
 
 \subsubsection{Performing the analysis}
 Besides providing the code that performs the actual analysis (commonly referred to as \textit{action}), it is necessary to register the action to tell the .NET Compiler Platform when to invoked it. To do so, the end-analyzer must override the \texttt{Initialize} method. This method represents the entry point of the analyzer and is invoked exactly once per \textit{session}\footnote{For batch compilations the session is a single run of the compiler. For hosted environments, where the analysis runs on the background thread, the session can last as long as the IDE is open. For more information see~\cite{analyzer-action-semantics}}. The method accepts one argument, of type \texttt{AnalysisContext}, exposing number of methods for registering actions. Depending on when the action should be invoked, a callback with analysis logic is passed to one of these methods~\cite{analyzer-action-semantics}:
 
+\smallskip
 \begin{compactitem}
-  \item \texttt{\textbf{RegisterSyntaxNodeAction}} -- the action will be invoked on every syntax node encountered by the compiler if the kind of the node matches one of the kinds provided upon registration.
+  \item[\texttt{\textbf{RegisterSyntaxNodeAction}}] -- the action will be invoked on every syntax node encountered by the compiler if the kind of the node matches one of the kinds provided upon registration.
   
-  \item \texttt{\textbf{RegisterSymbolAction}} -- the action will be invoked on complete semantic processing of a symbol that matches one of symbol kinds that the action was registered with.
+  \item[\texttt{\textbf{RegisterSymbolAction}}] -- the action will be invoked on complete semantic processing of a symbol that matches one of symbol kinds that the action was registered with.
   
-  \item \texttt{\textbf{RegisterSyntaxTreeAction}} -- the action will be invoked as soon as whole document is parsed.
+  \item[\texttt{\textbf{RegisterSyntaxTreeAction}}] -- the action will be invoked as soon as whole document is parsed.
   
-  \item \texttt{\textbf{RegisterSemanticModelAction}} -- the action will be invoked once per document, after the semantic analysis of the document is finished.
+  \item[\texttt{\textbf{RegisterSemanticModelAction}}] -- the action will be invoked after the semantic analysis of the document is finished.
   
-  \item \texttt{\textbf{RegisterCompilationAction}} -- the action will be invoked once per compilation.
+  \item[\texttt{\textbf{RegisterCompilationStartAction}}] -- the action will be invoked when the compilation starts (before any other actions). The context can be then used to register other actions within the compilation as well as the corresponding \texttt{RegisterCompilationEndAction}.
   
-  \item \texttt{\textbf{RegisterCompilationStartAction}} -- the action will be invoked when the compilation starts, before any other actions. The context can be then used to register other actions within the compilation as well as the corresponding \texttt{\textbf{RegisterCompilationEndAction}}.
+  \item[\texttt{\textbf{RegisterCodeBlockStartAction}}] -- action will be invoked before any of actions applicable to syntax nodes within the code block have been invoked. Optionally the analyzer might register the code block end action (\texttt{RegisterCodeBlockEndAction}).
   
-\item \texttt{\textbf{RegisterCodeBlockAction}} -- the action will be invoked once per code block.
-  
-  \item \texttt{\textbf{RegisterCodeBlockStartAction}} -- action will be invoked before any of actions applicable to syntax nodes within the code block have been invoked. Optionally the analyzer might register the code block end action (\texttt{RegisterCodeBlockEndAction}).
-  \item \texttt{\textbf{}}
+  \item[\texttt{\textbf{RegisterCompilationAction}}], \texttt{\textbf{RegisterCodeBlockAction}} -- the~action will be invoked once per~compilations, or~code block, respectively.
 \end{compactitem}
 
-Start actions are usually used for statefull analyzers... note that more actions can be registered . Most common is syntax node on different kinds.
+The compilation or code block start actions are usually registered for so called \textit{stateful analyzers}. These report diagnostics about specific code unit, as syntax node or a symbol (same as \textit{stateless analyzers}), but within the enclosing unit of code block or the compilation. They have to be designed carefully to perform effectively and not cause any memory leaks.
 
-Important not to throw an exception...
+For both categories of analyzers it is vital to be written defensively and not to throw any exceptions. Otherwise, the Visual Studio might disable it. An example of an analyzer detecting an access to the \texttt{Cookies} property of \texttt{HttpResponse} object can be seen in Figure~\ref{fig:analyzer-example}. It is actually a very simplified version of \texttt{HttpResponseCookiesAnalyzer} implemented for this thesis.
 
-... To give an overview how a typical simple diagnostic analyzer looks like,... tadaa screenshot...veeeeery simplyfied api replacement analyzer...
+\begin{figure}[h!]
+		\centering
+			\includegraphics[scale=0.65]{img/analyzer-example}
+		\caption{A simple example of a Roslyn analyzer}
+		\label{fig:analyzer-example}
+\end{figure}
 
 \subsection{Code Fix Provider}
-Give screenshot of api replacement analyzer code fix preview 
-- what it can do
+A code fix is a quick action suggesting a possible solution to a diagnosed code issue found by the analyzer. It can be applied by invoking the quick actions (Ctrl+.) integrated into the Visual Studio light bulb . Before applying, developer can view the live preview of the code fix action, as depicted in Figure~\ref{fig:codefix-example}.
 
-- how
+\begin{figure}[h!]
+		\centering
+			\includegraphics[scale=0.65]{img/codefix-example}
+		\caption{A example of a live preview of a code fix}
+		\label{fig:codefix-example}
+\end{figure}
 
-- DiagnosticAnalyzer
-https://github.com/dotnet/roslyn/wiki/Getting-Started-Writing-a-Custom-Analyzer-\&-Code-Fix  
--- registering actions
--- stateful vs stateless
+A custom code fix is defined by a class deriving from \texttt{Microsoft.CodeAnalysis.odeFixes.CodeFixProvider}. By overriding the \texttt{FixableDiagnosticIds} it claims which diagnostics it solves. The logic of fixing the diagnosed issue is placed in \texttt{RegisterCodeFixAsync} method, which ultimately generates whole new fixed document.
 
-- CodeFixProvider
+\section{Deployment}
+There are two different approaches when it comes to deploying the analyzers and code fixes: NuGet package, or Visual Studio extension. 
 
-- Gotchas
--- not storing state that wont be garbage-collected
--- no exceptions otherwise VS will disable the analyzer / codefix
--- performance considerations
--- code fix vs code refactoring
+With the IDE extension, every developer has to install it manually from Visual Studio Gallery\footnote{The Visual Studio Gallery provides an access to various tools that extend the default Visual Studio functionality.}. Once installed, the analysis is performed on any open solution or project. Therefore, it is only appropriate for analysis concerned with common language or framework guidelines.
 
-TODO nuget vs Vsix
-TODO reusing the~instances of analyzers - stateful vs stateless
-%https://msdn.microsoft.com/en-us/magazine/dn879356.aspx 18/10/2016
-%A key point to note is that a~top-level action registered with any Register method should never stash any state in instance fields on the~analyzer type. Visual Studio will reuse one instance of that analyzer type for the~whole Visual Studio session to avoid repeated allocations. Any state you store and reuse is likely to be stale when analyzing a~future compilation and could even be a~memory leak if it keeps old syntax nodes or symbols from being garbage collected.
-
-
-% my opininon on MS docummentation...
+On the other hand, when tha analyzers are installed as a NuGet package. Only the project that has it installed will be analyzed. The reference to the NuGet is stored in shared repository, and everyone working with the project has the analyzers installed automatically. Moreover, only the NuGet installation influences the compilation process and, as such, can be run on build boxes as part of continuous integration process.
 
 % =================================================================
 % ============================= CHAPTER 5 =========================
