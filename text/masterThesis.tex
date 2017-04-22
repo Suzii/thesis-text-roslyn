@@ -597,7 +597,7 @@ On the other hand, when tha analyzers are installed as a NuGet package. Only the
 \label{chap:custom-roslyn-analyzers}
 Kentico Software is an~IT company based in Brno, developing an~all-in-one solution for web content management, e-commerce, and online marketing, using the~ASP.NET\footnote{Open source framework for developing web applications by Microsoft.} architecture. The leading product is Kentico CMS (Content Management System). It has been on the~market since 2004 with the~11th version currently being developed. 
 
-Over the~course of almost 13 years, the~solution grew to an~enormous extent. To give an~overview, the~current version of the~Kentico CMS solution contains XY projects and a~total of YZ C\# documents. A lot of knowledge was accumulated with many internal utilities developed and guidelines created. Many features, such as globalization, were developed in-house first, only to be added as an~integral part of the~.NET Framework a~few years later.
+Over the~course of almost 13 years, the~solution grew to an~enormous extent. To give an~overview, the~current version of the~Kentico CMS solution contains 249   projects and a~total of 14,881 documents. A lot of knowledge was accumulated with many internal utilities developed and guidelines created. Many features, such as globalization, were developed in-house first, only to be added as an~integral part of the~.NET Framework a~few years later.
 
 The size of the~company grew to more than 80 developers working on one product. It became significantly harder to share all the~knowledge about the~internal best practices and the~process of onboarding new employees was challenging. With the~increasing complexity of the~project, the~main focus of the~code reviews was shifted to the~general architecture and inspection of how the~new code influences the~other parts of the~system, in order not to break anything. The manual and often repetitive tasks of checking the~compliance with the~conventions and correct use of the~API during the~code review became very tiresome and dragged the~focus of the~reviewer away from the~higher perspective on the~code. This led to a~need for an~automated tool that would take care of the~repetitive checks that needed to be done by the~reviewer.
 
@@ -648,7 +648,7 @@ Another downside of the~previous solution was the~way certain portions of the~co
 
 Moreover, the~only way to exclude a~certain piece of code from the~analysis was to put the~whole file, in which it appeared, into the~configuration of the~rule to be suppressed. This way of configuration lacked the~granularity and was opaque. 
 
-On the~other hand, Roslyn provides numerous ways to turn off a~certain rule for a~project, a~file, or even a~line of code. More information on which approach was taken when deploying the~analyzers can be fount in the~Appendix !!!!TODO !!!!.
+On the~other hand, Roslyn provides numerous ways to turn off a~certain rule for a~project, a~file, or even a~line of code. More information on which approach was taken when deploying the~analyzers can be fount in the~Appendix~\ref{appendix:deployment}.
 
 \section{Defining Analyzer Categories}
 \label{sec:analyzer-categories}
@@ -761,8 +761,6 @@ Therefore, it was decided to encapsulate the~strategies for analyzing a~particul
 \end{figure}
 
 The UML class diagram for \texttt{ApiReplacementForMemberAnalyzer} is depicted in Figure~\ref{fig:uml-api-replacement-for-member}. Note, that the~\texttt{DiagnosticAnalyzer} is an~abstract class defined in the~.NET Compiler Platform Diagnostics API and must be extended by the~custom end-analyzers.
-
-TODO: Add an~activity diagram to show how it is all initialized?
 
 \subsection{Analyzer for Method Replacement}
 The class \texttt{ApiReplacementForMethodAnalyzer} is very similar to analyzer for members that was introduced in the~previous section. It also accepts a~configuration object defining the~invocations of which members on which types are forbidden. 
@@ -983,8 +981,9 @@ current version used is v.1.3.X and for this on VS with Update 3 is needed... ha
 % =================================================================
 % ============================ APPENDICES =========================
 % =================================================================    
-	\appendix %% Start the~appendices.
-  \chapter{Source Codes in IS}
+\appendix %% Start the~appendices.
+\chapter{Source Codes in IS}
+\label{appendix:source-codes}
   The main solution with new Roslyn analyzers (BugHunter.sln) consists of 6 projects within 2 folders: TODO - Do leave the~Vsix project there or delete???
 
 TODO - replace with a~screenshot???
@@ -1011,9 +1010,9 @@ The projects with analyzers use the~categories also for folder structure with ea
   \chapter{Questionnaires}
 TODO...
 
-  \chapter{Deployment and Versioning}
+\chapter{Deployment and Versioning}
+\label{appendix:deployment}
 [2 pages]
 talk about the~old configuration of the~BH, and how this one maps to Roslyn version (suppression pragmas vs supression files, some analyzers look at the~filepath or file extension directly.. some chcecks like SystemIO had to be supressed - level set to none in ruleset file - for files that it did not make sense for... helpers that wrap the~"forbidden" functionality were marked with pragma statements around the~whole class so that it is clearly visible in code)
-
 
 \end{document}
