@@ -895,14 +895,14 @@ This chapter presented selected implementation details and patterns utilized dur
 \label{chap:performance}
 When implementing custom Roslyn analyzers, it is vital to consider their performance. The analyzers run on a background thread of the Visual Studio (or parallel threads of compilation process, when outside of the IDE) and if implemented carelessly, they might significantly influence the processing power and memory consumption.
 
-This holds for any custom analyzers written, but even more so if they are to be used with large solutions like CMS solution. Many developers at Kentico complained about the responsiveness of the Visual Studio with opened CMS Soultion. Some of them even admitted they had uninstalled the ReSharper extension, since it slow down the IDE to an unbearable extent and claimed, the plugin often caused IDE crashes. 
+This holds for any custom analyzers written, but even more so if they are to be used with large solutions like CMS solution. Developers at Kentico complain about the responsiveness of the Visual Studio with opened CMS Soultion. Some of them even admitted they had uninstalled the ReSharper extension, since it slow down the IDE to an unbearable extent and claimed, that the plugin often caused IDE crashes. 
 
-Therefore, in order for the BugHunter analyzers to be usable, they have to be efficient. This chapter explains how the performance of the implementaed analyzers was measured and provides a quick look at how the the slowest analyzers were optimized. The end of the chapter summarizes views of Kentico development team on the usability of the BugHunter analzyers.
+Therefore, in order for the BugHunter analyzers to be usable, they have to be efficient. This chapter explains how the performance of the implemented analyzers was measured and provides a quick look at how some of them were optimized. The end of the chapter summarizes views of Kentico development team on the usability of new BugHunter.
 
 \section{CMS Solution Size}
-Before diving into measuring performance of Roslyn analyzers, it is important to understand the specificities of CMS solution. This is helpful when considering which parts of the analyzers code are crucial for the overall performance an which can be neglected.
+Before discussing the performance of BugHunter analzyers, it is important to understand the structure of the CMS solution. This is helpful when considering which parts of the analyzers code are crucial for the overall performance an which can be neglected.
 
-In order to collect relevant information, \texttt{SolutionStatistics} project was created, and the sources can be found in the IS attachment. It project the \texttt{CMS.sln} solution and collects various statistics. Note that only data relevant for the implemented analyzers was gathered. This includes number of projects, documents, syntax nodes and their kinds~\footnote{Only numbers for syntax nodes that have some analysis actions registered were computed}. The numbers are only collected from projects, where the analyzers NuGet package was installed\footnote{Test and 3rd party projects were excluded from statistics. For more information see Appendix~\ref{appendix:deployment}}. The summary of the results is presented in Table~\ref{tab:solution-statistics}.
+In order to collect relevant information, \texttt{SolutionStatistics} project was created (the source code can be found in the IS attachment). The project loads the CMS solution and collects information on number of projects, documents, syntax nodes. The summary of the results is presented in Table~\ref{tab:solution-statistics}. Note, that just the data relevant for implemented analyzers are displayed. Therefore, only projects where NuGet with BugHunter analzyers is installed\footnote{Test and 3rd party projects were excluded from statistics, see Appendix~\ref{appendix:deployment}.} and relevant kinds of syntax nodes are considered.
 
 % ------------------ Solution Statistics Table ------------------
 \begin{table}
@@ -930,14 +930,42 @@ Number of syntax nodes        & 6,280,208 \\
 \end{table}
 % ---------------------------------------------------
 
+\section{Measuring the Performance}
+Measuring the performance is always tricky regardless of the domain. When one wants to measure performance of something as complicated as code analysis plugged into the compilation process, there is a big probability something will go wrong and result will not be accurate.
 
-\section{Measuring the Performance of Separate Analyzers}
-https://github.com/dotnet/roslyn/issues/6053
-Approaches - /reportanalyzer; benchmarks not working; no tool by Microsoft; user testing
-/ReportAnalyzer switch in csc... what it does, how it was used, normalizin the results, console app and 
-PS scripts for runnging multiple times
+In the early stages of the development, the initiative was to compute benchmarks for different analyzer versions using BenchmarkDotNet framework\footnote{https://github.com/dotnet/BenchmarkDotNet}. However, the overhead of creating the compilation together with the cost of the analyzers' execution were too big for the results to be useful. 
+
+--------- TODO -------
+
+
+There is too much code related to the overhead of running the actual analysis which cannot be influenced from the outside. There are also differences between running the analyzers as part of the compilation versus when they are run by the IDE, where many additional optimizations\footnote{Only part of the code that has been changed since last compilation is recompiled} are performed. 
+
+------------------
+\subsection{Performance of Separate analzyers}
+Before considering the overall impact of BugHunter anlayzers on the compilation of the CMS solution, it is important to tune the performance of separate analyzers. The only way that Microsoft provides for measuring the analyzers' execution times is \texttt{/ReportAnalyzer} switch in CSC (CSharp compiler) process.
+
+As stated in~\cite{report-analyzer}, if the compiler is invoked with \texttt{/ReportAanlyzer} command line switch, its output will contain total wall clock time spent in executing the analyzers along with relative times of separate analyzers. Since the analyzers can run concurrently, the total time should only be treated as the upper bound. The relative times per analyzer are useful for comparing their performance and identifying any outliers.
+
+In order to compile the whole solution, one must use the MSBuild process, that internally uses the CSC.
+The command, that also reports the execution times, looks like this\footnote{Note, that the official documentation (https://msdn.microsoft.com/en-us/library/ms164311.aspx) does not provide any information on running the MSBuild with reporting the analyzers. The only approach that worked, after numerous efforts, was the one shown above. The verbosity level diagnostic is vital here, since \texttt{verbosity:debug} completely omitted any information on analyzer reporting.}:
+
+\begin{center}
+\texttt{msbuild /t:Clean,Build /p:ReportAnalyzer=True /verbosity:diagnostic CMS.sln}
+\end{center}
+
+\subsubsection{Parsing and Aggregating Per-project Results}
+The resulting MSBuild output has almost 500MB and besides normal compiler output also contain information on analyzers' execution times for every project that the analyzers' NuGet is installed to. For CMS solution this means 125 projects. For the purpose of this thesis, however, only performance over whole solution is relevant. 
+
+In order to parse the results from the large output, a console application \texttt{ReportAnalyzerTimes.Parser} was developed. It extracts all information on analyzer execution times from the log (based on the format described in~\cite{report-analyzer}. After that, it sums up the absolute execution times \footnote{Smallest value, that can be reported, for the execution time is \texttt{<0.001s} and it is treated as 0.001s by the parsing application.} for same analyzers across the solution (sums per-project results) and outputs them into a file.
+
+\subsubsection{Aggregating Results from Multiple Runs}
+Since a single compiler run cannot be treated as ...TODO..., a PowerShell script (Report-Analyzer.ps1), executes the MSBuild of the CMS solution multiple times, was written. After every run, it run ReportAnalyzerTimes.Parser application and results from all runs are saved in multiple text files. 
+
+Another console application, ReportAnalyzerTimes.Aggregator, is utilized to aggregate the results into a single CSV\footnote{Comma Separated Values} file. For every analyzer, there is a name and the execution times from every run of solution build (accumulated per-project times obtained by the ReportAnalyzerTimes.Parser application).
 
 \section{Optimizations}
+The procedure described in previous section was used to ...
+
 
 \subsection{System.IO Analyzer}
 Most of the optimizations effort was done here...
@@ -957,6 +985,10 @@ how not using the generic MethodInvocationAnalyzer influenced the results
 
 \section{Performance Consideration for Large Solutions}
 https://github.com/dotnet/roslyn/wiki/Performance-considerations-for-large-solutions
+
+.. can be used later but so far none of team members complained about worse performance
+
+Why no statefull analyzers that have compilation end actions -- to large solutions it can take more than one minute for the diagnostic to show up
 
 \section{BugHunter Analyzers vs Original BugHunter Build Times}
 Build times from TeamCity - compare w/o BH, old and new versions
