@@ -893,19 +893,49 @@ This chapter presented selected implementation details and patterns utilized dur
 % =================================================================
 \chapter{Measuring and Optimizing the~Performance}
 \label{chap:performance}
-TODO 
-Stress the size of the CMS solution. What issues with the performance there are already in Kentico (ReSharper slowdowns, VS failing, VS2017 up to 100 projects - oh really, we have 250...)
+When implementing custom Roslyn analyzers, it is vital to consider their performance. The analyzers run on a background thread of the Visual Studio (or parallel threads of compilation process, when outside of the IDE) and if implemented carelessly, they might significantly influence the processing power and memory consumption.
 
-Approaches - /reportanalyzer; benchmarks not working; no tool by Microsoft; user testing
+This holds for any custom analyzers written, but even more so if they are to be used with large solutions like CMS solution. Many developers at Kentico complained about the responsiveness of the Visual Studio with opened CMS Soultion. Some of them even admitted they had uninstalled the ReSharper extension, since it slow down the IDE to an unbearable extent and claimed, the plugin often caused IDE crashes. 
+
+Therefore, in order for the BugHunter analyzers to be usable, they have to be efficient. This chapter explains how the performance of the implementaed analyzers was measured and provides a quick look at how the the slowest analyzers were optimized. The end of the chapter summarizes views of Kentico development team on the usability of the BugHunter analzyers.
 
 \section{CMS Solution Size}
-Measurements from roslyn - number of projects, documents, nodes... show table, reference to code that produces it (shall be included in IS)... 
+Before diving into measuring performance of Roslyn analyzers, it is important to understand the specificities of CMS solution. This is helpful when considering which parts of the analyzers code are crucial for the overall performance an which can be neglected.
 
-\section{Two NuGet packages with BugHunter Analyzers}
-Why, how
+In order to collect relevant information, \texttt{SolutionStatistics} project was created, and the sources can be found in the IS attachment. It project the \texttt{CMS.sln} solution and collects various statistics. Note that only data relevant for the implemented analyzers was gathered. This includes number of projects, documents, syntax nodes and their kinds~\footnote{Only numbers for syntax nodes that have some analysis actions registered were computed}. The numbers are only collected from projects, where the analyzers NuGet package was installed\footnote{Test and 3rd party projects were excluded from statistics. For more information see Appendix~\ref{appendix:deployment}}. The summary of the results is presented in Table~\ref{tab:solution-statistics}.
+
+% ------------------ Solution Statistics Table ------------------
+\begin{table}
+\begin{tabularx}{\textwidth}{Xr}
+\toprule
+\textbf{What (TODO rename)} & \textbf{Count} \\ \hline
+
+\midrule
+Number of projects                  & 125 \\
+Number of documents              & 11,136 \\
+Number of syntax nodes        & 6,280,208 \\
+- identifierName              & 1,422,583 \\
+- memberAccess                  & 350,925 \\
+- invocationExpression          & 216,725 \\
+- objectCreation                 & 22,637 \\ 
+- elementAccess                  & 17,927 \\
+- classDeclaration               & 10,288 \\ 
+- conditionalAccess                 & 482 \\
+
+\bottomrule
+
+\end{tabularx}
+\caption{Statistics about projects with installed analyzers}
+\label{tab:solution-statistics}
+\end{table}
+% ---------------------------------------------------
+
 
 \section{Measuring the Performance of Separate Analyzers}
-/ReportAnalyzer switch in csc... what it does, how it was used, normalizin the results, console app and PS scripts for runnging multiple times
+https://github.com/dotnet/roslyn/issues/6053
+Approaches - /reportanalyzer; benchmarks not working; no tool by Microsoft; user testing
+/ReportAnalyzer switch in csc... what it does, how it was used, normalizin the results, console app and 
+PS scripts for runnging multiple times
 
 \section{Optimizations}
 
@@ -1013,6 +1043,10 @@ TODO...
 \chapter{Deployment and Versioning}
 \label{appendix:deployment}
 [2 pages]
+
+\section{Two NuGet packages with BugHunter Analyzers}
+Why, how -- only referr to appendices where this is described
+
 talk about the~old configuration of the~BH, and how this one maps to Roslyn version (suppression pragmas vs supression files, some analyzers look at the~filepath or file extension directly.. some chcecks like SystemIO had to be supressed - level set to none in ruleset file - for files that it did not make sense for... helpers that wrap the~"forbidden" functionality were marked with pragma statements around the~whole class so that it is clearly visible in code)
 
 \end{document}
