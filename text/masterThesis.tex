@@ -369,22 +369,22 @@ As presented earlier in this chapter, a~vast majority of code inspection tools m
 Even if imperfect, static analysis tools are still valuable asset in software development process. This section presents tools for static code analysis that are commonly used on the~.NET platform.
 
 \subsection{FxCop}
-FxCop is a~free tool by Microsoft for analyzing managed code assemblies (targeting .NET Framework) for conformance to .NET Framework Design Guidelines\footnote{https://msdn.microsoft.com/en-us/library/ms229042(v=vs.110).aspx} in areas such as design, localization, performance, security, naming or portability. 
+FxCop is a~free tool by Microsoft for analyzing managed code assemblies (targeting .NET Framework) for conformance to .NET Framework Design Guidelines\footnote{\url{https://msdn.microsoft.com/en-us/library/ms229042(v=vs.110).aspx}} in areas such as design, localization, performance, security, naming or portability. 
 
 It includes more than 200 predefined checks and a~possibility to add custom rules using FxCop SDK\footnote{Software Development Kit}. It is available in two forms: fully featured application with graphical user interface and a~command line tool that is easily integrated to automated build process. 
 
 \subsection{StyleCop}
-Another tool by Microsoft is an~open source project StyleCop\footnote{https://github.com/StyleCop/StyleCop} for analyzing C\# code for conformance to style and consistency with .NET Framework Design Guidelines. Unlike FxCop, StyleCop analysis is performed on the~source code, which enables it to look for a~different set of style violations. The rules are divided into categories such as documentation, naming, ordering, spacing and readability. 
+Another tool by Microsoft is an~open source project StyleCop\footnote{\url{https://github.com/StyleCop/StyleCop}} for analyzing C\# code for conformance to style and consistency with .NET Framework Design Guidelines. Unlike FxCop, StyleCop analysis is performed on the~source code, which enables it to look for a~different set of style violations. The rules are divided into categories such as documentation, naming, ordering, spacing and readability. 
 
 Some of the~rules are: placing the~opening curly brace on a~new line, spaces around binary operators, method names starting with an~upper-case. The tool is configurable and development team can specify its own style to be checked, for example, to enforce spaces over tabs. It is available either a~Visual Studio extension or a~NuGet package that can be installed to the~project.
 
 \subsection{CodeRush Classic}
-CodeRush Classic\footnote{https://www.devexpress.com/Products/CodeRush/} is a~solution-wide static code analysis tool for Visual Studio by vendor DevExpress. It enhances the~IDE with more advanced features like assembly decompilation, automated code generation, advanced code selection, code formatting and cleanup. The tool focuses on developer's productivity by not only finding bugs but also providing an~automated way of fixing them.
+CodeRush Classic\footnote{\url{https://www.devexpress.com/Products/CodeRush}} is a~solution-wide static code analysis tool for Visual Studio by vendor DevExpress. It enhances the~IDE with more advanced features like assembly decompilation, automated code generation, advanced code selection, code formatting and cleanup. The tool focuses on developer's productivity by not only finding bugs but also providing an~automated way of fixing them.
 
 It provides an~API enabling developers to extend the~basic functionality with 3rd party plugins such as spell checker or copy project. The CodeRush Classic provides static analysis not only for .NET languages, but also for JavaScript, HTML and XML.
 
 \subsection{Resharper}
-Very similar to CodeRush, ReSharper is a~Visual Studio extension for .NET developers by Jet Brains\footnote{https://www.jetbrains.com/resharper/}. It analyzes code quality of C\#, Visual Basic, ASP.NET, JavaScrtipt, TypeScript, CSS, HTML and XML. For each of these languages it is possible to define code style and formatting to make the~tool compatible with the~coding standards followed by a~development team. 
+Very similar to CodeRush, ReSharper is a~Visual Studio extension for .NET developers by Jet Brains\footnote{\url{https://www.jetbrains.com/resharper}}. It analyzes code quality of C\#, Visual Basic, ASP.NET, JavaScrtipt, TypeScript, CSS, HTML and XML. For each of these languages it is possible to define code style and formatting to make the~tool compatible with the~coding standards followed by a~development team. 
 
 ReSharper provides hundreds of quick-fixes that solve discovered problems and has support for automated solution-wide refactorings. On the~top of static analysis there are additional plugins for performance (dotTrace) and memory (dotMemory) profiling, test runner and code coverage tool (dotCover) or .NET decompiler and assembly browser (dotPeek).
 
@@ -398,7 +398,7 @@ Some vendors, like Jet Brains, who invested years of development into the~creati
 
 Other companies, such as DevExpress with CodeRush\footnote{CodeRush Classic referrs to the~version before Roslyn} or Microsoft with StyleCop Analyzers, decided to use this new approach. The effects on Visual Studio performance were immediate, since solution does not have to be parsed by the~tool, nor duplicate syntax trees stored. As a~result, the~load times and memory consumption were significantly lowered.
 
-The Roslyn APIs also gave rise to more open source projects dealing with static code analysis, such as CodeCracker\footnote{https://code-cracker.github.io/}. As challenging as it was in the~past, static code analysis is now rather easy, thanks to powerful analysis APIs. Following chapter takes a~look at the~.NET Compiler Platform and how it can be used to perform the~static code analysis.
+The Roslyn APIs also gave rise to more open source projects dealing with static code analysis, such as CodeCracker\footnote{\url{https://code-cracker.github.io}}. As challenging as it was in the~past, static code analysis is now rather easy, thanks to powerful analysis APIs. Following chapter takes a~look at the~.NET Compiler Platform and how it can be used to perform the~static code analysis.
 
 % =================================================================
 % ============================= CHAPTER 4 =========================
@@ -457,10 +457,10 @@ The immutability enables the~compiler to perform parallel work without need to c
 As discussed in the~previous section, the~Compiler APIs offer an~object model representing the~results of syntactic and semantic analysis produced by the~respective phases of the~compiler pipeline. Moreover, it also includes an~immutable snapshot of a~single compiler invocation, along with assembly references, compiler options, and source files. This layer is agnostic of any Visual Studio components, and as such can be used in stand-alone applications as well. There are two separate, though very similar, APIs for Visual Basic and C\#, each providing functionality tailored for specific language nuances.
 
 \subsubsection{\textbf{Diagnostic APIs}}
-Apart from parsing code and producing an~assembly, the~compiler is also capable of raising diagnostics, covering everything from syntax to semantics, and report them as errors, warnings or information messages~\cite{roslyn-succinctly}. This is achieved through the~compilers' Diagnostics APIs that allow developers to effectively plug-in to compiler pipeline, analyze the~source code using the~exposed object models, and surface custom diagnostics along with those defined by the~compiler itself. These APIs are integrated to both MSBuild~\footnote{The Microsoft Build Engine https://github.com/Microsoft/msbuild} and Visual Studio (2015 and newer), providing seamless developer experience. Since the practical part of~this thesis, and~both Chapter~\ref{chap:custom-roslyn-analyzers} and~\ref{chap:performance}, rely on~Diagnostic APIs to~provide custom diagnostics, they are discussed in~more detail in~Section~\ref{sec:analyzers-and-code-fixes}.
+Apart from parsing code and producing an~assembly, the~compiler is also capable of raising diagnostics, covering everything from syntax to semantics, and report them as errors, warnings or information messages~\cite{roslyn-succinctly}. This is achieved through the~compilers' Diagnostics APIs that allow developers to effectively plug-in to compiler pipeline, analyze the~source code using the~exposed object models, and surface custom diagnostics along with those defined by the~compiler itself. These APIs are integrated to both MSBuild~\footnote{The Microsoft Build Engine \url{https://github.com/Microsoft/msbuild}} and Visual Studio (2015 and newer), providing seamless developer experience. Since the practical part of~this thesis, and~both Chapter~\ref{chap:custom-roslyn-analyzers} and~\ref{chap:performance}, rely on~Diagnostic APIs to~provide custom diagnostics, they are discussed in~more detail in~Section~\ref{sec:analyzers-and-code-fixes}.
 
 \subsubsection{\textbf{Scripting APIs}}
-As a~part of the~compiler layer, Microsoft team has introduced new Scripting APIs that can be used for executing code snippets. These APIs were not shipped with .NET Compiler Platform 1.0 and are part of v2.0.0 RC3\footnote{Release candidate 3, as per https://github.com/dotnet/roslyn/wiki/Scripting-API-Samples [26-02-2017].}.
+As a~part of the~compiler layer, Microsoft team has introduced new Scripting APIs that can be used for executing code snippets. These APIs were not shipped with .NET Compiler Platform 1.0 and are part of v2.0.0 RC3\footnote{Release candidate 3, as per \url{https://github.com/dotnet/roslyn/wiki/Scripting-API-Samples} [26-02-2017].}.
 
 \subsection{Workspaces APIs}
 Workspace represents a~collection of solutions, projects, and documents. It provides a~single object model containing information about the~projects in a~solution and their respective documents; exposes all configuration options, assembly and inter-project dependencies, and provides access to syntax trees and semantic models. It is a~starting point for performing code analysis and refactorings over entire solutions.
@@ -475,7 +475,7 @@ As mentioned in the~previous sections, the~product of the~syntactic analysis is 
 
 It is important to point out, that in a~same way the~compiler constructs a~syntax tree from the~source text, it is also possible to round-trip back to the~text representation. Thus, the~source information is always preserved in full fidelity. This means that every piece of information from source must be stored somewhere within the~tree, including comments, whitespaces or end-of-line characters, which is a~major difference to the~general concept of compilers discussed in Chapter~\ref{chap:compilers}.
 
-Figure~\ref{fig:roslyn-syntax-tree} shows a~syntax tree of an~invocation expression as obtained from Syntax Visualizer\footnote{https://roslyn.codeplex.com/wikipage?title=Syntax\%20Visualizer} extension available in Visual Studio. This tool is useful for understanding how Roslyn represents particular language constructs and is widely utilized whenever one needs to analyze the~code. Following sections explain what are the~main building blocks of such syntax tree, referring to Figure~\ref{fig:roslyn-syntax-tree}.
+Figure~\ref{fig:roslyn-syntax-tree} shows a~syntax tree of an~invocation expression as obtained from Syntax Visualizer\footnote{\url{https://roslyn.codeplex.com/wikipage?title=Syntax\%20Visualizer}} extension available in Visual Studio. This tool is useful for understanding how Roslyn represents particular language constructs and is widely utilized whenever one needs to analyze the~code. Following sections explain what are the~main building blocks of such syntax tree, referring to Figure~\ref{fig:roslyn-syntax-tree}.
 
 \begin{figure}[h!]
 		\centering
@@ -627,7 +627,7 @@ $$
 
 If the~programmer used the~most common approach\footnote{Accessing the~static property of the~class that is handling the~request.} of accessing the~\texttt{Cookies} collection on the~\texttt{Request} object, everything was fine and the~BugHunter correctly reported the~problem. However, it had no means of detecting other possible accesses to the~property. If the~\texttt{Request} object was passed to a~function as an~argument or stored in a~variable, the~accesses of the~cookies collection could not be detected by the~BugHunter. 
 
-There were other use cases that could lead to false negatives when using just primitive string comparisons. For example, in C\# it is allowed to put an~arbitrary number of whitespace characters between the~object, the~dot token, and the~property being accessed. This could have been solved by using a~bit more complicated regular expression, but it would still cover only a~fraction of use cases. Things like using variable or even alias usings\footnote{https://msdn.microsoft.com/en-us/library/aa664765(v=vs.71).aspx} would stay undetected by the~tool. 
+There were other use cases that could lead to false negatives when using just primitive string comparisons. For example, in C\# it is allowed to put an~arbitrary number of whitespace characters between the~object, the~dot token, and the~property being accessed. This could have been solved by using a~bit more complicated regular expression, but it would still cover only a~fraction of use cases. Things like using variable or even alias usings\footnote{\url{https://msdn.microsoft.com/en-us/library/aa664765(v=vs.71).aspx}} would stay undetected by the~tool. 
 
 The only way to solve this was to introduce the~semantics into the~analysis which was a~relatively easy task for new Roslyn analyzers developed as part of this thesis.
 
@@ -710,7 +710,7 @@ Therefore, one of the~first tasks before the~implementation was to determine whi
 % ---------------------------------------------------
 
 \subsection{Abstraction over Implementation}
-Analyzers in this category check that there is no "hard reference" on third party libraries in the~code. Violation of this rule would require clients to use a~particular version of the~library which might collide with the~references on other components they are using, resulting in so-called "dependency hell"\footnote{https://devnet.kentico.com/articles/referencing-multiple-versions-of-the-same-assembly-in-a-single-application}. Therefore, in CMS solution the~hard references are replaced with a~thin layer of interfaces and adapters. The analyzers make sure, only the~interfaces are used throughout the~solution.
+Analyzers in this category check that there is no "hard reference" on third party libraries in the~code. Violation of this rule would require clients to use a~particular version of the~library which might collide with the~references on other components they are using, resulting in so-called "dependency hell"\footnote{\url{https://devnet.kentico.com/articles/referencing-multiple-versions-of-the-same-assembly-in-a-single-application}}. Therefore, in CMS solution the~hard references are replaced with a~thin layer of interfaces and adapters. The analyzers make sure, only the~interfaces are used throughout the~solution.
 
 \subsection{CMS API Replacements}
 In Kentico CMS solution there are many helpers that encapsulate the~traditional .NET API and might provide an~extended functionality. For example, determining the~current browser of the~user can be done by accessing the~\texttt{Browser} property of the~\texttt{HttpRequest} object. However, if this attempt fails there are still other ways to resolve it and the~CMS API typically has a~helper for such cases. The analyzers detect accesses to members that have an~equivalent in CMS API and suggest code fixes. 
@@ -739,14 +739,14 @@ There are only a~few things the~API replacement analyzer need to know in order t
   \item \texttt{Rule} -- an~instance of \texttt{DiagnosticDescriptor} that defines the~diagnostic raised upon detection of a~forbidden usage.
 \end{itemize} 
 
-The main reason behind \texttt{ForbiddenTypes} being an~array of strings rather than a~single string, is the~lack of inheritance hierarchy between \texttt{HttpRequest} and \texttt{HttpRequestBase} objects in the~.NET framework. They basically contain the~same members but do not derive from one another\footnote{More information on why this is so can be found in https://msdn.microsoft.com/en-us/library/system.web.httprequestwrapper.aspx} and therefore, the~analyzer must treat both types separately. 
+The main reason behind \texttt{ForbiddenTypes} being an~array of strings rather than a~single string, is the~lack of inheritance hierarchy between \texttt{HttpRequest} and \texttt{HttpRequestBase} objects in the~.NET framework. They basically contain the~same members but do not derive from one another\footnote{More information on why this is so can be found in \url{https://msdn.microsoft.com/en-us/library/system.web.httprequestwrapper.aspx}} and therefore, the~analyzer must treat both types separately. 
 
 On the~other hand, allowing for multiple forbidden members on one type under one diagnostic ID may also make sense, which is why \texttt{ForbiddenMembers} are also defined as an~array.
 
 \subsection{Analyzer for Member Replacement}
 The task for the~\texttt{ApiReplacementForMemberAnalyzer} is to subscribe to all possible member accesses and analyze them. If the~particular access is regarded as forbidden, given the~configuration supplied (\texttt{ApiReplacementConfig} object), the~analyzer raises a~diagnostic.
 
-It is not enough for the~analyzer to subscribe only to \texttt{SimpleMemberAccessExpression} syntax kind. It also needs to analyze the~\texttt{ConditionalAccessExpression} (null conditional operator, '\texttt{?.}') which is a~new C\# 6.0 language feature\footnote{https://msdn.microsoft.com/en-us/library/dn986595.aspx}. 
+It is not enough for the~analyzer to subscribe only to \texttt{SimpleMemberAccessExpression} syntax kind. It also needs to analyze the~\texttt{ConditionalAccessExpression} (null conditional operator, '\texttt{?.}') which is a~new C\# 6.0 language feature\footnote{\url{https://msdn.microsoft.com/en-us/library/dn986595.aspx}}. 
 
 Even though it would be possible to subscribe to both kinds of syntax nodes with one callback, the~underlying syntax of these two is so much different, it would make the~code cluttered and full of if-statements. Moreover, if Microsoft decides to add another possibility to access members in next language version, the~existing code would have to be modified.
 
@@ -769,7 +769,7 @@ Instead of subscribing to member accesses it is interested in syntax nodes of ki
 This analyzer helper defines an~algorithm for analyzing invocation expression syntax nodes. The need for analyzing the~method invocations is not limited to the~API replacements. The same analysis needs to be performed when enforcing internal guidelines that are concerned with methods. It is important to locate the~specific methods invoked on specific types, before it is possible to analyze further whether or not they are used according to the~internal API conventions. 
 
 \subsection{Template Method Pattern}
-This analyzer is utilized by all end-analyzers that involve method invocation analysis. In order to be easily extendible for advanced checks, it is implemented as a~template method pattern\footnote{http://www.oodesign.com/template-method-pattern.html}. Every step of the~template method defines a~criteria that must be met in order for the~analysis to proceed. Steps that can be overridden have default implementation that continues with the~analysis. 
+This analyzer is utilized by all end-analyzers that involve method invocation analysis. In order to be easily extendible for advanced checks, it is implemented as a~template method pattern\footnote{\url{http://www.oodesign.com/template-method-pattern.html}}. Every step of the~template method defines a~criteria that must be met in order for the~analysis to proceed. Steps that can be overridden have default implementation that continues with the~analysis. 
 
 It is important to note that the~steps are ordered in a~way so that the~inexpensive checks are performed first, in order to cut off the~analysis of the~irrelevant nodes without significant performance costs. Figure~\ref{fig:uml-method-invocation-analyzer} shows the~class diagram of the~\texttt{MemberInvocationAnalyzer} depicting the~use of template method design pattern. Following section elaborate on respective steps of the~algorithm. Concrete use case depicting an instance of the analyzer can be seen in Figure~\ref{fig:uml-method-invocation-analyzer-object-diagram}.  
 
@@ -845,16 +845,16 @@ All analyzers that were implemented provide one or more code fixes. There are on
 \end{itemize} 
 
 % TODO consider deleting this
-The code fixes have one significant limitation -- providing a~fix to an~API replacement when the~forbidden access is conditional. This is due to the~nature of the~C\# grammar and the~way how null conditional operator is represented in the~syntax tree. If the access is chained, it would be very difficult to define the exact part of the syntax tree that should be replaced. In fact, there is even an issue\footnote{https://github.com/dotnet/roslyn/issues/3110} on GitHub of the Roslyn team explaining in detail why this is problematic. 
+The code fixes have one significant limitation -- providing a~fix to an~API replacement when the~forbidden access is conditional. This is due to the~nature of the~C\# grammar and the~way how null conditional operator is represented in the~syntax tree. If the access is chained, it would be very difficult to define the exact part of the syntax tree that should be replaced. In fact, there is even an issue\footnote{\url{https://github.com/dotnet/roslyn/issues/3110}} on GitHub of the Roslyn team explaining in detail why this is problematic. 
 
 Therefore, it was decided not to provide the~code fix in such complicated cases. There were two ways for preventing code fix from being suggested. First one was to give the~diagnostic on conditional access different diagnostic id from the~easily-fixable member access. This was deemed as not particularly user friendly and other options were sought.
 
-The approach taken was to provide an~additional information to the~diagnostic via the~\texttt{Properties} property\footnote{http://www.coderesx.com/roslyn/html/93197CDD.htm}. It is a~data structure were arbitrary key-value pairs can be stored when diagnostic is raised and can be later read in the~code fix class. The analyzer stores a~flag, telling the~diagnostic is raised for conditional member access. When the~code fix method is invoked, it can decide whether or not it is capable of providing a~fix for the~specific conditional member access.
+The approach taken was to provide an~additional information to the~diagnostic via the~\texttt{Properties} property\footnote{\url{http://www.coderesx.com/roslyn/html/93197CDD.htm}}. It is a~data structure were arbitrary key-value pairs can be stored when diagnostic is raised and can be later read in the~code fix class. The analyzer stores a~flag, telling the~diagnostic is raised for conditional member access. When the~code fix method is invoked, it can decide whether or not it is capable of providing a~fix for the~specific conditional member access.
 
 \section{Tests}
 Since it is infeasible to test the~functionality of all the~analyzers manually by running Visual Studio, it is crucial that all the~requirements are covered by an~automated set of tests. 
 
-Every analyzer and its code fixes have an~extensive suite of tests covering the~functionality. The extension methods and helper classes are covered by separate unit tests as well. The pre-generated boilerplate from Visual Studio for testing analyzers was reused and rewritten using NUnit framework~\footnote{Testing framework for .NET languages https://www.nunit.org/}. Since the~default template did not allow to set anything apart from the~sources, it had to be customized and some additional features were added.
+Every analyzer and its code fixes have an~extensive suite of tests covering the~functionality. The extension methods and helper classes are covered by separate unit tests as well. The pre-generated boilerplate from Visual Studio for testing analyzers was reused and rewritten using NUnit framework~\footnote{Testing framework for .NET languages \url{https://www.nunit.org}}. Since the~default template did not allow to set anything apart from the~sources, it had to be customized and some additional features were added.
 
 A typical scenario for testing an~analyzer is to:
 \begin{compactenum}
@@ -931,7 +931,7 @@ Number of syntax nodes        & 6,279,993 \\
 
 Measuring the performance is always tricky regardless of the domain. When one wants to measure performance of something as complicated as code analysis plugged into the compilation process, there is a big probability something will go wrong and result will not be accurate.
 
-In the early stages of development, the initiative was to compute benchmarks for different analyzer versions using BenchmarkDotNet framework\footnote{https://github.com/dotnet/BenchmarkDotNet}. However, the overhead of creating the compilation together with the cost of the analyzers' execution were too big for the results to be useful. 
+In the early stages of development, the initiative was to compute benchmarks for different analyzer versions using BenchmarkDotNet framework\footnote{\url{https://github.com/dotnet/BenchmarkDotNet}}. However, the overhead of creating the compilation together with the cost of the analyzers' execution were too big for the results to be useful. 
 
 There is too much code related to the overhead of running the actual analysis which cannot be influenced from the outside. There are also differences between running the analyzers as part of the compilation versus when they are run by the IDE, where many additional optimizations\footnote{Only part of the code that has been changed since last compilation is recompiled} are performed. 
 
@@ -943,7 +943,7 @@ Before considering the overall impact of BugHunter analyzers on the compilation 
 As stated in~\cite{report-analyzer}, if the compiler is invoked with \texttt{/ReportAnalyzer} command line switch, its output will contain total wall clock time spent in executing the analyzers along with relative times of separate analyzers. Since the analyzers can run concurrently, the total time should only be treated as the upper bound. The relative times per analyzer are useful for comparing their performance and identifying any outliers.
 
 In order to compile the whole solution, one must use the MSBuild process, that internally uses the CSC.
-The command, that also reports the execution times, looks like this\footnote{Note, that the official documentation (https://msdn.microsoft.com/en-us/library/ms164311.aspx) does not provide any information on running the MSBuild with reporting the analyzers. The only approach that worked, after numerous efforts, was the one shown above. The verbosity level diagnostic is vital here, since \texttt{verbosity:debug} completely omitted any information on analyzer reporting.}:
+The command, that also reports the execution times, looks like this\footnote{Note, that the official documentation (\url{https://msdn.microsoft.com/en-us/library/ms164311.aspx}) does not provide any information on running the MSBuild with reporting the analyzers. The only approach that worked, after numerous efforts, was the one shown above. The verbosity level diagnostic is vital here, since \texttt{verbosity:debug} completely omitted any information on analyzer reporting.}:
 
 \begin{center}
 \texttt{msbuild /t:Clean,Build /p:ReportAnalyzer=True /verbosity:diagnostic CMS.sln}
