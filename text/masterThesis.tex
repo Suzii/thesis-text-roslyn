@@ -300,8 +300,8 @@ There are many tools for static code analysis and each can analyze different fla
 
 \begin{figure}[h!]
 		\centering
-			\includegraphics[scale=0.75]{img/static-code-analysis-internals}
-		\caption{The process of static analysis~\cite{secure-programming-sca}}
+			\includegraphics[scale=0.90]{img/static-code-analysis-internals}
+		\caption{The process of static analysis, adopted from~\cite{secure-programming-sca}}
 		\label{fig:static-code-analysis-internals}
 \end{figure}
 
@@ -895,32 +895,30 @@ This chapter presented selected implementation details and patterns utilized dur
 \label{chap:performance}
 When implementing custom Roslyn analyzers, it is vital to consider their performance. The analyzers run on a background thread of the Visual Studio (or parallel threads of compilation process, when outside of the IDE) and if implemented carelessly, they might significantly influence the processing power and memory consumption.
 
-This holds for any custom analyzers written, but even more so if they are to be used with large solutions like CMS solution. Developers at Kentico complain about the responsiveness of the Visual Studio with opened CMS Soultion. Some of them even admitted they had uninstalled the ReSharper extension, since it slow down the IDE to an unbearable extent and claimed, that the plugin often caused IDE crashes. 
+This holds for any custom analyzers written, but even more so if they are to be used with large solutions like a~CMS solution. Developers at Kentico complain about the responsiveness of Visual Studio with an~opened CMS Soultion. Some of them even admitted they had uninstalled the ReSharper extension, since it slowed down the IDE to an unbearable extent and claimed, that the plugin often caused IDE crashes. 
 
 Therefore, in order for the BugHunter analyzers to be usable, they have to be efficient. This chapter explains how the performance of the implemented analyzers was measured and provides a quick look at how some of them were optimized. The end of the chapter summarizes views of Kentico development team on the usability of new BugHunter.
 
 \section{CMS Solution Size}
-Before discussing the performance of BugHunter analzyers, it is important to understand the structure of the CMS solution. This is helpful when considering which parts of the analyzers code are crucial for the overall performance an which can be neglected.
+Before discussing the performance of the BugHunter analyzers, it is important to understand the structure of the CMS solution. This is helpful when considering which parts of the analyzers code are crucial for the overall performance an which can be neglected.
 
-In order to collect relevant information, \texttt{SolutionStatistics} project was created (the source code can be found in the IS attachment). The project loads the CMS solution and collects information on number of projects, documents, syntax nodes. The summary of the results is presented in Table~\ref{tab:solution-statistics}. Note, that just the data relevant for implemented analyzers are displayed. Therefore, only projects where NuGet with BugHunter analzyers is installed\footnote{Test and 3rd party projects were excluded from statistics, see Appendix~\ref{appendix:deployment}.} and relevant kinds of syntax nodes are considered.
+In order to collect relevant information, \texttt{SolutionStatistics} project was created (the source code can be found in the IS attachment). The project loads the CMS solution and collects information on number of projects, documents, syntax nodes. The summary of the results is presented in Table~\ref{tab:solution-statistics}. Note, that just the data relevant for implemented analyzers are displayed. Therefore, only projects where NuGet with BugHunter analyzers is installed\footnote{Test and 3rd party projects were excluded from statistics, see Appendix~\ref{appendix:deployment}.} and relevant kinds of syntax nodes are considered.
 
 % ------------------ Solution Statistics Table ------------------
 \begin{table}
 \begin{tabularx}{\textwidth}{Xr}
 \toprule
-\textbf{What (TODO rename)} & \textbf{Count} \\ \hline
-
-\midrule
 Number of projects                  & 125 \\
 Number of documents              & 11,136 \\
-Number of syntax nodes        & 6,280,208 \\
-- identifierName              & 1,422,583 \\
-- memberAccess                  & 350,925 \\
-- invocationExpression          & 216,725 \\
-- objectCreation                 & 22,637 \\ 
-- elementAccess                  & 17,927 \\
-- classDeclaration               & 10,288 \\ 
-- conditionalAccess                 & 482 \\
+Number of syntax nodes        & 6,279,993 \\
+\midrule
+- IdentifierNameSyntax        & 1,422,571 \\
+- MemberAccessExpressionSyntax  & 350,942 \\
+- IvocationExpressionSyntax     & 216,716 \\
+- ObjectCreationExpressionSyntax & 22,635 \\ 
+- ElementAccessExpressionSyntax  & 17,930 \\
+- ClassDeclarationSyntax         & 10,288 \\ 
+- ConditionalAccessExpressionSyntax & 482 \\
 
 \bottomrule
 
@@ -931,20 +929,20 @@ Number of syntax nodes        & 6,280,208 \\
 % ---------------------------------------------------
 
 \section{Measuring the Performance}
+--------- TODO - rewrite??? -------
+
 Measuring the performance is always tricky regardless of the domain. When one wants to measure performance of something as complicated as code analysis plugged into the compilation process, there is a big probability something will go wrong and result will not be accurate.
 
-In the early stages of the development, the initiative was to compute benchmarks for different analyzer versions using BenchmarkDotNet framework\footnote{https://github.com/dotnet/BenchmarkDotNet}. However, the overhead of creating the compilation together with the cost of the analyzers' execution were too big for the results to be useful. 
-
---------- TODO -------
-
+In the early stages of development, the initiative was to compute benchmarks for different analyzer versions using BenchmarkDotNet framework\footnote{https://github.com/dotnet/BenchmarkDotNet}. However, the overhead of creating the compilation together with the cost of the analyzers' execution were too big for the results to be useful. 
 
 There is too much code related to the overhead of running the actual analysis which cannot be influenced from the outside. There are also differences between running the analyzers as part of the compilation versus when they are run by the IDE, where many additional optimizations\footnote{Only part of the code that has been changed since last compilation is recompiled} are performed. 
 
-------------------
-\subsection{Performance of Separate analzyers}
-Before considering the overall impact of BugHunter anlayzers on the compilation of the CMS solution, it is important to tune the performance of separate analyzers. The only way that Microsoft provides for measuring the analyzers' execution times is \texttt{/ReportAnalyzer} switch in CSC (CSharp compiler) process.
+----------------------------------
 
-As stated in~\cite{report-analyzer}, if the compiler is invoked with \texttt{/ReportAanlyzer} command line switch, its output will contain total wall clock time spent in executing the analyzers along with relative times of separate analyzers. Since the analyzers can run concurrently, the total time should only be treated as the upper bound. The relative times per analyzer are useful for comparing their performance and identifying any outliers.
+\subsection{Performance of Separate Analzyers}
+Before considering the overall impact of BugHunter analyzers on the compilation of the CMS solution, it is important to tune the performance of separate analyzers. The only way that Microsoft provides for measuring the analyzers' execution times is \texttt{/ReportAnalyzer} switch in CSC (CSharp Compiler).
+
+As stated in~\cite{report-analyzer}, if the compiler is invoked with \texttt{/ReportAnalyzer} command line switch, its output will contain total wall clock time spent in executing the analyzers along with relative times of separate analyzers. Since the analyzers can run concurrently, the total time should only be treated as the upper bound. The relative times per analyzer are useful for comparing their performance and identifying any outliers.
 
 In order to compile the whole solution, one must use the MSBuild process, that internally uses the CSC.
 The command, that also reports the execution times, looks like this\footnote{Note, that the official documentation (https://msdn.microsoft.com/en-us/library/ms164311.aspx) does not provide any information on running the MSBuild with reporting the analyzers. The only approach that worked, after numerous efforts, was the one shown above. The verbosity level diagnostic is vital here, since \texttt{verbosity:debug} completely omitted any information on analyzer reporting.}:
@@ -953,19 +951,20 @@ The command, that also reports the execution times, looks like this\footnote{Not
 \texttt{msbuild /t:Clean,Build /p:ReportAnalyzer=True /verbosity:diagnostic CMS.sln}
 \end{center}
 
-\subsubsection{Parsing and Aggregating Per-project Results}
-The resulting MSBuild output has almost 500MB and besides normal compiler output also contain information on analyzers' execution times for every project that the analyzers' NuGet is installed to. For CMS solution this means 125 projects. For the purpose of this thesis, however, only performance over whole solution is relevant. 
+\subsubsection{\textbf{Parsing and Aggregating Per-project Results}}
+The resulting MSBuild output is almost 500MB large and, besides normal compiler output, contains information on analyzers' execution times for every project that the analyzers' NuGet is installed to. For CMS solution this means 125 projects. For the purpose of this thesis, however, only performance over~the~whole solution is relevant. 
 
-In order to parse the results from the large output, a console application \texttt{ReportAnalyzerTimes.Parser} was developed. It extracts all information on analyzer execution times from the log (based on the format described in~\cite{report-analyzer}. After that, it sums up the absolute execution times \footnote{Smallest value, that can be reported, for the execution time is \texttt{<0.001s} and it is treated as 0.001s by the parsing application.} for same analyzers across the solution (sums per-project results) and outputs them into a file.
+In order to parse the results from the large output, a console application \texttt{ReportAnalyzerTimes.Parser} was developed. It extracts all data related to analyzer execution times from the log (based on the format described in~\cite{report-analyzer}). After that, it sums up the absolute execution times \footnote{The smallest value, that can be reported, for the execution time is \texttt{<0.001s} and it is treated as 0.001s by the parsing application.} for same analyzers across the solution (sums per-project results) and outputs them into a file.
 
 \subsubsection{Aggregating Results from Multiple Runs}
-Since a single compiler run cannot be treated as ...TODO..., a PowerShell script (Report-Analyzer.ps1), executes the MSBuild of the CMS solution multiple times, was written. After every run, it run ReportAnalyzerTimes.Parser application and results from all runs are saved in multiple text files. 
+Since a single compiler run should not be relied upon to provide accurate results, a PowerShell script (Report-Analyzer.ps1) was writen that executes the CMS solution MSBuild multiple times. After every run, it runs ReportAnalyzerTimes.Parser application on the compiler output, and results from all runs are saved in multiple text files. 
 
 Another console application, ReportAnalyzerTimes.Aggregator, is utilized to aggregate the results into a single CSV\footnote{Comma Separated Values} file. For every analyzer, there is a name and the execution times from every run of solution build (accumulated per-project times obtained by the ReportAnalyzerTimes.Parser application).
 
+TODO add some action diagram of the whole process???
+
 \section{Optimizations}
 The procedure described in previous section was used to ...
-
 
 \subsection{System.IO Analyzer}
 Most of the optimizations effort was done here...
@@ -973,7 +972,9 @@ tell about some limits (EmptyCallback, direct SemanticModelAccess...)
 Heuristics applied
 final approach
 
-\subsection{Other optimizations}
+\subsection{Other Optimizations}
+Just quickly mention other optimizations 
+
 \subsubsection{CMS Base Classes Analyzers}
 symbol vs syntax - perf differences
 
@@ -983,18 +984,17 @@ stats on how much it speeded up relevant analyzers
 \subsubsection{String Analyzers}
 how not using the generic MethodInvocationAnalyzer influenced the results
 
+\section{BugHunter Analyzers vs Original BugHunter Build Times}
+Compare multiple builds w/o BH, old and new versions... Is it significantly slower??
+
 \section{Performance Consideration for Large Solutions}
 https://github.com/dotnet/roslyn/wiki/Performance-considerations-for-large-solutions
-
 .. can be used later but so far none of team members complained about worse performance
 
-Why no statefull analyzers that have compilation end actions -- to large solutions it can take more than one minute for the diagnostic to show up
+Why stateful analyzers should not have compilation end actions -- for large solutions it can take more than one minute for the diagnostic to show up in VS... that is not usable at all and cannot be considered as "live" feedback.
 
-\section{BugHunter Analyzers vs Original BugHunter Build Times}
-Build times from TeamCity - compare w/o BH, old and new versions
-
-\section{Tool Usability Assessment}
-Questionares sent to development team, feedback from senior developers
+\section{Tool Evaluation}
+Questionares sent to development team, feedback from senior developers...
 
 % =================================================================
 % ============================= CHAPTER 7 =========================
@@ -1006,24 +1006,24 @@ Questionares sent to development team, feedback from senior developers
   - how to maintain the~tool, 
   - how easy it is to add new analyzers, 
 
-- talk about kentico selling it's source code, so after stabilization, BH vcan also be available for them as nuget package and aid with the~development practices 
-
-\section{Roslyn as SDK and Its Usage -- Considerations and Remarks}
-Changing versions ... not really well documented
-Only issues on GH provide some insight
-e.g. SkipGeneratedCoOdeAnalysis or RunAnalyzersInParallel - some discussions on GitHub but not clear outcomes, sometimes proposition does not math the~actual implementation and it is generally hard to find some best practices on how to do stuff ad it is still a~pretty young tech... moreover the~examples are not really updated according to new versions of the~API so one struggles with implemeting something on his own only to find a~few weeks later that it was added or it is considered for the~next milestone
-
-many useful things are marked as internal in the~source code and there are many issues on GH to make them public
-
-current version used is v.1.3.X and for this on VS with Update 3 is needed... had to be installed on all build boxes to accomodete BH depoloyment
-
-... version v2 was released after the~implemetnation was finished and it was considered although it was agreed we will not use it as it required VS2017 and nobody is happy about it.. talk about some cons...
-
-(  - ConfigureGeneratedCodeAnalysis - big boost when roslyn API allowed to opt out for analyzer to be run on generated code. Before, heuristics had to be performed by analyzers themselves on every callback
-   https://github.com/dotnet/roslyn/issues/6998
-   https://github.com/dotnet/roslyn/pull/7526)
-
-- problem with Symbol location and disappearing diagnostic 
+- talk about kentico selling it's source code, so after stabilization, BH could be also available for them as nuget package and aid with the~development practices 
+%
+%\section{Roslyn as SDK and Its Usage -- Considerations and Remarks}
+%Changing versions ... not really well documented
+%Only issues on GH provide some insight
+%e.g. SkipGeneratedCoOdeAnalysis or RunAnalyzersInParallel - some discussions on GitHub but not clear outcomes, sometimes proposition does not math the~actual implementation and it is generally hard to find some best practices on how to do stuff ad it is still a~pretty young tech... moreover the~examples are not really updated according to new versions of the~API so one struggles with implemeting something on his own only to find a~few weeks later that it was added or it is considered for the~next milestone
+%
+%many useful things are marked as internal in the~source code and there are many issues on GH to make them public
+%
+%current version used is v.1.3.X and for this on VS with Update 3 is needed... had to be installed on all build boxes to accomodete BH depoloyment
+%
+%... version v2 was released after the~implemetnation was finished and it was considered although it was agreed we will not use it as it required VS2017 and nobody is happy about it.. talk about some cons...
+%
+%(  - ConfigureGeneratedCodeAnalysis - big boost when roslyn API allowed to opt out for analyzer to be run on generated code. Before, heuristics had to be performed by analyzers themselves on every callback
+%   https://github.com/dotnet/roslyn/issues/6998
+%   https://github.com/dotnet/roslyn/pull/7526)
+%
+%- problem with Symbol location and disappearing diagnostic 
 
 % =================================================================
 % =============================== STUFF ===========================
@@ -1068,17 +1068,26 @@ TODO - replace with a~screenshot???
 
 TODO Describe each project.. why 2 for analyzers - nuget distribution
 
-The projects with analyzers use the~categories also for folder structure with each folder contaning separate subfolders for analyzers and code fixes respectively.
+The projects with analyzers use the~categories also for folder structure with each folder containing separate subfolders for analyzers and code fixes respectively.
   \chapter{Questionnaires}
 TODO...
 
+Sum up the questionnaire results and cite teamleaders' feedback on the tool.
+
 \chapter{Deployment and Versioning}
 \label{appendix:deployment}
-[2 pages]
-
+TODO...
 \section{Two NuGet packages with BugHunter Analyzers}
 Why, how -- only referr to appendices where this is described
 
+\section{Applying old BH configuration}
+what approaches were taken - ruleset file, pragma statements, not installing analzyer nuget at all...
+
 talk about the~old configuration of the~BH, and how this one maps to Roslyn version (suppression pragmas vs supression files, some analyzers look at the~filepath or file extension directly.. some chcecks like SystemIO had to be supressed - level set to none in ruleset file - for files that it did not make sense for... helpers that wrap the~"forbidden" functionality were marked with pragma statements around the~whole class so that it is clearly visible in code)
 
+\chapter{Analyzers' Documentation}
+TODO...
+same as will the online documentation?
+
+IDs, categories, which nuget, title, description, what for, severity, enabled by default...
 \end{document}

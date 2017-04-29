@@ -6,25 +6,26 @@ General notes from previous reviews:
   - "1 Introduction"
     ? structured: Why SCA, Why in kentico, mention existing tool and its problems, How this can be solved? Just quiclky mention Roslyn.. My contribution - BugHunter Roslyn Analyzers - already deployed.. describe the structure
   
-  ? "2 Background -- Compiling Source Code" -- rename??
+  ? "2 Background -- Compiling Source Code" -- rename?? source code compilaion??s
     - in the beginning explain why this chapter is important for the rest of the thesis
   
   - "3 Static code analysis"
     ? other sources about SCA???    
     ? 3.1 I was planning to do my own version of this diagramm, with security knowledge renamed to "(Predefined) Rules".. can it reffer to the book (citation)???
-    ? flaw, issue, problem, bug  
+    ? flaw, issue, problem, bug ??? -- delete "flaw"
     - add mention that the end of the chapter contains .NET options for SCA
     
   - "4 The .NET Compiler Platform"
     ? are the newly added sections okay?
+    ! Code snippet in tex and just analyze method()
     
   - "5 Implementation of Custom Analyzers"
     ? categories - is the table okay? 
     ? should there be a brief explanation that categories are defined in this way because of historical reasons?
-    ? CMS API Replacement Analyzers, Method Invocation Analyzer .... what to do with the sections???
+    ? "API Replacement Analyzer", Method Invocation Analyzer .... what to do with the sections???
     
     - Member Replacement Analyzer 
-     ? yes it is a strategy, should it be mentioned explicitely?
+     ? yes it is a strategy, should it be mentioned explicitely? - just say it is!
      
     - Method Invocation Analyzer 
      ? Method Name Syntax Analysis - should there be an example + graph for every case?
@@ -48,12 +49,9 @@ Performance optimizations:
 
 ---------------------------------------------------
 Questionnaire format:
-- should there be a questionare at all?
+- you have to define the goals of the questionnaire first.. then analyze the results 
 - https://www.surveymonkey.com/r/6BQPP5D
-
-
-
-
+- https://www.surveymonkey.com/create/?sm=LbxDRZcOGR7FhPZA_2FudBnZ_2B_2BQBhlZpShFGz16rYV65k_3D
 
 
 
