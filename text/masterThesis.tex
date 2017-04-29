@@ -215,10 +215,10 @@ There are several types of errors that can be encountered during the~compilation
 
 It's parser responsibility to report the~presence of potential syntactic error and recover from the~error in order to continue with syntactic analysis and be able to detect any subsequent errors. There are two main strategies for the~error recovery~\cite{dragon-book}
 
-  \subsubsection{Panic-Mode Recovery}
+  \subsubsection{\textbf{Panic-Mode Recovery}}
 In this method, after parser encounters an~error, it searches for a~\textit{synchronizing token} (usually delimiters such as semicolon or close brace) and until found, all the~symbols are thrown away one by one. Even though panic-mode recovery often discards significant amount of input while searching for the~synchronization token, it is guaranteed not to end up in an infinite loop.
 
-  \subsubsection{Phrase-Level Recovery}
+  \subsubsection{\textbf{Phrase-Level Recovery}}
 Another approach the~parser can take to recover from an~erroneous input is to try to perform a~local correction. This can be achieved by replacing the~prefix of the~following input by some tokens that would enable syntactic analyzer to continue parsing. A prime example of phrase-level recovery is inserting a~missing semicolon or replacing comma with a~semicolon. Even though this technique is very powerful, as it can cope with all possible problems in the~input, it might lead to infinite loops (e.g. always inserting symbols ahead of the~current symbol).
 
   \section{Semantic Analysis}
@@ -312,13 +312,13 @@ In order to analyze the~program, the~analysis tool must first understand it. The
 \subsection{Perform the~Analysis}
 After obtaining the~model, the~next step is to perform the~actual analysis. Many different algorithms can be applied in this step and it is common that they are combined into one solution. The approaches are often derived from techniques used by the~compilers, specifically:
 
-\subsubsection{Control Flow}
+\subsubsection{\textbf{Control Flow}}
 In order to explore different execution paths that can take place when the~program is executed, the~static code analysis tool can construct a~\textit{control flow graph} on the~top of the~AST. The nodes of the~graph represent basic blocks -- sequences of program instructions that will be all executed once block is entered. The edges between basic blocks represent different paths that the~program can take depending on matched conditions. Any back edges in the~graph signal potential loops in the~program execution.
 
-\subsubsection{Tracking Data Flow}
+\subsubsection{\textbf{Tracking Data Flow}}
 Data flow analysis is used to examine how data passes through the~program. Compilers utilize data flow analysis when doing code optimizations in order to remove unreachable code and allocate registers. An example of how data flow analysis can be used by static analysis tools is to check that memory is always freed only once -- function \texttt{free(p)} was called at most once with the~address stored in pointer \texttt{p}.
 
-\subsubsection{Taint Analysis}
+\subsubsection{\textbf{Taint Analysis}}
 According to~\cite{oswap-sca}, taint analysis attempts to identify variables containing possibly tainted user input using data flow analysis technique. If these variables are used as arguments to vulnerable functions without being sanitized first, the~tool reports their usage as vulnerable. The taint propagation analysis is particularly relevant for security analysis, a~prime example being the~detection of a~potential SQL injection.
 
 \subsection{Rules}
@@ -332,16 +332,16 @@ As discussed in~\cite{security-programming-sca}, good static analysis tool shoul
 \section{What Problems Can Be Solved by SCA}
 There are different types of problems the~static analysis tool can tackle. This section enumerates some of the~categories applicable to static code analysis, as listed in~\cite{secure-programming-sca}.
 
-\subsubsection{Type Checking}
+\subsubsection{\textbf{Type Checking}}
 The integral part of every compiler for statically typed language. Rules are typically implied by the~language itself.
 
-\subsubsection{Style Checking}
+\subsubsection{\textbf{Style Checking}}
 The style checker defines rules for spacing, naming, commenting and general program structure that affect mostly the~readability and the~maintainability of the~program. 
 
-\subsubsection{Program Understanding}
+\subsubsection{\textbf{Program Understanding}}
 These tools aim to provide a~high-level program understanding beneficial mainly for larger codebases. They are most effective when integrated into the~IDEs where they can support "go to declaration" or "find all references" features or even automatic program refactorings such as renaming or extracting a~variable.
 
-\subsubsection{Bug Finding}
+\subsubsection{\textbf{Bug Finding}}
 The  purpose of these type of static analyzers is to point out common mistakes in the~code. They report warnings in parts of program that are compliant with the~language specification but might not express the~programmer's intent, such as ignoring the~return value of a~function call.
 
 Special type of bug finding checker is \textit{security review}, where specific vulnerabilities found in the~source code are reported. Security review searches for possible exploitations like buffer overflow or tainted inputs.
@@ -457,10 +457,10 @@ The immutability enables the~compiler to perform parallel work without need to c
 \subsection{The Compiler APIs}
 As discussed in the~previous section, the~Compiler APIs offer an~object model representing the~results of syntactic and semantic analysis produced by the~respective phases of the~compiler pipeline. Moreover, it also includes an~immutable snapshot of a~single compiler invocation, along with assembly references, compiler options, and source files. This layer is agnostic of any Visual Studio components, and as such can be used in stand-alone applications as well. There are two separate, though very similar, APIs for Visual Basic and C\#, each providing functionality tailored for specific language nuances.
 
-\subsubsection{Diagnostic APIs}
+\subsubsection{\textbf{Diagnostic APIs}}
 Apart from parsing code and producing an~assembly, the~compiler is also capable of raising diagnostics, covering everything from syntax to semantics, and report them as errors, warnings or information messages~\cite{roslyn-succinctly}. This is achieved through the~compilers' Diagnostics APIs that allow developers to effectively plug-in to compiler pipeline, analyze the~source code using the~exposed object models, and surface custom diagnostics along with those defined by the~compiler itself. These APIs are integrated to both MSBuild~\footnote{The Microsoft Build Engine https://github.com/Microsoft/msbuild} and Visual Studio (2015 and newer), providing seamless developer experience. Since the practical part of~this thesis, and~both Chapter~\ref{chap:custom-roslyn-analyzers} and~\ref{chap:performance}, rely on~Diagnostic APIs to~provide custom diagnostics, they are discussed in~more detail in~Section~\ref{sec:analyzers-and-code-fixes}.
 
-\subsubsection{Scripting APIs}
+\subsubsection{\textbf{Scripting APIs}}
 As a~part of the~compiler layer, Microsoft team has introduced new Scripting APIs that can be used for executing code snippets. These APIs were not shipped with .NET Compiler Platform 1.0 and are part of v2.0.0 RC3\footnote{Release candidate 3, as per https://github.com/dotnet/roslyn/wiki/Scripting-API-Samples [26-02-2017].}.
 
 \subsection{Workspaces APIs}
@@ -485,13 +485,13 @@ Figure~\ref{fig:roslyn-syntax-tree} shows a~syntax tree of an~invocation express
 		\label{fig:roslyn-syntax-tree}
 \end{figure}
 
-\subsubsection{Syntax Nodes}
+\subsubsection{\textbf{Syntax Nodes}}
 Syntax nodes (blue color) are non-terminal nodes of a~syntax tree, meaning they always have at least one other node or token as a~child. Nodes represent syntactic constructs of a~language such as statements, clauses or declarations. Each type of node is represented by a~single class deriving from \texttt{SyntaxNode}. Apart from common properties \texttt{Parent}, \texttt{ChildNodes} and utility methods like \texttt{DescendantNodes}, \texttt{DescendantTokens}, or \texttt{DescendantTrivia}, each subclass exposes specific methods and properties. As shown in Figure~\ref{fig:roslyn-syntax-tree}, \texttt{InvocationExpression} has two properties, \texttt{IdentifierName} and \texttt{ArgumentList} both of which are \texttt{SyntaxNodes} themselves.
  
-\subsubsection{Syntax Tokens}
+\subsubsection{\textbf{Syntax Tokens}}
 As opposed to nodes, syntax token (green color) represent terminals of the~language grammar, such as keywords, punctuation, literals and identifiers. For the~sake of efficiency, \texttt{SyntaxToken} is implemented as a~value type (C\# structure) and there is only one for all kinds of tokens. To be able to tell them apart, tokens have \texttt{Kind} property. For example, \texttt{SomeFunction} is of kind \texttt{IdentifierName}, whereas "\texttt{(}" character is \texttt{OpenParenToken}.
 
-\subsubsection{Syntax Trivia}
+\subsubsection{\textbf{Syntax Trivia}}
 In order to enable refactoring features, syntax trees must also store information about whitespaces, comments and preprocessor directives that are insignificant for compilation process itself. This information is represented by another value type -- \texttt{SyntaxTrivia} (white color). Trivia are not really parts of the~tree itself, rather they are properties of tokens accessible by their \texttt{LeadingTrivia} and \texttt{TrailingTrivia} collections.
 
 \section{Semantics of the~Program}
@@ -499,13 +499,13 @@ As explained in Chapter~\ref{chap:compilers}, even though syntax trees are enoug
 
 Its one of the~core compiler's responsibilities to populate symbol tables with information about all elements and their properties from the~source program. Attributes such as identifier name, type, allocated storage, scope; or for method names the~number and types of arguments and their return values; are all stored in order to be utilized later when producing intermediate language.
 
-\subsubsection{Symbols}
+\subsubsection{\textbf{Symbols}}
 In .NET Compiler Platform, a~single entry of a~symbol table is represented by a~class deriving from \texttt{ISymbol}. The symbol represents every distinct element (namespace, type, field, property, event, method or parameter) either declared in the~source code or imported as metadata from a~referenced assembly. Each specific symbol has its own methods and properties often directly referring to other symbols. For example \texttt{IMethodSymbol} has a~\texttt{ReturnType} property specifying what is the~type symbol the~method returns.
 
-\subsubsection{Compilation}
+\subsubsection{\textbf{Compilation}}
 An important immutable type, that represents everything needed to compile a~C\# (or Visual Basic) program is a~\texttt{Compilation}. It contains all source files, compiler options and assembly references. Compilation provides convenient ways to access any discovered symbol. For instance, it is possible to access the~entire hierarchical symbol table rooted by global namespace, or look up type symbols by their common metadata names.
 
-\subsubsection{Semantic Model}
+\subsubsection{\textbf{Semantic Model}}
 When analyzing a~single source file of a~compilation, all its semantic information is available through a~\textit{semantic model}. The \texttt{SmeanticModel} object can answer many questions such as:
   \begin{itemize}
   \item What symbol is declared at the~specific location in the~source?
@@ -525,7 +525,7 @@ In order to understand the chapters describing the implementation part of the th
 \subsection{Diagnostic Analyzer}
 An analyzer is an instance of a type deriving from \texttt{Microsoft.CodeAnalysis.Diagnostics.DiagnosticAnalyzer} which must be annotated with \texttt{DiagnosticAnalyzer} attribute specifying the targeted programming language (C\# or Visual Basic)\cite{roslyn-succinctly}. In the text of this thesis, these instances are referred to as \textit{"end-analyzers"}, in order to distinguish them from abstract analyzers or helper classes containing analysis logic. The end-analyzer can contain one or more custom \textit{rules} for detecting domain specific errors or code issues. Each such rule is defined by \texttt{DiagnosticDescriptor}. Once the analyzer finds an issue, the diagnostic descriptor is used to create a \textit{diagnostic} which also includes data collected by the compiler, such as location.
 
-\subsubsection{Diagnostic Descriptor}
+\subsubsection{\textbf{Diagnostic Descriptor}}
 For any Roslyn end-analyzer it is mandatory to override an immutable property \texttt{SupportedDiagnostics}. It returns an immutable array of diagnostic descriptors which consist of:
 
 \smallskip
@@ -538,7 +538,7 @@ For any Roslyn end-analyzer it is mandatory to override an immutable property \t
   \item[\texttt{\textbf{HelpLinkUri}}] -- optional URI with online documentation.
 \end{compactitem}
 
-\subsubsection{Performing the analysis}
+\subsubsection{\textbf{Performing the analysis}}
 Besides providing the code that performs the actual analysis (commonly referred to as \textit{action}), it is necessary to register the action to tell the .NET Compiler Platform when to invoked it. To do so, the end-analyzer must override the \texttt{Initialize} method. This method represents the entry point of the analyzer and is invoked exactly once per \textit{session}\footnote{For batch compilations the session is a single run of the compiler. For hosted environments, where the analysis runs on the background thread, the session can last as long as the IDE is open. For more information see~\cite{analyzer-action-semantics}}. The method accepts one argument, of type \texttt{AnalysisContext}, exposing number of methods for registering actions. Depending on when the action should be invoked, a callback with analysis logic is passed to one of these methods~\cite{analyzer-action-semantics}:
 
 \smallskip
@@ -725,7 +725,7 @@ Similar to CMS API Replacements category, the~analyzers search for classes that 
 \subsection{String and Culture}
 This category of analyzers makes sure that string comparison\footnote{\texttt{Equals()}, \texttt{Compare()}, \texttt{IndexOf()} and their variants} and manipulation\footnote{\texttt{ToLower()}, \texttt{ToUpper()}} methods are always used with the~overload specifying \texttt{StringComparison} or \texttt{CultureInfo} parameter explicitly. This is vital for an~application like CMS that is used with culture specific data. For more information on what issues can be caused when not following this rule, like the~\textit{"Turkish-I problem"}, see \cite{best-practices-for-using-strings-in-dot-net}. 
 
-\section{CMS API Replacement Analyzers}
+\section{API Replacement Analyzer}
 The CMS API Replacement category contains 15 analyzers which represents almost one half of total 31 analyzers that were created. Vast majority of these analyzers search for a~particular member being accessed or invoked on a~particular type. Any such usage found by the~analyzer shall be reported as CMS API contains a~replacement for it, with a~code fix suggested where applicable.
 
 In order to prevent code duplication and ease the~process of adding new analyzers, the~analysis logic for the~analyzers in this category was extracted into two helper classes: \texttt{ApiReplacementForMemberAnalyzer} and \texttt{ApiReplacementForMethodAnalyzer}. These are instantiated and configured by the~concrete end-analyzer to perform the~analysis on their behalf.
@@ -781,10 +781,10 @@ It is important to note that the~steps are ordered in a~way so that the~inexpens
 		\label{fig:uml-method-invocation-analyzer}
 \end{figure}
 
-\subsubsection{Check the~File Path}
+\subsubsection{\textbf{Check the~File Path}}
 Sometimes, an analyzer needs to pre-filter files that are relevant for the~diagnostic. For example, when looking for an~access to the~database layer from the~presentation layer, the~analyzer is only concerned with the~invocation expressions in the~files of presentation layer. These can be identified by inspecting the~\texttt{FilePath} property of the~\texttt{SyntaxTree} in which the~current invocation expression is located. If the~file path does not meet the~requirements, the~current invocation expression does not need to be analyzed further.
 
-\subsubsection{Method Name Syntax Analysis}
+\subsubsection{\textbf{Method Name Syntax Analysis}}
 This step exists purely for performance optimization reasons and cannot be overridden by subclasses. It tries to extract the~name of the~method invoked and compares it to the~forbidden members. If the~method name is not among the~forbidden members, the~algorithm stops and no expensive operations had to be done. Otherwise, the~algorithm advances to the~next step.
 
 Since there are no constraints for what kind of syntax node the~\texttt{Expression} property of the~\texttt{InvocationExpressionSyntax} node could be, the~logic had to be implemented by hand. The heuristc inspects these three cases:
@@ -806,15 +806,15 @@ Since there are no constraints for what kind of syntax node the~\texttt{Expressi
 
 %!!!!do some benchmarking how this heuristic helped with the~performance!!!! show graph
 
-\subsubsection{Method Name and Receiver Type Semantic Analysis}
+\subsubsection{\textbf{Method Name and Receiver Type Semantic Analysis}}
 Here, semantic model is queried for \texttt{IMethodSymbol} that matches the~analyzed \texttt{InvocationExpressionSyntax}. If the~method symbol is found, its property \texttt{Name} is checked against forbidden member names. If the~check passes, the~property \texttt{ReceiverType} is inspected and only if it is one of forbidden types or its subtype, the~algorithm proceeds. 
 
 This method cannot be overridden as it is the~integral part of the~whole algorithm. It is also the~most expensive one, since the~checks in this method are performed on symbols obtained by querying the~semantic model. However, thanks to the~heuristics from the~previous step, the~majority of irrelevant cases was already filter out.
 
-\subsubsection{Context of the~Invocation Usage}
+\subsubsection{\textbf{Context of the~Invocation Usage}}
 If it is important to analyze the~specificities of the~invocation usage (mainly the~arguments supplied), the~subclasses can override \texttt{IsForbiddenUsage()} virtual method. The template method supplies it with two parameters: the~invocation expression and the~method symbol obtained in the~previous step.
 
-\subsubsection{Diagnostic Creation}
+\subsubsection{\textbf{Diagnostic Creation}}
 If all the~steps above determined the~analyzed invocation is forbidden, the~last step of the~template method makes sure the~diagnostic is raised, using the~diagnostic descriptor provided upon creation. It is possible to configure the~diagnostic creation by providing optional instance of \texttt{IDiagnosticFormatter}. It is an~interface defined in \texttt{BugHunter} project that determines how the~diagnostic of certain syntax nodes shall be formatted (location and message text of the~diagnostic).
 
 \subsection{Usage}
@@ -867,18 +867,18 @@ A typical scenario for testing an~analyzer is to:
 
 To test the~code fix, it is run on the~source containing a~diagnostic and the~document with applied code fix is compared to the~expected result.
 
-\subsubsection{Referencing Kentico Libraries in Tests}
+\subsubsection{\textbf{Referencing Kentico Libraries in Tests}}
 As can be seen, when testing analyzers and code fixes, the~compilation is always created from the~source documents. For this to work, all references to the~libraries used by the~source code, or relied upon by the~tested analyzer, need to be linked. This contains not only the~Microsoft core assemblies that are always added, but in case of the~BugHunter analyzers, also Kentico libraries. Therefore, the~default testing template had to be enhanced with the~ability to explicitly reference desired DLLs in the~created compilation.
 
-\subsubsection{Faking File Information of Documents in Compilation}
+\subsubsection{\textbf{Faking File Information of Documents in Compilation}}
 The outcomes of some analyzers are dependant on the~file path of the~analyzed document. Therefore, to test them, it is necessary to be able to fake the~name of the~source document that will be part of the~analyzed compilation. To accommodate this requirement, the~the testing template was extended with \texttt{FakeFileInfo} structure. It can be passed as an~optional argument to the~function testing the~analyzers, in order to replace the~default file name, path, or extension.
 
-\subsubsection{Failing Tests on Uncompilable Sources}
+\subsubsection{\textbf{Failing Tests on Uncompilable Sources}}
 Another important feature, that was not present in Microsoft template, is that when the~source documents are uncompilable (e.g contain a~typo), the~tests will fail, no matter if the~analyzer and/or code fix worked as expected. Since the~compilers generally, and, therefore, also the~analyzers themselves, are heavily reliant on string constants, it is very important to have this kind of check present.
 
 Failing the~build upon uncompilable source was added later in the~development and it uncovered quite a~few errors. Some of them were rooted back in the~original BugHunter. For example it checked for \texttt{HttpRequest.Redirect()} which actually does not exist, because \texttt{Redirect()} method is member of \texttt{HttpResponse} object, not \texttt{HttpRequest}.
 
-\subsubsection{Tracking the~CMS API Changes}
+\subsubsection{\textbf{Tracking the~CMS API Changes}}
 In order to supply the~Kentico DLLs to be referenced in the~tested on-demand compilation, the~test projects have a~dependency on \texttt{Kentico.Libraries} NuGet package. This, together with tests failing on uncompilable source, has a~very pleasant side effect: It tracks any breaking changes in CMS API that affect the~analyzers' or code fixes' logic.
 
 For instance, if some method from Kentico API changes the~number of arguments, code fix, that introduces the~method to the~source code, is invalid and its tests will fail. They will also provide a~detailed compiler error message, so the~developer knows instantly what issues need to be fixed after the~upgrade.
@@ -895,14 +895,14 @@ This chapter presented selected implementation details and patterns utilized dur
 \label{chap:performance}
 When implementing custom Roslyn analyzers, it is vital to consider their performance. The analyzers run on a background thread of Visual Studio (or parallel threads of compilation process, when outside of the IDE) and if implemented carelessly, they might significantly influence the processing power and memory consumption.
 
- This holds for any custom analyzers written, but even more so if they are to be used with large solutions like Kentico's. Developers at Kentico complain about the responsiveness of Visual Studio with an~opened CMS solution. Some of them even admitted they had uninstalled the ReSharper extension, since it slowed down the IDE to an unbearable extent and claimed, that the plugin often caused IDE crashes. 
+ This holds for any custom analyzers written, but even more so if they are to be used with large solutions like Kentico's. Developers at Kentico complain about the responsiveness of Visual Studio with an~opened CMS solution. Some of them even admitted they had uninstalled the ReSharper extension, since it slowed down the IDE to an unbearable extent, and claimed that the plugin often caused IDE crashes. 
 
 Therefore, in order for the BugHunter analyzers to be usable, they have to be efficient. This chapter explains how the performance of the implemented analyzers was measured and provides a quick look at how some of them were optimized. The end of the chapter summarizes views of Kentico development team on the usability of new BugHunter.
 
 \section{CMS Solution Size}
 Before discussing the performance of the BugHunter analyzers, it is important to understand the structure of the CMS solution. This is helpful when considering which parts of the analyzers code are crucial for the overall performance an which can be neglected.
 
-In order to collect relevant information, \texttt{SolutionStatistics} project was created (the source code can be found in the IS attachment). The project loads the CMS solution and collects information on number of projects, documents, syntax nodes. The summary of the results is presented in Table~\ref{tab:solution-statistics}. Note, that just the data relevant for implemented analyzers are displayed. Therefore, only projects where NuGet with BugHunter analyzers is installed\footnote{Test and 3rd party projects were excluded from statistics, see Appendix~\ref{appendix:deployment}.} and relevant kinds of syntax nodes are considered.
+In order to collect relevant information, \textit{SolutionStatistics} project was created (the source code can be found in the IS attachment). The project loads the CMS solution and collects information on number of projects, documents, syntax nodes. The summary of the results is presented in Table~\ref{tab:solution-statistics}. Note, that just the data relevant for implemented analyzers are displayed. Therefore, only projects where NuGet with BugHunter analyzers is installed\footnote{Test and 3rd party projects were excluded from statistics, see Appendix~\ref{appendix:deployment}.} and relevant kinds of syntax nodes are considered.
 
 % ------------------ Solution Statistics Table ------------------
 \begin{table}
@@ -911,10 +911,9 @@ In order to collect relevant information, \texttt{SolutionStatistics} project wa
 Number of projects                  & 125 \\
 Number of documents              & 11,136 \\
 Number of syntax nodes        & 6,279,993 \\
-\midrule
 - IdentifierNameSyntax        & 1,422,571 \\
 - MemberAccessExpressionSyntax  & 350,942 \\
-- IvocationExpressionSyntax     & 216,716 \\
+- InvocationExpressionSyntax     & 216,716 \\
 - ObjectCreationExpressionSyntax & 22,635 \\ 
 - ElementAccessExpressionSyntax  & 17,930 \\
 - ClassDeclarationSyntax         & 10,288 \\ 
@@ -952,14 +951,15 @@ The command, that also reports the execution times, looks like this\footnote{Not
 \end{center}
 
 \subsubsection{\textbf{Parsing and Aggregating Per-project Results}}
-The resulting MSBuild output is almost 500MB large and, besides normal compiler output, contains information on analyzers' execution times for every project that the analyzers' NuGet is installed to. For CMS solution this means 125 projects. For the purpose of this thesis, however, only performance over~the~whole solution is relevant. 
+The resulting MSBuild output is over 500MB large and, besides normal compiler output, contains information on analyzers' execution times for every project that the analyzers' NuGet is installed to. For CMS solution this means 125 projects. For the purpose of this thesis, however, only performance over~the~whole solution is relevant. 
 
-In order to parse the results from the large output, a console application \texttt{ReportAnalyzerTimes.Parser} was developed. It extracts all data related to analyzer execution times from the log (based on the format described in~\cite{report-analyzer}). After that, it sums up the absolute execution times \footnote{The smallest value, that can be reported, for the execution time is \texttt{<0.001s} and it is treated as 0.001s by the parsing application.} for same analyzers across the solution (sums per-project results) and outputs them into a file.
+In order to parse the results from the large output, a console application \textit{ReportAnalyzerTimes.Parser} was developed. It extracts all data related to analyzer execution times from the log (based on the format described in~\cite{report-analyzer}). After that, it sums up the absolute execution times \footnote{The smallest value, that can be reported, for the execution time is \texttt{<0.001s} and it is treated as 0.001s by the parsing application.} for same analyzers across the solution (sums per-project results) and outputs them into a file.
 
-\subsubsection{Aggregating Results from Multiple Runs}
-Since a single compiler run should not be relied upon to provide accurate results, a PowerShell script (Report-Analyzer.ps1) was writen that executes the CMS solution MSBuild multiple times. After every run, it runs ReportAnalyzerTimes.Parser application on the compiler output, and results from all runs are saved in multiple text files. 
+\subsubsection{\textbf{Aggregating Results from Multiple Runs}}
+Since a single compiler run should not be relied upon to provide accurate results, a PowerShell script (\textit{Report-Analyzer.ps1}) was writen that executes the CMS solution MSBuild multiple times. After every run, it runs the abovementioned \textit{ReportAnalyzerTimes.Parser} application on the compiler output, and results from all runs are saved in multiple text files. 
 
-Another console application, ReportAnalyzerTimes.Aggregator, is utilized to aggregate the results into a single CSV\footnote{Comma Separated Values} file. For every analyzer, there is a name and the execution times from every run of solution build (accumulated per-project times obtained by the ReportAnalyzerTimes.Parser application).
+Another console application, \textit{ReportAnalyzerTimes.Aggregator}, is utilized to aggregate the results into a single CSV\footnote{Comma Separated Values} file. For every analyzer, there is a name and the accumulated per-project execution times from every run of solution build.
+
 
 TODO add some action diagram of the whole process???
 
@@ -975,13 +975,13 @@ final approach
 \subsection{Other Optimizations}
 Just quickly mention other optimizations 
 
-\subsubsection{CMS Base Classes Analyzers}
+\subsubsection{\textbf{CMS Base Classes Analyzers}}
 symbol vs syntax - perf differences
 
-\subsubsection{Syntax Heuristics for Method Invocation Analyzer}
+\subsubsection{\textbf{Syntax Heuristics for Method Invocation Analyzer}}
 stats on how much it speeded up relevant analyzers
 
-\subsubsection{String Analyzers}
+\subsubsection{\textbf{String Analyzers}}
 how not using the generic MethodInvocationAnalyzer influenced the results
 
 \section{BugHunter Analyzers vs Original BugHunter Build Times}
