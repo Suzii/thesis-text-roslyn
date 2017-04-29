@@ -397,7 +397,7 @@ With the~release of new .NET Compiler Platform (Roslyn), which is discussed in d
 
 Some vendors, like Jet Brains, who invested years of development into the~creation of the~tools, claim ~\cite{resharper-and-roslyn-qa}, it does not pay off to rewrite the~whole program so that it uses new Microsoft compiler. Not only would it take an~enormous effort to rewrite all the~functionality to use new framework, but they would risk destabilizing the~product and losing years of optimizations and testing. Moreover, ReSharper is multilingual tool whereas .NET Compiler platform "only" provides C\# and Visual Basic parsers.
 
-Other companies, such as DevExpress with CodeRush\footnote{CodeRush Classic referrs to the~version before Roslyn} or Microsoft with StyleCop Analyzers, decided to use this new approach. The effects on the~Visual Studio performance were immediate, since solution does not have to be parsed by the~tool, nor duplicate syntax trees stored. As a~result, the~load times and memory consumption were significantly lowered.
+Other companies, such as DevExpress with CodeRush\footnote{CodeRush Classic referrs to the~version before Roslyn} or Microsoft with StyleCop Analyzers, decided to use this new approach. The effects on Visual Studio performance were immediate, since solution does not have to be parsed by the~tool, nor duplicate syntax trees stored. As a~result, the~load times and memory consumption were significantly lowered.
 
 The Roslyn APIs also gave rise to more open source projects dealing with static code analysis, such as CodeCracker\footnote{https://code-cracker.github.io/}. As challenging as it was in the~past, static code analysis is now rather easy, thanks to powerful analysis APIs. Following chapter takes a~look at the~.NET Compiler Platform and how it can be used to perform the~static code analysis.
 
@@ -414,7 +414,7 @@ In~the~.NET world, the~compiler used~to~be a~black box that given the~file paths
 %		\label{fig:compiler-as-a-black-box}
 %\end{figure}
 
-Not only have been compilers for both Visual Basic and C\# rewritten into the~entirely managed code\footnote{The term managed code refers to program source code written in one of high-level programming languages available for use with Microsoft .NET Framework, and require a~Common Language Runtime virtual machine in order to be executed.}, they also expose the~internals of the~compiler pipeline via a~public .NET API~\footnote{Application Programming Interface}. This makes them a~platform (also known as \textit{compiler-as-as-service}) with rich code analysis APIs that can be leveraged by developers to perform analysis, code generation or dynamic compilation in their own programs~\cite{roslyn-succinctly}. Those can be then easily integrated into the~Visual Studio all without the~hard work of duplicating compilers' parsing logic.
+Not only have been compilers for both Visual Basic and C\# rewritten into the~entirely managed code\footnote{The term managed code refers to program source code written in one of high-level programming languages available for use with Microsoft .NET Framework, and require a~Common Language Runtime virtual machine in order to be executed.}, they also expose the~internals of the~compiler pipeline via a~public .NET API~\footnote{Application Programming Interface}. This makes them a~platform (also known as \textit{compiler-as-as-service}) with rich code analysis APIs that can be leveraged by developers to perform analysis, code generation or dynamic compilation in their own programs~\cite{roslyn-succinctly}. Those can be then easily integrated into Visual Studio all without the~hard work of duplicating compilers' parsing logic.
 
 This chapter will take a~look at how the~Roslyn API layers are structured, how the~original source code is represented by the~compiler and how developers can build tools upon the~compiler's API. Note, that although Roslyn provides equivalent APIs for both VisualBasic and C\#, this thesis only focuses on the~latter since it is relevant for the~practical part of the~thesis.  
   
@@ -560,7 +560,7 @@ Besides providing the code that performs the actual analysis (commonly referred 
 
 The compilation or code block start actions are usually registered for so called \textit{stateful analyzers}. These report diagnostics about specific code unit, as syntax node or a symbol (same as \textit{stateless analyzers}), but within the enclosing unit of code block or the compilation. They have to be designed carefully to perform effectively and not cause any memory leaks.
 
-For both categories of analyzers it is vital to be written defensively and not to throw any exceptions. Otherwise, the Visual Studio might disable it. An example of an analyzer detecting an access to the \texttt{Cookies} property of \texttt{HttpResponse} object can be seen in Figure~\ref{fig:analyzer-example}. It is actually a very simplified version of \texttt{HttpResponseCookiesAnalyzer} implemented for this thesis.
+For both categories of analyzers it is vital to be written defensively and not to throw any exceptions. Otherwise, Visual Studio might disable it. An example of an analyzer detecting an access to the \texttt{Cookies} property of \texttt{HttpResponse} object can be seen in Figure~\ref{fig:analyzer-example}. It is actually a very simplified version of \texttt{HttpResponseCookiesAnalyzer} implemented for this thesis.
 
 \begin{figure}[h!]
 		\centering
@@ -570,7 +570,7 @@ For both categories of analyzers it is vital to be written defensively and not t
 \end{figure}
 
 \subsection{Code Fix Provider}
-A code fix is a quick action suggesting a possible solution to a diagnosed code issue found by the analyzer. It can be applied by invoking the quick actions (Ctrl+.) integrated into the Visual Studio light bulb . Before applying, developer can view the live preview of the code fix action, as depicted in Figure~\ref{fig:codefix-example}.
+A code fix is a quick action suggesting a possible solution to a diagnosed code issue found by the analyzer. It can be applied by invoking the quick actions (Ctrl+.) integrated into Visual Studio light bulb . Before applying, developer can view the live preview of the code fix action, as depicted in Figure~\ref{fig:codefix-example}.
 
 \begin{figure}[h!]
 		\centering
@@ -584,7 +584,7 @@ A custom code fix is defined by a class deriving from \texttt{Microsoft.CodeAnal
 \section{Deployment}
 There are two different approaches when it comes to deploying the analyzers and code fixes: NuGet package, or Visual Studio extension. 
 
-With the IDE extension, every developer has to install it manually from Visual Studio Gallery\footnote{The Visual Studio Gallery provides an access to various tools that extend the default Visual Studio functionality.}. Once installed, the analysis is performed on any open solution or project. Therefore, it is only appropriate for analysis concerned with common language or framework guidelines.
+With the IDE extension, every developer has to install it manually from Visual Studio Gallery\footnote{Visual Studio Gallery provides an access to various tools that extend the default Visual Studio functionality.}. Once installed, the analysis is performed on any open solution or project. Therefore, it is only appropriate for analysis concerned with common language or framework guidelines.
 
 On the other hand, when tha analyzers are installed as a NuGet package. Only the project that has it installed will be analyzed. The reference to the NuGet is stored in shared repository, and everyone working with the project has the analyzers installed automatically. Moreover, only the NuGet installation influences the compilation process and, as such, can be run on build boxes as part of continuous integration process.
 
@@ -641,7 +641,7 @@ In a~discussion with the~developers at Kentico, they all admitted, that more oft
 
 The console application was run by the~build server itself as part of the~continuous integration. If the~BugHunter detected any issues, the~developer who caused them would be notified by an~email and would have to fix them as part of the~no-warning policy. This process prolonged the~time it took to finish the~implementation and generated a~demand for a~more developer-friendly solution. 
 
-Since Roslyn analyzers are part of the~Visual Studio IDE, programmers get an~instant feedback and see the~warnings before submitting the~code without the~need to run an~external application.
+Since Roslyn analyzers are part of Visual Studio IDE, programmers get an~instant feedback and see the~warnings before submitting the~code without the~need to run an~external application.
 
 \subsection{Suppressing the~Results}
 Another downside of the~previous solution was the~way certain portions of the~code were excluded from the~analysis. Since the~BugHunter is a~console application and the~CMS solution is completely independent of it, the~configuration had to be placed in BugHunter's installation directory. This was deemed as not transparent, as it was not clear, why in one file certain code was okay, whereas, in the~other, it was reported as an~issue, without taking a~look into a~huge configuration file.
@@ -853,7 +853,7 @@ Therefore, it was decided not to provide the~code fix in such complicated cases.
 The approach taken was to provide an~additional information to the~diagnostic via the~\texttt{Properties} property\footnote{http://www.coderesx.com/roslyn/html/93197CDD.htm}. It is a~data structure were arbitrary key-value pairs can be stored when diagnostic is raised and can be later read in the~code fix class. The analyzer stores a~flag, telling the~diagnostic is raised for conditional member access. When the~code fix method is invoked, it can decide whether or not it is capable of providing a~fix for the~specific conditional member access.
 
 \section{Tests}
-Since it is infeasible to test the~functionality of all the~analyzers manually by running the~Visual Studio, it is crucial that all the~requirements are covered by an~automated set of tests. 
+Since it is infeasible to test the~functionality of all the~analyzers manually by running Visual Studio, it is crucial that all the~requirements are covered by an~automated set of tests. 
 
 Every analyzer and its code fixes have an~extensive suite of tests covering the~functionality. The extension methods and helper classes are covered by separate unit tests as well. The pre-generated boilerplate from Visual Studio for testing analyzers was reused and rewritten using NUnit framework~\footnote{Testing framework for .NET languages https://www.nunit.org/}. Since the~default template did not allow to set anything apart from the~sources, it had to be customized and some additional features were added.
 
@@ -893,9 +893,9 @@ This chapter presented selected implementation details and patterns utilized dur
 % =================================================================
 \chapter{Measuring and Optimizing the~Performance}
 \label{chap:performance}
-When implementing custom Roslyn analyzers, it is vital to consider their performance. The analyzers run on a background thread of the Visual Studio (or parallel threads of compilation process, when outside of the IDE) and if implemented carelessly, they might significantly influence the processing power and memory consumption.
+When implementing custom Roslyn analyzers, it is vital to consider their performance. The analyzers run on a background thread of Visual Studio (or parallel threads of compilation process, when outside of the IDE) and if implemented carelessly, they might significantly influence the processing power and memory consumption.
 
-This holds for any custom analyzers written, but even more so if they are to be used with large solutions like a~CMS solution. Developers at Kentico complain about the responsiveness of Visual Studio with an~opened CMS Soultion. Some of them even admitted they had uninstalled the ReSharper extension, since it slowed down the IDE to an unbearable extent and claimed, that the plugin often caused IDE crashes. 
+ This holds for any custom analyzers written, but even more so if they are to be used with large solutions like Kentico's. Developers at Kentico complain about the responsiveness of Visual Studio with an~opened CMS solution. Some of them even admitted they had uninstalled the ReSharper extension, since it slowed down the IDE to an unbearable extent and claimed, that the plugin often caused IDE crashes. 
 
 Therefore, in order for the BugHunter analyzers to be usable, they have to be efficient. This chapter explains how the performance of the implemented analyzers was measured and provides a quick look at how some of them were optimized. The end of the chapter summarizes views of Kentico development team on the usability of new BugHunter.
 
