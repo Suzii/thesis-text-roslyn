@@ -69,11 +69,12 @@
 \usepackage{url}
 \usepackage{menukeys}
 \usepackage{tikz-qtree}
+\usepackage{minted}
 
 \begin{document}
 % =================================================================
 % ============================= CHAPTER 1 =========================
-% =================================================================
+% ====================================================  =============
 \chapter{Introduction}
 TODO...
 %Ideas:
@@ -899,7 +900,7 @@ When implementing custom Roslyn analyzers, it is vital to consider their perform
 Therefore, in order for the BugHunter analyzers to be usable, they have to be efficient. This chapter explains how the performance of the implemented analyzers was measured and provides a quick look at how some of them were optimized. The end of the chapter summarizes views of Kentico development team on the usability of new BugHunter.
 
 \section{CMS Solution Size}
-Before discussing the performance of the BugHunter analyzers, it is important to understand the structure of the CMS solution. This is helpful when considering which parts of the analyzers code are crucial for the overall performance an which can be neglected.
+Before discussing the performance of the BugHunter analyzers, it is important to understand the structure of the CMS solution. This is helpful when considering which parts of the analyzers' code are crucial for the overall performance an which can be neglected.
 
 In order to collect relevant information, \textit{SolutionStatistics} project was created (the source code can be found in the IS attachment). The project loads the CMS solution and collects information on number of projects, documents, syntax nodes. The summary of the results is presented in Table~\ref{tab:solution-statistics}. Note, that just the data relevant for implemented analyzers are displayed. Therefore, only projects where NuGet with BugHunter analyzers is installed\footnote{Test and 3rd party projects were excluded from statistics, see Appendix~\ref{appendix:deployment}.} and relevant kinds of syntax nodes are considered.
 
@@ -967,14 +968,27 @@ Another console application, \textit{ReportAnalyzerTimes.Aggregator}, is utilize
 \end{figure}
 
 \section{Optimizations}
-The procedure described in previous section was used to ...
+The procedure described in the previous section was used to measure and compare the performance of implemented analyzers. The measurements were performed on the CMS solution, as well as on an artificially generated project with uniformly distributed diagnostics for each analyzer (source codes attached in IS).
+
+The slowest analyzers were iteratively optimized and speed of different versions was also compared using the \textit{Report-Analyzer.ps1} script. The versions that performed the best where then integrated into the final NuGet package.
 
 \subsection{System.IO Analyzer}
-Most of the optimizations effort was done here...
+After the initial versions of all analyzers were implemented, the first measurements showed that \texttt{SystemIOAnalyzer} is by far the slowest one. It took more than 15 seconds to run on CMS solution, whereas almost all other analyzers executed in less than 0.3 seconds.
+
+This analyzer belongs to CMS API Replacement category and the motivation behind its existence is described in~\cite{system-io-motivation}. It forbids the access to all members from \texttt{System.IO} namespace, apart from \texttt{System.IO.IOException} and \texttt{System.IO.Stream} classes and their subclasses, plus \texttt{System.IO.SeekOrigin} enumeration. All other members of the namespace have CMS equivalents. They must be used instead to make sure that all parts of the product can work with virtual file systems (for example Azure storage).
+
+\subsubsection{\textbf{Differences from Other CMS API Replacement Analyzers}}
+What makes this analyzer fundamentally different from all other analyzers in its category is, that instead of blacklisting particular members or methods from Microsoft API, it forbids the whole namespace (all classes, enums, methods, members, etc.) apart from few whitelisted, well defined, exceptions. Other analyzers in CMS API Replacement category can reliably cut off the analysis by looking at syntax and inspecting the name of the member or method. Since only certain member names are considered forbidden, vast majority of nodes will not make it past syntax check. However, this is impossible for \texttt{SystemIOAnalyzer}. Since there are only a few whitelisted exceptions in whole namespace, in most cases, the analyzer needs to advance to perform more complicated and expensive analysis on symbols, in order to confirm that the inspected node is really forbidden, which in most cases it will not be anyway.
+
+Unlike other analyzes in the category, that are bound to member access expressions or invocation expressions, the \texttt{SystemIOAnalyzer} must inspect all syntax nodes of kind \texttt{IdentifierName}. As can be seen in Table~\ref{tab:solution-statistics}, there are more than 1.4 million such nodes. 
+
+Since in most cases the analyzer advances to semantic analysis, its performance is a lot worse than the performance of other anlyzers, that not only have fewer nodes to inspect, but are also able to eliminate most of them just by syntax.
+
+\subsubsection{\textbf{Different versions of SystemIOAnalyzer}}
 tell about some limits (EmptyCallback, direct SemanticModelAccess...)
 Heuristics applied
 final approach
-
+tell why the dictionary needs to be stored per compilation
 \subsection{Other Optimizations}
 Just quickly mention other optimizations 
 
