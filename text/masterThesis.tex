@@ -893,14 +893,14 @@ This chapter presented selected implementation details and patterns utilized dur
 % =================================================================
 \chapter{Measuring and Optimizing the~Performance}
 \label{chap:performance}
-When implementing custom Roslyn analyzers, it is vital to consider their performance. The analyzers run on a background thread of Visual Studio (or parallel threads of compilation process, when outside of the IDE) and if implemented carelessly, they might significantly influence the processing power and memory consumption.
+When implementing custom Roslyn analyzers, it is vital to consider their performance. The analyzers run on a background thread of Visual Studio (or parallel threads of compilation process, when outside of the IDE) and if implemented carelessly, they might significantly influence the processing power and the memory consumption.
 
- This holds for any custom analyzers written, but even more so if they are to be used with large solutions like Kentico's. Developers at Kentico complain about the responsiveness of Visual Studio with an~opened CMS solution. Some of them even admitted they had uninstalled the ReSharper extension, since it slowed down the IDE to an unbearable extent, and claimed that the plugin often caused IDE crashes. 
+This holds for any custom analyzers written, but even more so if they are to be used with large solutions like Kentico's. Developers at Kentico complain about the responsiveness of Visual Studio with an~opened CMS solution. Some of them even admitted they had uninstalled the ReSharper extension, since it slowed down the IDE to an unbearable extent, and claimed that the plugin often caused IDE crashes. 
 
 Therefore, in order for the BugHunter analyzers to be usable, they have to be efficient. This chapter explains how the performance of the implemented analyzers was measured and provides a quick look at how some of them were optimized. The end of the chapter summarizes views of Kentico development team on the usability of new BugHunter.
 
 \section{CMS Solution Size}
-Before discussing the performance of the BugHunter analyzers, it is important to understand the structure of the CMS solution. This is helpful when considering which parts of the analyzers' code are crucial for the overall performance an which can be neglected.
+Before discussing the performance of the BugHunter analyzers, it is important to understand the structure of the CMS solution. This is helpful when considering which parts of the analyzers' code are crucial for the overall performance and which can be neglected.
 
 In order to collect relevant information, \textit{SolutionStatistics} project was created (the source code can be found in the IS attachment). The project loads the CMS solution and collects information on number of projects, documents, syntax nodes. The summary of the results is presented in Table~\ref{tab:solution-statistics}. Note, that just the data relevant for implemented analyzers are displayed. Therefore, only projects where NuGet with BugHunter analyzers is installed\footnote{Test and 3rd party projects were excluded from statistics, see Appendix~\ref{appendix:deployment}.} and relevant kinds of syntax nodes are considered.
 
@@ -951,14 +951,14 @@ The command, that also reports the execution times, looks like this\footnote{Not
 \end{center}
 
 \subsubsection{\textbf{Parsing and Aggregating Per-project Results}}
-The resulting MSBuild output is over 500MB large and, besides normal compiler output, contains information on analyzers' execution times for every project that the analyzers' NuGet is installed to. For CMS solution this means 125 projects. For the purpose of this thesis, however, only performance over~the~whole solution is relevant. 
+The resulting MSBuild output is over 500MB large and, besides normal compiler output, it contains information on analyzers' execution times for every project that the analyzers' NuGet is installed to. For CMS solution this means 125 projects. For the purpose of this thesis, however, only performance over~the~whole solution is relevant. 
 
 In order to parse the results from the large output, a console application \textit{ReportAnalyzerTimes.Parser} was developed. It extracts all data related to analyzer execution times from the log (based on the format described in~\cite{report-analyzer}). After that, it sums up the absolute execution times \footnote{The smallest value, that can be reported, for the execution time is \texttt{<0.001s} and it is treated as 0.001s by the parsing application.} for same analyzers across the solution (sums per-project results) and outputs them into a file.
 
 \subsubsection{\textbf{Aggregating Results from Multiple Runs}}
 Since a single compiler run should not be relied upon to provide accurate results, a PowerShell script (\textit{Report-Analyzer.ps1}, see Figure~\ref{fig:uml-report-analyzer-dfd}) was written that executes the CMS solution MSBuild multiple times. After every run, it runs the above mentioned \textit{ReportAnalyzerTimes.Parser} application on the compiler output, and results from all runs are saved in multiple text files. 
 
-Another console application, \textit{ReportAnalyzerTimes.Aggregator}, is utilized to aggregate the results into a single CSV\footnote{Comma Separated Values} file. For every analyzer, there is a name and the accumulated per-project execution times from every run of solution build.
+Another console application, \textit{ReportAnalyzerTimes.Aggregator}, is utilized to aggregate the results into a single CSV\footnote{Comma Separated Values} file. For every analyzer, there is a name and the accumulated per-project execution times from every run of the solution's build.
 
 \begin{figure}[h!]
 		\centering
@@ -970,17 +970,17 @@ Another console application, \textit{ReportAnalyzerTimes.Aggregator}, is utilize
 \section{Optimizations}
 The procedure described in the previous section was used to measure and compare the performance of implemented analyzers. The measurements were performed on the CMS solution, as well as on an artificially generated project with uniformly distributed diagnostics for each analyzer (source codes attached in IS).
 
-The slowest analyzers were iteratively optimized and speed of different versions was also compared using the \textit{Report-Analyzer.ps1} script. The versions that performed the best where then integrated into the final NuGet package.
+The slowest analyzers were iteratively optimized and the speed of different versions was also compared using the \textit{Report-Analyzer.ps1} script. The versions that performed the best where then integrated into the final NuGet package.
 
 This section presents the most interesting optimization that was done on \texttt{SystemIOAnalyzer} and briefly mentions other optimization techniques as well.
 
 \subsection{SystemIOAnalyzer}
 After the initial versions of all analyzers were implemented, the first measurements showed that \texttt{SystemIOAnalyzer} is by far the slowest one. It took more than 18 seconds to run on the CMS solution, whereas almost all other analyzers executed in less than 0.3 seconds.
 
-This analyzer belongs to CMS API Replacement category and the motivation behind its existence is described in~\cite{system-io-motivation}. It forbids the access to all members from \texttt{System.IO} namespace, apart from \texttt{System.IO.IOException} and \texttt{System.IO.Stream} classes and their subclasses, plus \texttt{System.IO.SeekOrigin} enumeration. All other members of the namespace have CMS equivalents. They must be used instead to make sure that all parts of the product can work with virtual file systems (like  Azure or Amazon storage).
+This analyzer belongs to CMS API Replacement category and the motivation behind its existence is described in~\cite{system-io-motivation}. It forbids the access to all members from \texttt{System.IO} namespace, apart from \texttt{System.IO.IOException} and \texttt{System.IO.Stream} classes and their subclasses, plus \texttt{System.IO.SeekOrigin} enumeration. All other members of the namespace have CMS equivalents, that must be used instead to make sure that all parts of the product can work with virtual file systems (like  Azure or Amazon storage).
 
 \subsubsection{\textbf{Differences from Other CMS API Replacement Analyzers}}
-What makes this analyzer fundamentally different from all other analyzers in its category is, that instead of blacklisting particular members or methods from Microsoft API, it forbids the whole namespace (all classes, enums, methods, members, etc.) apart from few whitelisted, well defined, exceptions. Other analyzers in CMS API Replacement category can reliably cut off the analysis by looking at syntax and inspecting the name of the member or method. Since only certain member names are considered forbidden, vast majority of nodes will not make it past syntax check. 
+What makes this analyzer fundamentally different from all other analyzers in its category is, that instead of blacklisting particular members or methods from Microsoft API, it forbids the whole namespace (all classes, enums, methods, members, etc.) apart from few whitelisted, well defined, exceptions. Other analyzers in CMS API Replacement category can reliably cut off the analysis by looking at syntax and inspecting the name of a member or a method. Since only certain member names are considered forbidden, vast majority of nodes will only be anayzed on syntax level. 
 
 However, it would be infeasible for \texttt{SystemIOAnalyzer} to list all possibilities of forbidden API usage. Since there are only a few whitelisted exceptions in whole namespace, which can be skipped, in most cases, the analyzer needs to advance to perform more complicated and expensive analysis on symbols. It analyzes whether the symbol is defined in \texttt{System.IO} namespace (which for most cases will be false) and is not whitelisted. Only then it raises the diagnostic.
 
@@ -995,15 +995,20 @@ The very first version of the analyzer (hereafter referred to as V1), that had a
 
 First optimization attempts were to register the syntax node action within compilation start action and collect all diagnosed nodes in a bag. In the compilation end action, the diagnostics were raised for all collected nodes in a parallel for-loop. On average, this version of the analyzer performed almost 2-times faster than the V1 analyzer.
 
-However, as pointed out in multiple discussions of Roslyn team's GitHub repository~\cite{compilation-end-action-1, compilation-end-action-2}, registering compilation start action, with or even without compilation end action, can cause problems for large solutions, when performed as part of IDE live analysis. Not only can be the analyzer feedback delayed by several minutes, it might also lead to stale diagnostics in \textit{Error list} window.
+However, as pointed out in multiple discussions of Roslyn team's GitHub repository~\cite{compilation-end-action-1, compilation-end-action-2}, registering compilation start and its end action, can cause problems for large solutions. This holds particularly for IDE live analysis. Not only can be the analyzer's feedback delayed by several minutes, it might also lead to stale diagnostics in \textit{Error list} window.
 
-The next attempt was to minimize the number of actions that need to be invoked. The analyzer must inspect all 1.4 million identifier name nodes. It can either register its action on syntax node of this kind, as the previous versions did, or register a syntax tree action and look for identifier names on its own. This reduces the number of callbacks to at most 11,136 (number of documents). The logic, however, is more complicated, as the tree needs to be traversed in order to find the nodes. 
-On the other hand, if the document does not contain string \textit{".IO"} at all, there will be no diagnostic and its analysis can be skipped. The fastest version with syntax tree action took an average 7.4 seconds to perform the analysis. Even though it was 2.5-times faster than the V1, it still was not ideal.
+The next optimization approach was to minimize the number of actions that need to be invoked. The analyzer must inspect all 1.4 million identifier name nodes. It can either register its action on syntax node of this kind, as the previous versions did, or register a syntax tree action and look for identifier names on its own. This reduces the number of callbacks to at most 11,136 (number of documents). 
+
+The logic, however, is more complicated, as the tree needs to be traversed in order to find the nodes to be inspected. On the other hand, if the document does not contain string \textit{".IO"} at all, there will be no diagnostic and its analysis can be skipped. The fastest version with syntax tree action took an average 7.4 seconds to perform the analysis. Even though it was 2.5-times faster than the V1, it still was not ideal.
 
 \subsubsection{\textbf{The Final Version}}
 None of the versions described above provided a significant performance improvement compared to V1. To understand the limitations of the analysis, two artificial analyzers were created, that register an action on identifier name syntax nodes. The first one only registers an empty callback. The second one obtains the symbol of the inspected node from semantic model and then does a dummy comparison of its name\footnote{This is just to make sure that the compiler actually does not skip the semantic model access as part of an optimization, where obtained symbol is not needed used.}. None of the analyzers raise any diagnostic in CMS solution. 
 
-The results of these measurements are very interesting. While the empty callback took 0.53s on average\footnote{Trimmed average was used for these results, meaning that top and bottom 25\% of the results were discarded and the middle 50\% was used to compute an average.}, the analyzer that only accessed the semantic model to obtain a symbol run for 7.87 seconds. This clearly shows, that if the final version is to be faster, it must implement some heuristic, that allows to cut off the analysis of inspected node without need to access the semantic model.
+The results of these measurements are very interesting. While the empty callback took 0.53s on average\footnote{Trimmed average was used for these results, meaning that top and bottom 25\% of the results were discarded and the middle 50\% was used to compute an average.}, the second one run for an average of 7.87 seconds. 
+
+These measurement clearly show, that if the final version is to be faster, it must implement some heuristic, that allows to cut off the analysis of inspected node without need to access the semantic model. The analysis logic of the final solution is depicted by the activity diagram in Figure~\ref{fig:uml-system-io-activity-diagram}. 
+
+The most important steps of the whole optimization are the second and the third node of the diagram (inspection of containing syntax tree and the containing dotted expression\footnote{The \textit{outermost dotted expression of identifier name} is the outermost dotted expression of its parent, if the parent is of kind \texttt{QualifiedName} or \texttt{SimpleMemberAccessExpression}, or the node itself otherwise. For example, for identifier name \texttt{Stream} which is part of \texttt{System.IO.Stream}, the outermost dotted expression is the whole expression.}). They are performed purely on syntax and are extremely efficient in eliminating most of the irrelevant nodes. To prevent multiple inspections of same syntax tree for all its identifier name nodes, the information whether the tree contains \texttt{System.IO} using is cached in a concurrent dictionary.
 
 \begin{figure}
 		\centering
@@ -1012,7 +1017,8 @@ The results of these measurements are very interesting. While the empty callback
 		\label{fig:uml-system-io-activity-diagram}
 \end{figure}
 
-activity diagram
+This optimization technique managed to shrink the analyzer's execution time on CMS solution to an average 1.29 seconds\footnote{Note that this number was obtained from 100 MSBuild runs MSBuild of CMS solution with NuGet package containing various versions of \texttt{SystemIOAnalyzer} only. Therefore, this result may differ from execution time of the analyzer when run with different set of analyzers. This is due to the fact, that Roslyn might cache the results of queries to semantic model.}. 
+
 boxplots
 tell why the dictionary needs to be stored per compilation
 \subsection{Other Optimizations}
