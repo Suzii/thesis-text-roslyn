@@ -972,22 +972,42 @@ The procedure described in the previous section was used to measure and compare 
 
 The slowest analyzers were iteratively optimized and speed of different versions was also compared using the \textit{Report-Analyzer.ps1} script. The versions that performed the best where then integrated into the final NuGet package.
 
-\subsection{System.IO Analyzer}
-After the initial versions of all analyzers were implemented, the first measurements showed that \texttt{SystemIOAnalyzer} is by far the slowest one. It took more than 15 seconds to run on CMS solution, whereas almost all other analyzers executed in less than 0.3 seconds.
+This section presents the most interesting optimization that was done on \texttt{SystemIOAnalyzer} and briefly mentions other optimization techniques as well.
 
-This analyzer belongs to CMS API Replacement category and the motivation behind its existence is described in~\cite{system-io-motivation}. It forbids the access to all members from \texttt{System.IO} namespace, apart from \texttt{System.IO.IOException} and \texttt{System.IO.Stream} classes and their subclasses, plus \texttt{System.IO.SeekOrigin} enumeration. All other members of the namespace have CMS equivalents. They must be used instead to make sure that all parts of the product can work with virtual file systems (for example Azure storage).
+\subsection{SystemIOAnalyzer}
+After the initial versions of all analyzers were implemented, the first measurements showed that \texttt{SystemIOAnalyzer} is by far the slowest one. It took more than 18 seconds to run on the CMS solution, whereas almost all other analyzers executed in less than 0.3 seconds.
+
+This analyzer belongs to CMS API Replacement category and the motivation behind its existence is described in~\cite{system-io-motivation}. It forbids the access to all members from \texttt{System.IO} namespace, apart from \texttt{System.IO.IOException} and \texttt{System.IO.Stream} classes and their subclasses, plus \texttt{System.IO.SeekOrigin} enumeration. All other members of the namespace have CMS equivalents. They must be used instead to make sure that all parts of the product can work with virtual file systems (like  Azure or Amazon storage).
 
 \subsubsection{\textbf{Differences from Other CMS API Replacement Analyzers}}
-What makes this analyzer fundamentally different from all other analyzers in its category is, that instead of blacklisting particular members or methods from Microsoft API, it forbids the whole namespace (all classes, enums, methods, members, etc.) apart from few whitelisted, well defined, exceptions. Other analyzers in CMS API Replacement category can reliably cut off the analysis by looking at syntax and inspecting the name of the member or method. Since only certain member names are considered forbidden, vast majority of nodes will not make it past syntax check. However, this is impossible for \texttt{SystemIOAnalyzer}. Since there are only a few whitelisted exceptions in whole namespace, in most cases, the analyzer needs to advance to perform more complicated and expensive analysis on symbols, in order to confirm that the inspected node is really forbidden, which in most cases it will not be anyway.
+What makes this analyzer fundamentally different from all other analyzers in its category is, that instead of blacklisting particular members or methods from Microsoft API, it forbids the whole namespace (all classes, enums, methods, members, etc.) apart from few whitelisted, well defined, exceptions. Other analyzers in CMS API Replacement category can reliably cut off the analysis by looking at syntax and inspecting the name of the member or method. Since only certain member names are considered forbidden, vast majority of nodes will not make it past syntax check. 
+
+However, it would be infeasible for \texttt{SystemIOAnalyzer} to list all possibilities of forbidden API usage. Since there are only a few whitelisted exceptions in whole namespace, which can be skipped, in most cases, the analyzer needs to advance to perform more complicated and expensive analysis on symbols. It analyzes whether the symbol is defined in \texttt{System.IO} namespace (which for most cases will be false) and is not whitelisted. Only then it raises the diagnostic.
 
 Unlike other analyzes in the category, that are bound to member access expressions or invocation expressions, the \texttt{SystemIOAnalyzer} must inspect all syntax nodes of kind \texttt{IdentifierName}. As can be seen in Table~\ref{tab:solution-statistics}, there are more than 1.4 million such nodes. 
 
-Since in most cases the analyzer advances to semantic analysis, its performance is a lot worse than the performance of other anlyzers, that not only have fewer nodes to inspect, but are also able to eliminate most of them just by syntax.
+Since in most cases the analyzer advances to semantic analysis, its performance is a lot worse than the performance of other anlyzers. Those not only have fewer nodes to inspect, but are also able to eliminate most of them just by syntax.
 
 \subsubsection{\textbf{Different versions of SystemIOAnalyzer}}
-tell about some limits (EmptyCallback, direct SemanticModelAccess...)
-Heuristics applied
-final approach
+TODO rewrite to past tense
+
+The very first version of the analyzer (hereafter referred to as V1), that had action registered on syntax node of kind \texttt{IdentifierName}, run more than 18 seconds on the CMS solution. It accessed the semantic model straight away in order to perform the analysis on symbols.
+
+First optimization attempts were to register the syntax node action within compilation start action and collect all diagnosed nodes in a bag. In the compilation end action, the diagnostics were raised for all collected nodes in a parallel for-loop. On average, this version of the analyzer performed almost 2-times faster than the V1 analyzer.
+
+However, as pointed out in multiple discussions of Roslyn team's GitHub repository~\cite{compilation-end-action-1, compilation-end-action-2}, registering compilation start action, with or even without compilation end action, can cause problems for large solutions, when performed as part of IDE live analysis. Not only can be the analyzer feedback delayed by several minutes, it might also lead to stale diagnostics in \textit{Error list} window.
+
+The next attempt was to minimize the number of actions that need to be invoked. The analyzer must inspect all 1.4 million identifier name nodes. It can either register its action on syntax node of this kind, as the previous versions did, or register a syntax tree action and look for identifier names on its own. This reduces the number of callbacks to at most 11,136 (number of documents). The logic, however, is more complicated, as the tree needs to be traversed in order to find the nodes. 
+On the other hand, if the document does not contain string \textit{".IO"} at all, there will be no diagnostic and its analysis can be skipped. The fastest version with syntax tree action took an average 7.4 seconds to perform the analysis. Even though it was 2.5-times faster than the V1, it still was not ideal.
+
+\subsubsection{\textbf{The Final Version}}
+None of the versions described above provided a significant performance improvement compared to V1. To understand the limitations of the analysis, two artificial analyzers were created, that register an action on identifier name syntax nodes. The first one only registers an empty callback. The second one obtains the symbol of the inspected node from semantic model and then does a dummy comparison of its name\footnote{This is just to make sure that the compiler actually does not skip the semantic model access as part of an optimization, where obtained symbol is not needed used.}. None of the analyzers raise any diagnostic in CMS solution. 
+
+The results of these measurements are very interesting. While the empty callback took 0.53s on average\footnote{Trimmed average was used for these results, meaning that top and bottom 25\% of the results were discarded and the middle 50\% was used to compute an average.}, the analyzer that only accessed the semantic model to obtain a symbol run for 7.87 seconds. This clearly shows, that if the final version is to be faster, it must implement some heuristic, that allows to cut off the analysis of inspected node without need to access the semantic model.
+
+
+activity diagram
+boxplots
 tell why the dictionary needs to be stored per compilation
 \subsection{Other Optimizations}
 Just quickly mention other optimizations 
