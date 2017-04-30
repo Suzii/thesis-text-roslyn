@@ -1005,6 +1005,12 @@ None of the versions described above provided a significant performance improvem
 
 The results of these measurements are very interesting. While the empty callback took 0.53s on average\footnote{Trimmed average was used for these results, meaning that top and bottom 25\% of the results were discarded and the middle 50\% was used to compute an average.}, the analyzer that only accessed the semantic model to obtain a symbol run for 7.87 seconds. This clearly shows, that if the final version is to be faster, it must implement some heuristic, that allows to cut off the analysis of inspected node without need to access the semantic model.
 
+\begin{figure}
+		\centering
+			\includegraphics[scale=0.98]{img/uml/system-io-activity-diagram}
+		\caption{Activity diagram of \texttt{SystemIOAnalyzer} action.}
+		\label{fig:uml-system-io-activity-diagram}
+\end{figure}
 
 activity diagram
 boxplots
