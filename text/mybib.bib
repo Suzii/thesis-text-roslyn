@@ -1,90 +1,192 @@
 @IEEEtranBSTCTL{IEEEexample:BSTcontrol,
   CTLdash_repeated_names = "no"
 }
-% ??? Alfred V. Aho and Monica S. Lam and Jeffrey D. Ullman and Ravi Sethi
+% TODO:
+% - is "Roslyn Team" okay as an author???
+
+%% ============ CH2: COMPILERS ============
+% OK
 @Book{dragon-book,
  author 	= {Alfred V. Aho and Monica S. Lam and Jeffrey D. Ullman and Ravi Sethi},
  title 		= {Compilers: Principles, Techniques, and Tools (2nd Edition)},
- publisher 	= {Addison Wesley},
+ publisher= {Addison Wesley},
  year 		= {2006},
  isbn 		= {978-0321486813}
 }
 
-@ONLINE {compilation-end-action-1,
-URL = https://github.com/dotnet/roslyn/issues/1541
-
+%% =================== CH3: SCA ========================
+% OK
+@Book{secure-programming-with-sca, 
+Author    = {Brian Chess and Jacob West},
+Title     = {{Secure Programming with Static Analysis (Addison-Wesley Software Security Series)}},
+Publisher = {Addison-Wesley},
+Year      = {2007},
+ISBN      = {0-321-42477-8}
 }
 
-@ONLINE {compilation-end-action-2,
-URL = https://github.com/dotnet/roslyn/issues/3748#issuecomment-225501439}
+% OK
+@ONLINE{oswap-sca, 
+Author    = {Ryan Dewhurst},
+Title     = {{S}tatic {C}ode {A}nalysis},
+Year      = {2017},
+Urldate   = {2017-02-22},
+URL       = {https://www.owasp.org/index.php/Static_Code_Analysis}
+}
 
-%@ONLINE {best-practices-for-using-strings-in-dot-net,
-%URL = https://msdn.microsoft.com/en-us/library/dd465121(v=vs.110).aspx }
-%
-%@ONLINE {analyzer-action-semantics,
-%URL = https://github.com/dotnet/roslyn/blob/master/docs/analyzers/Analyzer\%20Actions\%20Semantics.md }
-%
-%@ONLINE {report-analyzer,
-%URL = https://github.com/dotnet/roslyn/blob/master/docs/analyzers/Report%20Analyzer%20Format.md }
+% ???????
+@Unpublished{sca-ppt, 
+Author    = {Paul R. Croll},
+Title     = {{Static Code Analysis: Best Practices for Software Assurance in the Acquisition Life Cycle}},
+Note      = {Presented at Annual NDIA Systems Engineering Conference},
+Year      = {2009},
+Month     = {10}
+}
 
+% OK
+@Article {sca-for-security,
+Author    = {Brian Chess AND Gary McGraw},
+Title     = {{S}tatic {A}nalysis for {S}ecurity},
+Journal   = {IEEE Security and Privacy},
+Year      = {2004},
+Pages     = {32-35}
+}
 
-%% ----SOFTWARE QUALITY AND STATIC CODE ANALYSIS -----
-%@Book {software-engineering-practicioners-approach, }
+% OK
+@Article {coverity-sca, 
+Author    = {Al Bessey AND Ken Block AND Ben Chelf AND Andy Chou AND Bryan Fulton AND Seth Hallem AND Charles Henri-Gros AND Asya Kamsky AND Scott McPeak AND Dawson Engler},
+Title     = {{A Few Billion Lines of Code Later: Using Static Analysis to Find Bugs in the Real World}},
+Journal   = {Communications of the ACM},
+Year      = {2010},
+Volume    = {53},
+Number    = {2},
+Pages     = {66-75}
+}
 
-%@Book {code-complete, }
+@Book {software-engineering-practicioners-approach, 
+Author    = {Roger Pressman},
+Title     = {{Software Engineering: A Practitioner's Approach (Seventh Edition)}},
+Publisher = {McGraw-Hill Education},
+Year      = {2009}
+}
 
-%@ONLINE{oswap-sca, }
+% OK
+@Book {code-complete, 
+Author    = {Steve McConnell},
+Title     = {{C}ode {C}omplete ({D}eveloper {B}est {P}ractices)},
+Publisher = {Microsoft Press},
+Year      = {2004},
+ISBN      = {0-7356-1967-0}
+}
 
-%@Paper{sca-ppt, }
-%@Paper{coverity-sca, }
-%@Paper{security-programming-sca, }
-
-%@Book{secure-programming-with-sca, }
-
+% OK
 @ONLINE {resharper-and-roslyn-qa, 
-URL = {https://blog.jetbrains.com/dotnet/2014/04/10/resharper-and-roslyn-qa/}}
-
-%@Paper{direct-proofs-of-rices-theorem,
-%AUTHOR = {Armando B. Matos},
-%TITLE = {{Direct proofs of Rice’s Theorem}}
-%URLDATE = {2017-03-20},
-%YEAR= {2015}
+AUTHOR    = {Jura Gorohovsky},
+TITLE     = {{R}e{S}harper and {R}oslyn: {Q\&A}},
+YEAR      = {2014},
+URLDATE   = {2017-03-19},
+URL = {https://blog.jetbrains.com/dotnet/2014/04/10/resharper-and-roslyn-qa}
 }
 
-%% -------------------- ROSLYN -----------------------
-% Author???
-@ONLINE{roslyn-overview-github,
+@Techreport {direct-proofs-of-rices-theorem,
+AUTHOR = {Armando B. Matos},
+TITLE = {{Direct proofs of Rice’s Theorem}},
+INSTITUTION = {University of Porto},
+URLDATE = {2017-03-20},
+YEAR= {2015}
+}
+
+%% ==================== CH4: ROSLYN ========================
+% OK
+@ONLINE{roslyn-overview,
 AUTHOR 		= {{Roslyn Team}},
-TITLE 		= {{.NET Compiler Platform ("Roslyn") Overview}},
-YEAR 		= {2016},
-URLDATE		= {2015-02-25},
-URL			= {https://github.com/dotnet/roslyn/wiki/Roslyn%20Overview}
+TITLE     = {{R}oslyn {O}verview},
+SUBTITLE  = {{.NET Compiler Platform ("Roslyn") Overview}},
+YEAR 		  = {2016},
+URLDATE		= {2017-02-25},
+URL		    = {https://github.com/dotnet/roslyn/wiki/Roslyn%20Overview}
 }
 
-% ISBN???
+% OK
 @Book{roslyn-succinctly,
  author 	= {Del Sole, Alessandro},
  title 		= {Roslyn Succinctly},
- publisher 	= {Syncfusion},
+ publisher= {Syncfusion},
  year 		= {2016},
  address 	= {2501 Aerial Center Parkway, Suite 200, Morrisville, NC 27560, USA},
- isbn 		= {}
+ isbn 		= {978-1542827102}
 }
 
+% OK
 @Book{source-code-analytics-with-roslyn,
- author 	= {Mukherjee, Sudipta},
- title 		= {Source Code Analytics With Roslyn and JavaScript Data Visualization},
- publisher 	= {Apress},
+ author 	= {Sudipta Mukherjee},
+ title 		= {{S}ource {C}ode {A}nalytics {W}ith {R}oslyn and {J}ava{S}cript {D}ata {V}isualization},
+ publisher= {Apress},
  year 		= {2016},
  address 	= {233 Spring Street, 6th Floor, New York, NY 10013},
  isbn 		= {978-1-4842-1925-6}
 }
 
+% OK
 @Book{dot-net-development-using-the-compiler-api,
- author 	= {Bock, Jason},
- title 		= {.NET Development Using the Compiler API},
- publisher 	= {Apress},
+ author 	= {Jason Bock},
+ title 		= {{.NET Development Using the Compiler API}},
+ publisher= {Apress},
  year 		= {2016},
  address 	= {233 Spring Street, 6th Floor, New York, NY 10013},
  isbn 		= {978-1-4842-2111-2}
+}
+
+% ====================== CH5 + CH6 ======================
+% OK
+@ONLINE {system-io-motivation,
+AUTHOR   = {Jana Pelclova},
+TITLE    = {{Working with physical files using the API}},
+YEAR     = {2014},
+URLDATE  = {2017-03-27},
+URL      = {https://docs.kentico.com/k10/custom-development/working-with-physical-files-using-the-api}
+}
+
+% OK
+@ONLINE {analyzer-action-semantics,
+AUTHOR    = {Srivatsn Narayanan},
+TITLE     = {{Analyzer} {A}ctions {S}emantics},
+YEAR      = {2015},
+URLDATE   = {2017-03-31},
+URL       = {https://github.com/dotnet/roslyn/blob/master/docs/analyzers/Analyzer%20Actions%20Semantics.md}
+}
+
+% OK
+@ONLINE {report-analyzer,
+AUTHOR    = {Manish Vasani},
+TITLE     = {{R}eport {A}nalyzer {F}ormat},
+YEAR      = {2016},
+URLDATE   = {2017-03-31},
+URL       = {https://github.com/dotnet/roslyn/blob/master/docs/analyzers/Report%20Analyzer%20Format.md}
+}
+
+% OK
+@ONLINE {compilation-end-action-1,
+AUTHOR 		= {Manish Vasani},
+TITLE 		= {Stale compilation end action diagnostics during editing},
+YEAR 		  = {2015},
+URLDATE		= {2017-04-30},
+URL       = {https://github.com/dotnet/roslyn/issues/1541}
+}
+
+% OK
+@ONLINE {compilation-end-action-2,
+AUTHOR 		= {{Roslyn Team}},
+TITLE 		= {Report Diagnostics in Partial Classes},
+YEAR 		  = {2015},
+URLDATE		= {2017-04-30},
+URL = {https://github.com/dotnet/roslyn/issues/3748#issuecomment-225501439}
+}
+
+% OK
+@ONLINE {best-practices-for-using-strings-in-dot-net,
+AUTHOR    = {Microsoft},
+TITLE 		= {{B}est {P}ractices for {U}sing {S}trings in the {.NET} {F}ramework},
+YEAR 		  = {2012},
+URLDATE		= {2017-03-31},
+URL       = {https://msdn.microsoft.com/en-us/library/dd465121(v=vs.110).aspx}
 }

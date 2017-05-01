@@ -82,7 +82,7 @@ TODO...
 %What is code quality, why is it important, tool that support it.. compilers, diversion ... aaaand here comes Roslyn which provides compiler as a platform.  
 %
 % --- Compilers + Roslyn ---
-%In~the~.NET world, the~compiler used~to~be a~black box that given the~file paths to~the~source text, produced an~executable. In~order~to do that, compiler has to collect large amount of~information about the~code it is processing. This knowledge, however, was unavailable to~anyone but the~compiler itself and it was immediately forgotten once the~translated output was produced~\cite{roslyn-overview-github}. 
+%In~the~.NET world, the~compiler used~to~be a~black box that given the~file paths to~the~source text, produced an~executable. In~order~to do that, compiler has to collect large amount of~information about the~code it is processing. This knowledge, however, was unavailable to~anyone but the~compiler itself and it was immediately forgotten once the~translated output was produced~\cite{roslyn-overview}. 
 %
 %Why is this an~issue when for decades this black-boxes served us well? Programmers are increasingly becoming reliant~upon the~powerful integrated development environments (IDEs). Features like IntelliSense, intelligent rename, refactoring or~"Find all references" are key~to~developers' productivity; and~even more so in~an~enterprise-size systems. 
 %
@@ -248,7 +248,7 @@ The following chapters on static code analysis and .NET compiler platform will b
 % =================================================================
 \chapter{Static Code Analysis}
 \label{chap:static-code-analysis}
-Static code analysis refers to a~process of assessing the~program based on its form, structure, content and documentation and reasoning over its possible behaviours without actually executing the~code. The aim of static analysis is to check the~compliance to specific rules and identify parts of the~program that might lead to possible vulnerabilities. The term static code analysis is mostly used when speaking of an~automated tool. In contrast, \textit{code inspections} or \textit{code reviews} are performed by humans and can benefit from using static code analysis tools~\cite{oswap-sca, ppt-sca}.
+Static code analysis refers to a~process of assessing the~program based on its form, structure, content and documentation and reasoning over its possible behaviours without actually executing the~code. The aim of static analysis is to check the~compliance to specific rules and identify parts of the~program that might lead to possible vulnerabilities. The term static code analysis is mostly used when speaking of an~automated tool. In contrast, \textit{code inspections} or \textit{code reviews} are performed by humans and can benefit from using static code analysis tools~\cite{oswap-sca, sca-ppt}.
 
 % \section{Why}
 % Describe why not only testig, differences, what is code quality
@@ -301,7 +301,7 @@ There are many tools for static code analysis and each can analyze different fla
 \begin{figure}[h!]
 		\centering
 			\includegraphics[scale=0.75]{img/static-code-analysis-internals}
-		\caption{The process of static analysis (adopted from~\cite{secure-programming-sca})}
+		\caption{The process of static analysis (adopted from~\cite{secure-programming-with-sca})}
 		\label{fig:static-code-analysis-internals}
 \end{figure}
 
@@ -327,10 +327,10 @@ As stated in~\cite{sca-for-security}: \textit{"...if a~rule hasn’t been writte
 \subsection{Report the~Results}
 An often overlooked part of the~static analysis is the~result reporting. The~\cite{coverity-sca} asserts, that if a~programmer cannot understand the~output of the~static analysis, the~results are effectively useless as misunderstood explanation ends up with error being ignored or, worse, interpreted as a~false positive.
 
-As discussed in~\cite{security-programming-sca}, good static analysis tool should provide means of \textit{grouping and sorting} the~results, \textit{suppressing the~unwanted results} (either directly in the~code with pragmas or code annotations or alternatively in a~configuration file) and mainly \textit{explaining the~results}. Every issue that is detected by the~tool should provide a~short title followed by a~detailed description of the~problem, severity of the~issue, recommendations on how the~problem can be fixed and possible further references to the~topic. The tool can additionally provide a~confidence level estimating the~likelihood that the~finding is really correct.
+As discussed in~\cite{secure-programming-with-sca}, good static analysis tool should provide means of \textit{grouping and sorting} the~results, \textit{suppressing the~unwanted results} (either directly in the~code with pragmas or code annotations or alternatively in a~configuration file) and mainly \textit{explaining the~results}. Every issue that is detected by the~tool should provide a~short title followed by a~detailed description of the~problem, severity of the~issue, recommendations on how the~problem can be fixed and possible further references to the~topic. The tool can additionally provide a~confidence level estimating the~likelihood that the~finding is really correct.
 
 \section{What Problems Can Be Solved by SCA}
-There are different types of problems the~static analysis tool can tackle. This section enumerates some of the~categories applicable to static code analysis, as listed in~\cite{secure-programming-sca}.
+There are different types of problems the~static analysis tool can tackle. This section enumerates some of the~categories applicable to static code analysis, as listed in~\cite{secure-programming-with-sca}.
 
 \subsubsection{\textbf{Type Checking}}
 The integral part of every compiler for statically typed language. Rules are typically implied by the~language itself.
@@ -446,7 +446,7 @@ The Roslyn's architecture consists of two main layers - Compiler and Workspaces 
 \begin{figure}[h!]
 		\centering
 			\includegraphics[scale=0.85]{img/roslyn-compiler-architecture}
-		\caption{.NET Compiler Platform Architecture~\cite{roslyn-succincly}}
+		\caption{.NET Compiler Platform Architecture~\cite{roslyn-succinctly}}
 		\label{fig:roslyn-compiler-architecture}
 \end{figure}
 
@@ -1104,7 +1104,6 @@ Questionares sent to development team, feedback from senior developers...
 % =========================== BIBLIOGRAPHY ========================
 % =================================================================
   \printbibliography
-
 % =================================================================
 % ============================ APPENDICES =========================
 % =================================================================    
