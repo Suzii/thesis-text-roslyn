@@ -121,8 +121,8 @@ The two main steps of compilation process internally consist of different phases
 
 \begin{figure}[h!]
 		\centering
-			\includegraphics[scale=0.75]{img/compiler-phases}
-		\caption{TODO: Phases of the~compiler~\cite{dragon-book}}
+			\includegraphics[scale=0.80]{img/compiler-phases}
+		\caption{The~compiler~phases, adopted from~\cite{dragon-book}}
 		\label{fig:compiler-phases}
 \end{figure}
 
@@ -300,8 +300,8 @@ There are many tools for static code analysis and each can analyze different fla
 
 \begin{figure}[h!]
 		\centering
-			\includegraphics[scale=0.90]{img/static-code-analysis-internals}
-		\caption{The process of static analysis, adopted from~\cite{secure-programming-sca}}
+			\includegraphics[scale=0.75]{img/static-code-analysis-internals}
+		\caption{The process of static analysis (adopted from~\cite{secure-programming-sca})}
 		\label{fig:static-code-analysis-internals}
 \end{figure}
 
@@ -433,19 +433,19 @@ Roslyn compilers expose an~API layer that mirrors the~traditional compiler pipel
 
 \begin{figure}[h!]
 		\centering
-			\includegraphics[scale=0.5]{img/roslyn-compiler-pipeline}
-		\caption{Compiler pipeline~\cite{roslyn-overview}}
+			\includegraphics[scale=0.85]{img/roslyn-compiler-pipeline}
+		\caption{Compiler pipeline (adopted from~\cite{roslyn-overview})}
 		\label{fig:roslyn-compiler-pipeline}
 \end{figure}
 
-In each phase, the~.NET Compiler Platform creates an~object model containing gathered information and exposes it through the~API in form of .NET objects. These objects are also used internally by Visual Studio~\footnote{The new generation of Visual Stuio leveraging from the~Roslyn compiler are called vNext and first one was VS 2015.} to support basic IDE functionality. For instance \textbf{syntax tree}, that is the~result of the~parse phase, is used to support formatting and colorizing the~code in the~editor. The result of the~second phase -- \textbf{hierarchical symbol table}, is the~basis for \textit{Object browser} and \textit{Navigate~to} functionality. Binding phase is represented as an~\textbf{object model that exposes the~result of the~semantic analysis} and is utilized in \textit{Find all~references} or \textit{Go~to~definition}. Finally, the~Emit phase produces the~Intermediate Language (IL) byte codes and is also used for \textit{Edit and~Continue} feature~\cite{roslyn-overview}.
+In each phase, the~.NET Compiler Platform creates an~object model containing gathered information and exposes it through the~API in form of .NET objects. These objects are also used internally by Visual Studio~\footnote{The new generation of Visual Stuio leveraging from the~Roslyn compiler are called vNext and the first one was VS 2015.} to support basic IDE functionality. For instance \textbf{syntax tree}, that is the~result of the~parse phase, is used to support formatting and colorizing the~code in the~editor. The result of the~second phase -- \textbf{hierarchical symbol table}, is the~basis for \textit{Object browser} and \textit{Navigate~to} functionality. Binding phase is represented as an~\textbf{object model that exposes the~result of the~semantic analysis} and is utilized in \textit{Find all~references} or \textit{Go~to~definition}. Finally, the~Emit phase produces the~Intermediate Language (IL) byte codes and is also used for \textit{Edit and~Continue} feature~\cite{roslyn-overview}.
 
 \section{The .NET Compiler Platform's Architecture}
 The Roslyn's architecture consists of two main layers - Compiler and Workspaces APIs, and one secondary layer - Features API, as seen on Figure~\ref{fig:roslyn-compiler-architecture}.
 
 \begin{figure}[h!]
 		\centering
-			\includegraphics[scale=0.6]{img/roslyn-compiler-architecture}
+			\includegraphics[scale=0.85]{img/roslyn-compiler-architecture}
 		\caption{.NET Compiler Platform Architecture~\cite{roslyn-succincly}}
 		\label{fig:roslyn-compiler-architecture}
 \end{figure}
@@ -454,7 +454,7 @@ One of the~key concepts of .NET Compiler Platform is immutability. The compiler 
 
 The immutability enables the~compiler to perform parallel work without need to create duplicate objects or apply any locks on them. This concept is useful for the~command line compiler but it is considered extremely important for IDEs where it enables for one document to be handled by multiple analyzers in parallel.
 
-\subsection{The Compiler APIs}
+\subsection{Compiler APIs}
 As discussed in the~previous section, the~Compiler APIs offer an~object model representing the~results of syntactic and semantic analysis produced by the~respective phases of the~compiler pipeline. Moreover, it also includes an~immutable snapshot of a~single compiler invocation, along with assembly references, compiler options, and source files. This layer is agnostic of any Visual Studio components, and as such can be used in stand-alone applications as well. There are two separate, though very similar, APIs for Visual Basic and C\#, each providing functionality tailored for specific language nuances.
 
 \subsubsection{\textbf{Diagnostic APIs}}
@@ -480,7 +480,7 @@ Figure~\ref{fig:roslyn-syntax-tree} shows a~syntax tree of an~invocation express
 
 \begin{figure}[h!]
 		\centering
-			\includegraphics[scale=0.8]{img/roslyn-syntax-tree-2}
+			\includegraphics[scale=0.85]{img/roslyn-syntax-tree}
 		\caption{Syntax tree of an~invocation expression}
 		\label{fig:roslyn-syntax-tree}
 \end{figure}
@@ -928,6 +928,12 @@ Number of syntax nodes        & 6,279,993 \\
 % ---------------------------------------------------
 
 \section{Measuring the Performance}
+Start with Clearly stating the goal of the measurements. Only then define the metric (To define a goal have a look at slides 66+) ... where the measurements were conducted (developer machine i5, 16GB of ram)
+Goal-Question-Metric
+
+"I would maybe rewrite this in more accurate form, in the sense that when measuring performance in an empirical way one needs to consider several runs and define a-priori some statistical measures (e.g. discarding all values +/- stand deviation from the mean). Results will always be an approximation, but given large number of runs they should approximate quite well  "
+
+"It might be useful, I would see this section that starts with the problems of measuring performance in a rigorous/objective way, lists the common problems, but then discusses the approach taken. In the approach taken, I would also mention what you decided to consider as number of runs and ways to reduce the impact of outliers. Some Activity or sequence diagram could be useful"
 --------- TODO - rewrite??? -------
 
 Measuring the performance is always tricky regardless of the domain. When one wants to measure performance of something as complicated as code analysis plugged into the compilation process, there is a big probability something will go wrong and result will not be accurate.
@@ -1000,15 +1006,15 @@ The logic, however, is more complicated, as the tree needs to be traversed in or
 \subsubsection{\textbf{The Final Version}}
 None of the versions described above provided a significant performance improvement compared to V1. To understand the limitations of the analysis, two artificial analyzers were created, that registered an action on identifier name syntax nodes. The first one only registered an empty callback. The second one obtained the symbol of the inspected node from the semantic model and then did a dummy comparison of its name\footnote{This was just to make sure that the compiler actually did not skip the semantic model access as part of an optimization, if the obtained symbol had not been used at all.}. Neither analyzer raised any diagnostic in CMS solution. 
 
-The results of these measurements were very interesting. While the empty callback took mostly less than 0.5s \footnote{TODO: DO WE WANT THIS OR REAL AVERAGE?? Trimmed average was used for these results, meaning that top and bottom 25\% of the results were discarded and the middle 50\% was used to compute an average.}, the second one run for an average of 7.9 seconds. 
+The results of these measurements were very interesting. While the empty callback took 0.54 seconds on average \footnote{Presented values are averages from 100 runs. The box plots can be seen in~Figure~\ref{fig:system-io-versions-boxplots}.}, the second one run for an average of 7.89 seconds. 
 
 These measurement clearly showed, that if the final version was to be faster, it had to implement some heuristic, that would allow to cut off the analysis of inspected node without need to access the semantic model. The analysis logic of the final solution is depicted by the activity diagram in Figure~\ref{fig:uml-system-io-activity-diagram}. 
 
 The most important steps of the whole optimization are the second and the third node of the diagram (inspection of containing syntax tree and containing dotted expression\footnote{The \textit{outermost dotted expression of identifier name} is the outermost dotted expression of its parent, if the parent is of kind \texttt{QualifiedName} or \texttt{SimpleMemberAccessExpression}, or the node itself otherwise. For example, for identifier name \texttt{Stream} which is part of \texttt{System.IO.Stream}, the outermost dotted expression is the whole expression.}). They are performed purely on syntax and are extremely efficient in eliminating most of the irrelevant nodes. 
 
-To prevent multiple inspections of same syntax tree for all its identifier name nodes, the information whether the tree contains \texttt{System.IO} using is cached in a concurrent dictionary. This optimization technique managed to shrink the analyzer's execution time on CMS solution to an average 2.36 seconds, whereas the non-cached version took over 10 seconds. 
+To prevent multiple inspections of same syntax tree for all its identifier name nodes, the information whether the tree contains \texttt{System.IO} using is cached in a concurrent dictionary. This optimization technique managed to shrink the analyzer's execution time on CMS solution to an average 2.40 seconds, whereas the non-cached version took over 10.94 seconds. 
 
-The execution times of final analyzer (with uncached version as well), V1 analyzer and artifical baseline abnalyzers are depicted in a box plot diagram in Figure~\ref{fig:system-io-versions-boxplots}.
+The execution times of final analyzer (with non-cached version as well), V1 analyzer and artificial abnalyzers serving as baselines are depicted in a box plot diagram in Figure~\ref{fig:system-io-versions-boxplots}.
 
 \begin{figure}
 		\centering
@@ -1016,7 +1022,6 @@ The execution times of final analyzer (with uncached version as well), V1 analyz
 		\caption{TODO change labels. Box plots of execution times of different versions of \texttt{SystemIOAnalyzer}.}
 		\label{fig:system-io-versions-boxplots}
 \end{figure}
-
 
 \begin{figure}
 		\centering
@@ -1039,6 +1044,13 @@ how not using the generic MethodInvocationAnalyzer influenced the results
 
 \section{BugHunter Analyzers vs Original BugHunter Build Times}
 Compare multiple builds w/o BH, old and new versions... Is it significantly slower??
+
+\begin{figure}
+		\centering
+			\includegraphics[scale=0.26]{img/build-time-boxplots}
+		\caption{Box plots comparing of CMS solution build time without any analyzers compared to build time with BugHunter analyzers. 100 runs.}
+		\label{fig:build-times-boxplots}
+\end{figure}
 
 \section{Performance Consideration for Large Solutions}
 https://github.com/dotnet/roslyn/wiki/Performance-considerations-for-large-solutions
