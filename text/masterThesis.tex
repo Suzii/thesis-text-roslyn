@@ -1006,9 +1006,17 @@ These measurement clearly showed, that if the final version was to be faster, it
 
 The most important steps of the whole optimization are the second and the third node of the diagram (inspection of containing syntax tree and containing dotted expression\footnote{The \textit{outermost dotted expression of identifier name} is the outermost dotted expression of its parent, if the parent is of kind \texttt{QualifiedName} or \texttt{SimpleMemberAccessExpression}, or the node itself otherwise. For example, for identifier name \texttt{Stream} which is part of \texttt{System.IO.Stream}, the outermost dotted expression is the whole expression.}). They are performed purely on syntax and are extremely efficient in eliminating most of the irrelevant nodes. 
 
-To prevent multiple inspections of same syntax tree for all its identifier name nodes, the information whether the tree contains \texttt{System.IO} using is cached in a concurrent dictionary. This optimization technique managed to shrink the analyzer's execution time on CMS solution to an average 2.36 seconds, whereas the non-cached version took over 10 seconds. The execution times of selected versions are depicted in a box plot diagram in Figure~\ref{fig:system-io-versions-boxplots}.
+To prevent multiple inspections of same syntax tree for all its identifier name nodes, the information whether the tree contains \texttt{System.IO} using is cached in a concurrent dictionary. This optimization technique managed to shrink the analyzer's execution time on CMS solution to an average 2.36 seconds, whereas the non-cached version took over 10 seconds. 
 
-TODO: box plots
+The execution times of final analyzer (with uncached version as well), V1 analyzer and artifical baseline abnalyzers are depicted in a box plot diagram in Figure~\ref{fig:system-io-versions-boxplots}.
+
+\begin{figure}
+		\centering
+			\includegraphics[scale=0.175]{img/system-io-versions-boxpolt-1}
+		\caption{TODO change labels. Box plots of execution times of different versions of \texttt{SystemIOAnalyzer}.}
+		\label{fig:system-io-versions-boxplots}
+\end{figure}
+
 
 \begin{figure}
 		\centering
@@ -1016,8 +1024,6 @@ TODO: box plots
 		\caption{Activity diagram of \texttt{SystemIOAnalyzer} action.}
 		\label{fig:uml-system-io-activity-diagram}
 \end{figure}
-
-TODO: tell why the dictionary needs to be stored per compilation
 
 \subsection{Other Optimizations}
 Just quickly mention other optimizations 
