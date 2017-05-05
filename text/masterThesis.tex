@@ -790,21 +790,11 @@ This step exists purely for performance optimization reasons and cannot be overr
 Since there are no constraints for what kind of syntax node the~\texttt{Expression} property of the~\texttt{InvocationExpressionSyntax} node could be, the~logic had to be implemented by hand. The heuristc inspects these three cases:
 \begin{itemize}
   \item \textbf{Identifier name} -- the~simplest case where the~method being invoked is a~member of the~enclosing class.
-
-  TODO example + graph
-  
-  \item \textbf{Simple member access expression} -- invocation on member that is being accessed on object, or class. Accesses can be possibly chained.
-  
-  TODO example + graph 
     
-  \item \textbf{Conditional access expression} -- similar to the~previous case but the~access is conditional. The whole syntax tree is right-folded as opposed to the~simple member access left-folded syntax tree.
-  
-  TODO example + graph
-  
-\end{itemize} 
-%TODO: it is easy to access semantic model first and analyze the~IMethodSymbol... however.. point out how many times this callback is invoked and how many times SemanticModel would have been queried... therefore very simple semantic for getting rid of cases that do not have to be analyzed further... tell about the~possible cases of InvocationExpression - nested SimpleMemberAccess.. first MemberBindingExpression, or IdentifierName... always show a~graph... if it could be skipped based on syntax - invoked method name is for sure none of the~forbidden member names, skip, otherwise, analyze further based on semantics
+  \item \textbf{Simple member access expression} -- invocation on member that is being accessed on object, or class. Accesses can be possibly chained.    
 
-%!!!!do some benchmarking how this heuristic helped with the~performance!!!! show graph
+  \item \textbf{Conditional access expression} -- similar to the~previous case but the~access is conditional. The whole syntax tree is right-folded as opposed to the~simple member access left-folded syntax tree. 
+\end{itemize}
 
 \subsubsection{\textbf{Method Name and Receiver Type Semantic Analysis}}
 Here, semantic model is queried for \texttt{IMethodSymbol} that matches the~analyzed \texttt{InvocationExpressionSyntax}. If the~method symbol is found, its property \texttt{Name} is checked against forbidden member names. If the~check passes, the~property \texttt{ReceiverType} is inspected and only if it is one of forbidden types or its subtype, the~algorithm proceeds. 
@@ -967,26 +957,27 @@ Once the predefined number of builds were completed, another console application
 \end{figure}
 
 \section{Optimizations}
-The procedure described in the previous section was used to measure and compare the performance of implemented analyzers. The measurements were performed on the CMS solution, (TODO delete the following???) as well as on an artificially generated project with uniformly distributed diagnostics for each analyzer (source codes attached in IS).
+The procedure described in the previous section was used to measure and compare the performance of implemented analyzers. The measurements were performed directly on the CMS solution.
 
 The slowest analyzers were iteratively optimized and the speed of different versions was also compared using the \textit{Report-Analyzer.ps1} script. The versions that performed the best where then integrated into the final NuGet package.
 
-This section presents the most interesting optimization that was done on \texttt{SystemIOAnalyzer} and briefly mentions other optimization techniques as well.
+Some of the optimizations were already briefly mentioned in the previous chapter: customized approach for analyzers in \textit{String and Culture} category instead of generic \texttt{MethodInvocationAnalyzer}; and the syntax heuristics utilized in \texttt{MethodInvocationAnalyzer}.
 
-\subsection{SystemIOAnalyzer}
+This section presents the iterative process of optimizing \texttt{SystemIOAnalyzer}, as well as its final version.
+
+\subsection{Optimizing the SystemIOAnalyzer}
 After the initial versions of all analyzers were implemented, the first measurements showed that \texttt{SystemIOAnalyzer} is by far the slowest one. It took more than 18 seconds to run on the CMS solution, whereas almost all other analyzers executed in less than 0.3 seconds.
 
 This analyzer belongs to CMS API Replacement category and the motivation behind its existence is described in~\cite{system-io-motivation}. It forbids the access to all members from \texttt{System.IO} namespace, apart from \texttt{System.IO.IOException} and \texttt{System.IO.Stream} classes and their subclasses, plus \texttt{System.IO.SeekOrigin} enumeration\footnote{All other members of the namespace have CMS equivalents, that must be used instead to make sure all parts of the product can work with virtual file systems (like  Azure or Amazon storage).}.
 
 \subsubsection{\textbf{Differences from Other CMS API Replacement Analyzers}}
-What makes this analyzer fundamentally different from all other analyzers in its category is, that instead of blacklisting particular members or methods from Microsoft API, it forbids the whole namespace (all classes, enums, methods, members, etc.) apart from few whitelisted, well defined, exceptions. Other analyzers in CMS API Replacement category can reliably cut off the analysis by looking at syntax and inspecting the name of a member or a method. Since only certain member names are considered forbidden, vast majority of nodes will only be anayzed on syntax level. 
+What makes this analyzer fundamentally different from all other analyzers in its category is, that instead of blacklisting particular members or methods from Microsoft API, it forbids the whole namespace (all classes, enums, methods, members, etc.) apart from few whitelisted, well defined, exceptions. Other analyzers in CMS API Replacement category can reliably cut off the analysis by looking at syntax and inspecting the name of an accessed member or method. Since only certain names are considered forbidden, vast majority of nodes will only be anayzed on syntax level. 
 
 However, it would be infeasible for \texttt{SystemIOAnalyzer} to list all possibilities of forbidden API usage. Therefore the analyzer needs to advance to perform more complicated and expensive analysis on symbols. It analyzes whether the symbol is defined in \texttt{System.IO} namespace and whether it is not whitelisted. Only then it raises the diagnostic.
 
 Unlike other analyzes in the category, that are bound to member access expressions or invocation expressions, the \texttt{SystemIOAnalyzer} must inspect all syntax nodes of kind \texttt{IdentifierName}. As seen in Table~\ref{tab:solution-statistics}, there are more than 1.4 million such nodes. With the naive implementation that directly accesses the semantic model, the performance of the analyzer degrades very quickly. The next two sections explain how the optimization of the analysis algorithm was achieved.
 
 \subsubsection{\textbf{Different versions of SystemIOAnalyzer}}
-TODO delete this subsection completely and only present the final optimization???
 The very first version of the analyzer (hereafter referred to as V1), had an action registered on syntax nodes of kind \texttt{IdentifierName}. It accessed the semantic model straight away in order to perform the analysis on symbols. The V1 took more than 18 seconds to run on the CMS solution.
 
 First optimization attempts were to register the syntax node action within compilation start action. The fastest version with this approach collected all diagnosed nodes in a bag. In the compilation end action, the diagnostics were raised for all collected nodes in a parallel for-loop. On average, this version of the analyzer performed almost 2-times faster than the V1.
@@ -998,6 +989,13 @@ The next optimization approach was to minimize the number of actions that need t
 The logic, however, is more complicated, as the tree needs to be traversed in order to find the nodes to be inspected. On the other hand, if the document does not contain string \textit{".IO"} at all, there will be no diagnostic and its analysis can be skipped. The fastest version with syntax tree action took an over 9 seconds to perform the analysis. Even though it was faster than the V1, it was still not ideal.
 
 \subsubsection{\textbf{The Final Version}}
+\begin{figure}
+		\centering
+			\includegraphics[scale=0.98]{img/uml/system-io-activity-diagram}
+		\caption{Activity diagram of \texttt{SystemIOAnalyzer} action.}
+		\label{fig:uml-system-io-activity-diagram}
+\end{figure}
+
 None of the versions described above provided a significant performance improvement compared to V1. To understand the limitations of the analysis, two artificial analyzers were created, that registered an action on identifier name syntax nodes. The first one only registered an empty callback. The second one obtained the symbol of the inspected node from the semantic model and then did a dummy comparison of its name\footnote{This was just to make sure that the compiler actually did not skip the semantic model access as part of an optimization, if the obtained symbol had not been used at all.}. Neither analyzer raised any diagnostic in CMS solution. 
 
 The results of these measurements were very interesting. While the empty callback took 0.54 seconds on average \footnote{Presented values are averages from 100 runs. The box plots can be seen in~Figure~\ref{fig:system-io-versions-boxplots}.}, the second one run for an average of 7.89 seconds. 
@@ -1006,9 +1004,7 @@ These measurement clearly showed, that if the final version was to be faster, it
 
 The most important steps of the whole optimization are the second and the third node of the diagram (inspection of \textit{containing syntax tree} and \textit{containing dotted expression}\footnote{The \textit{outermost dotted expression of an identifier name} is the outermost dotted expression of its parent, if the parent is of kind \texttt{QualifiedName} or \texttt{SimpleMemberAccessExpression}, or the node itself otherwise. For example, for identifier name \texttt{Stream} which is part of \texttt{System.IO.Stream}, the outermost dotted expression is the whole expression.}). They are performed purely on syntax and are extremely efficient in eliminating most of the irrelevant nodes. 
 
-To prevent multiple inspections of same syntax tree for all its identifier name nodes, the information whether the tree contains \texttt{System.IO} using is cached in a concurrent dictionary. This optimization technique managed to shrink the analyzer's execution time on CMS solution to an average of 2.40 seconds, whereas the non-cached version took 10.94 seconds on average. 
-
-The execution times of final analyzer (with non-cached version as well), V1 analyzer and artificial abnalyzers serving as baselines are depicted in a box plot diagram in Figure~\ref{fig:system-io-versions-boxplots}.
+To prevent multiple inspections of same syntax tree for all its identifier name nodes, the information whether the tree contains \texttt{System.IO} using is cached in a concurrent dictionary. This optimization technique managed to shrink the analyzer's execution time on the CMS solution to an average of 2.40 seconds, whereas the non-cached version took 10.94 seconds on average. 
 
 \begin{figure}
 		\centering
@@ -1017,31 +1013,28 @@ The execution times of final analyzer (with non-cached version as well), V1 anal
 		\label{fig:system-io-versions-boxplots}
 \end{figure}
 
-\begin{figure}
-		\centering
-			\includegraphics[scale=0.98]{img/uml/system-io-activity-diagram}
-		\caption{Activity diagram of \texttt{SystemIOAnalyzer} action.}
-		\label{fig:uml-system-io-activity-diagram}
-\end{figure}
+The execution times of final analyzer (with non-cached version as well), V1 analyzer and artificial analyzers serving as baselines are depicted in a box plot diagram in Figure~\ref{fig:system-io-versions-boxplots}. It is clear that the cached version provides by far the best results and was chosen as the final implementation.
 
-\subsection{Other Optimizations}
-Apart from optimizations of \texttt{SystemIOAnalyzer}, other analyzers, that turned up slowest after the initial implementation, were improved in terms of their execution times.
+%\subsection{Other Optimizations}
+%Apart from optimizations of \texttt{SystemIOAnalyzer}, other analyzers, that turned up slowest after the initial implementation, were improved in terms of their execution times.
+%
+%\subsubsection{\textbf{CMS Base Classes Analyzers}}
+%This optimization includes the whole category of analyzers that inspect what base class the classes derive from. The earliest version of these analyzers registered syntax tree action and inspected all its class declarations. This approach turned out to be TODO slower than the final one, in which a symbol action for named types is registered. The analyzers do not need to query the semantic model, because the information about the inspected symbol is already present in the symbol analysis context action parameter.
+%
+%Symbol actions get invoked exactly once per discovered named type. Since partial classes are declared on multiple locations, but they only have one symbol, the diagnostic is raised for the first location of all the symbol's locations. 
+%
+%\subsubsection{\textbf{Syntax Heuristics for Method Invocation Analyzer}}
+%Welp... this has not really helped.
+%stats on how much it speeded up relevant analyzers
+%
+%\subsubsection{\textbf{String Analyzers}}
+%As discussed in Section~\ref{sec:string-and-culture-approach-explained}, the analyzers in \textit{String and Culture} category do not use the \texttt{MethodInvocationAnalyzer} analysis helper as a strategy. They use customized approach based on the assumption, that all the diagnosed invocation will be on strings. The omission of the \texttt{MethodInvocationAnalyzer} from these analyzers led to approximate TODO increase in analyzers speed.
 
-\subsubsection{\textbf{CMS Base Classes Analyzers}}
-This optimization includes the whole category of analyzers that inspect what base class the classes derive from. The earliest version of these analyzers registered syntax tree action and inspected all its class declarations. This approach turned out to be TODO slower than the final one, in which a symbol action for named types is registered. The analyzers do not need to query the semantic model, because the information about the inspected symbol is already present in the symbol analysis context action parameter.
-
-Symbol actions get invoked exactly once per discovered named type. Since partial classes are declared on multiple locations, but they only have one symbol, the diagnostic is raised for the first location of all the symbol's locations. 
-
-\subsubsection{\textbf{Syntax Heuristics for Method Invocation Analyzer}}
-Welp... this has not really helped.
-stats on how much it speeded up relevant analyzers
-
-\subsubsection{\textbf{String Analyzers}}
-As discussed in Section~\ref{sec:string-and-culture-approach-explained}, the analyzers in \textit{String and Culture} category do not use the \texttt{MethodInvocationAnalyzer} analysis helper as a strategy. They use customized approach based on the assumption, that all the diagnosed invocation will be on strings. The omission of the \texttt{MethodInvocationAnalyzer} from these analyzers led to approximate TODO increase in analyzers speed.
-
-\section{Influence of BugHunter analyzers on CMS Solution build time}
+\section{Impact on build times}
 \label{sec:build-times}
 After the deployment of BugHunter analyzers to the CMS solution, the impact on the overall build time had to be evaluated. In order to do that, the durations CMS solution's MSBuilds prior and after the analyzers deployment were collected. Both versions of the solution were built one hundred times and the results of the measurement are depicted in box plot diagram in Figure~\ref{fig:build-times-boxplots}.
+
+The version without the analyzers took an average of 5.09 minutes to build, whereas for the version with installed BugHunter analyzers it was 5.24 minutes. This means an average of 9 seconds that were added to the total build time which represents only 2.9\%. TODO... what else???
 
 \begin{figure}
 		\centering
@@ -1050,16 +1043,12 @@ After the deployment of BugHunter analyzers to the CMS solution, the impact on t
 		\label{fig:build-times-boxplots}
 \end{figure}
 
-The version without the analyzers took an average of 5.09 minutes to build, whereas for the version with installed BugHunter analyzers it was 5.24 minutes. This means an average of 9 seconds that were added to the total build time which represents only 2.9\%. TODO... what else???
-
-\section{Performance Consideration for Large Solutions}
-https://github.com/dotnet/roslyn/wiki/Performance-considerations-for-large-solutions
-.. can be used later but so far none of team members complained about worse performance
-
-Why stateful analyzers should not have compilation end actions -- for large solutions it can take more than one minute for the diagnostic to show up in VS... that is not usable at all and cannot be considered as "live" feedback.
-
 \section{Tool Evaluation}
-Questionares sent to development team, feedback from senior developers...
+
+
+Questionnaires sent to development team, feedback from senior developers...
+
+
 
 % =================================================================
 % ============================= CHAPTER 7 =========================
@@ -1070,8 +1059,12 @@ Questionares sent to development team, feedback from senior developers...
   - how it helped the~development teams...
   - how to maintain the~tool, 
   - how easy it is to add new analyzers, 
+  - migration to Roslyn 2.0 (backward compatibility for customers, VS2017)
 
 - talk about kentico selling it's source code, so after stabilization, BH could be also available for them as nuget package and aid with the~development practices 
+
+Why stateful analyzers should not have compilation end actions -- for large solutions it can take more than one minute for the diagnostic to show up in VS... that is not usable at all and cannot be considered as "live" feedback.
+
 %
 %\section{Roslyn as SDK and Its Usage -- Considerations and Remarks}
 %Changing versions ... not really well documented
