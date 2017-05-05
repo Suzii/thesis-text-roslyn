@@ -1037,18 +1037,30 @@ After the deployment of BugHunter analyzers to the CMS solution, the impact on t
 The version without the analyzers took an average of 5.09 minutes to build, whereas for the version with installed BugHunter analyzers it was 5.24 minutes. This means an average of 9 seconds that were added to the total build time which represents only 2.9\%. TODO... what else???
 
 \begin{figure}
-		\centering
+		\centering   
 			\includegraphics[scale=0.26]{img/build-time-boxplots}
 		\caption{Box plots comparing the MSBuild time of CMS solution with and without BugHunter analyzers. Each dataset contains 100 measurements.}
 		\label{fig:build-times-boxplots}
 \end{figure}
 
 \section{Tool Evaluation}
+One week after the deployment of BugHunter analyzers, a questionnaire was sent to the development team at Kentico. The full version, along with the results, can be found in Appendix~\ref{appendix:questionnaire}. 
 
+The primary goal was to evaluate these categories:
 
-Questionnaires sent to development team, feedback from senior developers...
+\begin{itemize}
+\item[\textbf{Performance:}] Had they been experiencing any performance issues after BugHunter deployment? If so, what IDE set up were the developers using?
 
+\item[\textbf{Correctness:}] Had they encountered any false positives/negatives while using the tool?
 
+\item[\textbf{Code fixes:}] Had they already used any suggested code fix? Do they find it useful?
+\end{itemize}
+
+Out of approximately 19 developers currently working on the product, 10 participated in the survey. None of them complained about any performance degradation. The interesting fact to find out was, that 60\% do not use any third party tools for static code analysis, while the rest uses mostly ReSharper.
+
+When asked about the false positive or false negative results from the tool, vast majority responded that they did not encounter any, while the others answered \textit{"Not sure"}.
+
+Only 40\% of the respondents claimed to had already used a suggested code fix. This could be caused by the fact, that most of them had been working on the product for a long time and simply were not suggested any code fix. However, one half found the code fixes useful (the others responded "Not sure") and 7 out of 10 participants believed the code fixes will help the new developers to learn the internal CMS guidelines more quickly.
 
 % =================================================================
 % ============================= CHAPTER 7 =========================
@@ -1126,7 +1138,8 @@ TODO - replace with a~screenshot???
 TODO Describe each project.. why 2 for analyzers - nuget distribution
 
 The projects with analyzers use the~categories also for folder structure with each folder containing separate subfolders for analyzers and code fixes respectively.
-\chapter{Questionnaires}
+\chapter{Questionnaire}
+\label{appendix:questionnaire}
 TODO...
 
 Sum up the questionnaire results and cite teamleaders' feedback on the tool.
