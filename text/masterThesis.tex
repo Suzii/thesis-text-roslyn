@@ -1110,7 +1110,7 @@ Why stateful analyzers should not have compilation end actions -- for large solu
 % =================================================================
   \printbibliography
 % =================================================================
-% ============================ APPENDICES =========================
+% ============================ APPENDIX A =========================
 % =================================================================    
 \appendix %% Start the~appendices.
 \chapter{Source Codes in IS}
@@ -1138,12 +1138,129 @@ TODO - replace with a~screenshot???
 TODO Describe each project.. why 2 for analyzers - nuget distribution
 
 The projects with analyzers use the~categories also for folder structure with each folder containing separate subfolders for analyzers and code fixes respectively.
+
+
+% =================================================================
+% ============================= APPENDIX B =========================
+% =================================================================
 \chapter{Questionnaire}
 \label{appendix:questionnaire}
-TODO...
+This appendix contains the original version of the questionnaire sent to the development team one week after the deployment along with the results:
 
-Sum up the questionnaire results and cite teamleaders' feedback on the tool.
+\bigskip\noindent
+\textit{Hi, all!}
 
+\bigskip\noindent
+\textit{On 24.4.2017 new NuGet package with BugHunter Roslyn analyzers was installed to CMS Solution. It aims to replace the C\# checks of the original BugHunter (a console application that runs on build boxes) and provide a better developer experience with instant feedback inside of Visual Studio.}
+
+\textit{The new analyzers were implemented as a part of diploma thesis on FI MUNI. The goal of this survey is to collect feedback from developers that are already using the tool on daily basis, in order to assess whether the goals of the thesis were met.}
+
+\textit{There are only 8 required multiple choice questions, and it should not take you more than 3 minutes to fill in.}
+
+\bigskip\noindent
+\textit{Thanks in advance for your participation,}
+\\ \noindent
+\textit{Zuzana Dankovcikova}
+
+\begin{center}
+\textbf{Your environment}
+\end{center}
+
+\smallskip\noindent
+\textbf{What version of Visual Studio do you use?}
+\begin{compactitem}
+\item VS2017 \textit{30\%}
+\item VS2015 Update 3 \textit{70\%}
+\item Older \textit{0\%}
+\end{compactitem}
+
+\smallskip\noindent
+\textbf{What tools for static code analysis do you use?\footnote{Multiple answeres possible, the results do not have to sum up to 100\%.}}
+\begin{compactitem}
+\item None \textit{70\%}
+\item ReSharper \textit{40\%}
+\item StyleCop \textit{0\%}
+\item FxCop \textit{0\%}
+\item CodeRush \textit{0\%}
+\item CodeCracker \textit{10\%}
+\item Other \textit{0\%}
+\end{compactitem}
+
+\begin{center}
+\textbf{Code Fixes}
+\end{center}
+
+\smallskip\noindent
+\textbf{Have you already used any code fix suggested by BugHunter?}
+\begin{compactitem}
+\item Yes \textit{40\%}
+\item No \textit{60\%}
+\end{compactitem}
+
+\smallskip\noindent
+\textbf{Do you find the new code fixes useful?}
+\begin{compactitem}
+\item Yes \textit{50\%}
+\item No \textit{0\%}
+\item Have not encountered any \textit{50\%}
+\end{compactitem}
+
+\smallskip\noindent
+\textbf{Do you think the BugHunter analyzers and code fixes will help new developers to learn the internal CMS guidelines more quickly?}
+\begin{compactitem}
+\item Yes \textit{70\%}
+\item No \textit{10\%}
+\item Not sure \textit{20\%}
+\end{compactitem}
+
+\begin{center}
+\textbf{Performance}
+\end{center}
+
+\smallskip\noindent
+\textbf{Have you been experiencing unusual performance issues with your Visual Studio since the analyzers' deployment (Monday 24.4.2017)?}
+\begin{compactitem}
+\item Yes \textit{90\%}
+\item No \textit{0\%}
+\item Not sure \textit{10\%}
+\end{compactitem}
+
+\begin{center}
+\textbf{Correctness}
+\end{center}
+
+In the context of static code analysis:
+- a "false positive" is an issue that was incorrectly reported by the tool,
+- a "false negative" is an issue that is present in the code but was not detected by the tool.
+
+\smallskip\noindent
+\textbf{Have you encountered any false positive results?}
+\begin{compactitem}
+\item Yes \textit{0\%}
+\item No \textit{90\%}
+\item Not sure \textit{10\%}
+\end{compactitem}
+
+\smallskip\noindent
+\textbf{Have you encountered any false negatives?}
+\begin{compactitem}
+\item Yes \textit{80\%}
+\item No \textit{0\%}
+\item Not sure \textit{20\%}
+\end{compactitem}
+
+\begin{center}
+\textbf{Additional information}
+\end{center}
+
+\smallskip\noindent
+\textbf{Do you have any other comments/suggestions?}
+
+-
+
+% =================================================================
+% ============================= APPENDIX C =========================
+% =================================================================
 \chapter{Deployment and Versioning}
 \label{appendix:deployment}
 TODO...
