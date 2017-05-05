@@ -830,6 +830,7 @@ Then, this inner class is utilized by the~end-analyzer (\texttt{EventLogArgument
 \end{figure}
 
 \subsection{Analyzers for String and Culture Checks}
+\label{sec:string-and-culture-approach-explained}
 The analyzers in this category search for methods like \texttt{Equals()}, \texttt{CompareTo()}, or \texttt{IndexOf()}. Considering that methods with same names can be found on many other types as well (\texttt{Object}, \texttt{Collection}), the~first syntax check for method name will often fail to filter out the~unrelated usages. Although all these analyzers could use the~\texttt{MethodInvocationAnalyzer} as a~strategy, it was decided to take a~different approach here. 
 
 The fact that they only need to analyze the~invocations on the~\texttt{String} type, makes the~complex analysis of the~forbidden types in \texttt{MethodInvocationAnalyzer} ineffective. String is a~sealed class\footnote{Sealed classes cannot be subclassed.}, and so no complicated traversal of inheritance hierarchy is needed. In fact, in C\# strings are a~\textit{special type} and therefore, only a~simple check like this is sufficient:
@@ -922,32 +923,24 @@ Number of syntax nodes        & 6,279,993 \\
 \bottomrule
 
 \end{tabularx}
-\caption{Statistics about projects with installed analyzers}
+\caption{Statistics about the projects with installed analyzers.}
 \label{tab:solution-statistics}
 \end{table}
 % ---------------------------------------------------
 
 \section{Measuring the Performance}
-Start with Clearly stating the goal of the measurements. Only then define the metric (To define a goal have a look at slides 66+) ... where the measurements were conducted (developer machine i5, 16GB of ram)
-Goal-Question-Metric
+The goal of the performance measurements done in this thesis was to evaluate the effectiveness of implemented analyzers, in order to spot and eliminated possible anomalies in the implementation, and asses the overall impact of the analyzers on the length of MSBuild.
 
-"I would maybe rewrite this in more accurate form, in the sense that when measuring performance in an empirical way one needs to consider several runs and define a-priori some statistical measures (e.g. discarding all values +/- stand deviation from the mean). Results will always be an approximation, but given large number of runs they should approximate quite well  "
+The problem with measuring the performance of Roslyn analyzers lies in the fact, that their execution is tightly coupled with the compilation process of the project they are installed to. Therefore, there is practically no way to measure the exact execution time from the outside. 
 
-"It might be useful, I would see this section that starts with the problems of measuring performance in a rigorous/objective way, lists the common problems, but then discusses the approach taken. In the approach taken, I would also mention what you decided to consider as number of runs and ways to reduce the impact of outliers. Some Activity or sequence diagram could be useful"
---------- TODO - rewrite??? -------
+In the early stages of development, the idea was to compute benchmarks for different analyzer versions using BenchmarkDotNet framework\footnote{\url{https://github.com/dotnet/BenchmarkDotNet}}. However, the overhead of creating the compilation made it virtually impossible to extract only the relevant information from the obtained results.
 
-Measuring the performance is always tricky regardless of the domain. When one wants to measure performance of something as complicated as code analysis plugged into the compilation process, there is a big probability something will go wrong and result will not be accurate.
+Before considering the overall impact of BugHunter analyzers on the compilation of the CMS solution, it is important to tune the performance of separate analyzers. There seem to be no third-party tools for measuring analyzers performance at the time of writing. The final approach for measuring their execution times was to rely on the only official possibility -- \texttt{/ReportAnalyzer} compilation switch. In order to minimize the impact of any outliers, the measurement was repeated many times. The procedure is described in greater detail in the following section. The impact of the analyzers on total build time is discussed in Section~\ref{sec:build-times}.
 
-In the early stages of development, the initiative was to compute benchmarks for different analyzer versions using BenchmarkDotNet framework\footnote{\url{https://github.com/dotnet/BenchmarkDotNet}}. However, the overhead of creating the compilation together with the cost of the analyzers' execution were too big for the results to be useful. 
-
-There is too much code related to the overhead of running the actual analysis which cannot be influenced from the outside. There are also differences between running the analyzers as part of the compilation versus when they are run by the IDE, where many additional optimizations\footnote{Only part of the code that has been changed since last compilation is recompiled} are performed. 
-
-----------------------------------
+All the measurements were done on a desktop computer, 16 GB of RAM and i5 (TODO) and SSD disk, same as all developers at Kentico work on. 
 
 \subsection{Performance of Separate Analzyers}
-Before considering the overall impact of BugHunter analyzers on the compilation of the CMS solution, it is important to tune the performance of separate analyzers. The only way that Microsoft provides for measuring the analyzers' execution times is \texttt{/ReportAnalyzer} switch in CSC (CSharp Compiler).
-
-As stated in~\cite{report-analyzer}, if the compiler is invoked with \texttt{/ReportAnalyzer} command line switch, its output will contain total wall clock time spent in executing the analyzers along with relative times of separate analyzers. Since the analyzers can run concurrently, the total time should only be treated as the upper bound. The relative times per analyzer are useful for comparing their performance and identifying any outliers.
+The only way that Microsoft provides for measuring the analyzers' execution times is \texttt{/ReportAnalyzer} switch in CSC (CSharp Compiler). As stated in~\cite{report-analyzer}, if the compiler is invoked with \texttt{/ReportAnalyzer} command line switch, its output will contain total wall clock time spent in executing the analyzers along with the absolute and the relative times of separate analyzers. Since the analyzers can run concurrently, the total time should only be treated as the upper bound. The relative times per analyzer are useful for comparing their performance and identifying any outliers.
 
 In order to compile the whole solution, one must use the MSBuild process, that internally uses the CSC.
 The command, that also reports the execution times, looks like this\footnote{Note, that the official documentation (\url{https://msdn.microsoft.com/en-us/library/ms164311.aspx}) does not provide any information on running the MSBuild with reporting the analyzers. The only approach that worked, after numerous efforts, was the one shown above. The verbosity level diagnostic is vital here, since \texttt{verbosity:debug} completely omitted any information on analyzer reporting.}:
@@ -959,7 +952,7 @@ The command, that also reports the execution times, looks like this\footnote{Not
 \subsubsection{\textbf{Parsing and Aggregating Per-project Results}}
 The resulting MSBuild output is over 500MB large and, besides normal compiler output, it contains information on analyzers' execution times for every project that the analyzers' NuGet is installed to. For CMS solution this means 125 projects. For the purpose of this thesis, however, only performance over~the~whole solution is relevant. 
 
-In order to parse the results from the large output, a console application \textit{ReportAnalyzerTimes.Parser} was developed. It extracts all data related to analyzer execution times from the log (based on the format described in~\cite{report-analyzer}). After that, it sums up the absolute execution times \footnote{The smallest value, that can be reported, for the execution time is \texttt{<0.001s} and it is treated as 0.001s by the parsing application.} for same analyzers across the solution (sums per-project results) and outputs them into a file.
+In order to parse the results from the large output, a console application \textit{ReportAnalyzerTimes.Parser} was developed. It extracts all data related to the analyzers' execution times from the log (based on the format described in~\cite{report-analyzer}). After that, it sums up the absolute execution times\footnote{The smallest value, that can be reported, for the execution time is \texttt{<0.001s} and it is treated as 0.001s by the parsing application.} for same analyzers across the solution (sums per-project results) and outputs them into a file.
 
 \subsubsection{\textbf{Aggregating Results from Multiple Runs}}
 Since a single compiler run should not be relied upon to provide accurate results, a PowerShell script (\textit{Report-Analyzer.ps1}, see Figure~\ref{fig:uml-report-analyzer-dfd}) was written that executes the CMS solution MSBuild multiple times. After every run, it runs the above mentioned \textit{ReportAnalyzerTimes.Parser} application on the compiler output, and results from all runs are saved in multiple text files. 
@@ -974,7 +967,7 @@ Once the predefined number of builds were completed, another console application
 \end{figure}
 
 \section{Optimizations}
-The procedure described in the previous section was used to measure and compare the performance of implemented analyzers. The measurements were performed on the CMS solution, as well as on an artificially generated project with uniformly distributed diagnostics for each analyzer (source codes attached in IS).
+The procedure described in the previous section was used to measure and compare the performance of implemented analyzers. The measurements were performed on the CMS solution, (TODO delete the following???) as well as on an artificially generated project with uniformly distributed diagnostics for each analyzer (source codes attached in IS).
 
 The slowest analyzers were iteratively optimized and the speed of different versions was also compared using the \textit{Report-Analyzer.ps1} script. The versions that performed the best where then integrated into the final NuGet package.
 
@@ -983,7 +976,7 @@ This section presents the most interesting optimization that was done on \texttt
 \subsection{SystemIOAnalyzer}
 After the initial versions of all analyzers were implemented, the first measurements showed that \texttt{SystemIOAnalyzer} is by far the slowest one. It took more than 18 seconds to run on the CMS solution, whereas almost all other analyzers executed in less than 0.3 seconds.
 
-This analyzer belongs to CMS API Replacement category and the motivation behind its existence is described in~\cite{system-io-motivation}. It forbids the access to all members from \texttt{System.IO} namespace, apart from \texttt{System.IO.IOException} and \texttt{System.IO.Stream} classes and their subclasses, plus \texttt{System.IO.SeekOrigin} enumeration. All other members of the namespace have CMS equivalents, that must be used instead to make sure all parts of the product can work with virtual file systems (like  Azure or Amazon storage).
+This analyzer belongs to CMS API Replacement category and the motivation behind its existence is described in~\cite{system-io-motivation}. It forbids the access to all members from \texttt{System.IO} namespace, apart from \texttt{System.IO.IOException} and \texttt{System.IO.Stream} classes and their subclasses, plus \texttt{System.IO.SeekOrigin} enumeration\footnote{All other members of the namespace have CMS equivalents, that must be used instead to make sure all parts of the product can work with virtual file systems (like  Azure or Amazon storage).}.
 
 \subsubsection{\textbf{Differences from Other CMS API Replacement Analyzers}}
 What makes this analyzer fundamentally different from all other analyzers in its category is, that instead of blacklisting particular members or methods from Microsoft API, it forbids the whole namespace (all classes, enums, methods, members, etc.) apart from few whitelisted, well defined, exceptions. Other analyzers in CMS API Replacement category can reliably cut off the analysis by looking at syntax and inspecting the name of a member or a method. Since only certain member names are considered forbidden, vast majority of nodes will only be anayzed on syntax level. 
@@ -993,6 +986,7 @@ However, it would be infeasible for \texttt{SystemIOAnalyzer} to list all possib
 Unlike other analyzes in the category, that are bound to member access expressions or invocation expressions, the \texttt{SystemIOAnalyzer} must inspect all syntax nodes of kind \texttt{IdentifierName}. As seen in Table~\ref{tab:solution-statistics}, there are more than 1.4 million such nodes. With the naive implementation that directly accesses the semantic model, the performance of the analyzer degrades very quickly. The next two sections explain how the optimization of the analysis algorithm was achieved.
 
 \subsubsection{\textbf{Different versions of SystemIOAnalyzer}}
+TODO delete this subsection completely and only present the final optimization???
 The very first version of the analyzer (hereafter referred to as V1), had an action registered on syntax nodes of kind \texttt{IdentifierName}. It accessed the semantic model straight away in order to perform the analysis on symbols. The V1 took more than 18 seconds to run on the CMS solution.
 
 First optimization attempts were to register the syntax node action within compilation start action. The fastest version with this approach collected all diagnosed nodes in a bag. In the compilation end action, the diagnostics were raised for all collected nodes in a parallel for-loop. On average, this version of the analyzer performed almost 2-times faster than the V1.
@@ -1010,9 +1004,9 @@ The results of these measurements were very interesting. While the empty callbac
 
 These measurement clearly showed, that if the final version was to be faster, it had to implement some heuristic, that would allow to cut off the analysis of inspected node without need to access the semantic model. The analysis logic of the final solution is depicted by the activity diagram in Figure~\ref{fig:uml-system-io-activity-diagram}. 
 
-The most important steps of the whole optimization are the second and the third node of the diagram (inspection of containing syntax tree and containing dotted expression\footnote{The \textit{outermost dotted expression of identifier name} is the outermost dotted expression of its parent, if the parent is of kind \texttt{QualifiedName} or \texttt{SimpleMemberAccessExpression}, or the node itself otherwise. For example, for identifier name \texttt{Stream} which is part of \texttt{System.IO.Stream}, the outermost dotted expression is the whole expression.}). They are performed purely on syntax and are extremely efficient in eliminating most of the irrelevant nodes. 
+The most important steps of the whole optimization are the second and the third node of the diagram (inspection of \textit{containing syntax tree} and \textit{containing dotted expression}\footnote{The \textit{outermost dotted expression of an identifier name} is the outermost dotted expression of its parent, if the parent is of kind \texttt{QualifiedName} or \texttt{SimpleMemberAccessExpression}, or the node itself otherwise. For example, for identifier name \texttt{Stream} which is part of \texttt{System.IO.Stream}, the outermost dotted expression is the whole expression.}). They are performed purely on syntax and are extremely efficient in eliminating most of the irrelevant nodes. 
 
-To prevent multiple inspections of same syntax tree for all its identifier name nodes, the information whether the tree contains \texttt{System.IO} using is cached in a concurrent dictionary. This optimization technique managed to shrink the analyzer's execution time on CMS solution to an average 2.40 seconds, whereas the non-cached version took over 10.94 seconds. 
+To prevent multiple inspections of same syntax tree for all its identifier name nodes, the information whether the tree contains \texttt{System.IO} using is cached in a concurrent dictionary. This optimization technique managed to shrink the analyzer's execution time on CMS solution to an average of 2.40 seconds, whereas the non-cached version took 10.94 seconds on average. 
 
 The execution times of final analyzer (with non-cached version as well), V1 analyzer and artificial abnalyzers serving as baselines are depicted in a box plot diagram in Figure~\ref{fig:system-io-versions-boxplots}.
 
@@ -1031,26 +1025,32 @@ The execution times of final analyzer (with non-cached version as well), V1 anal
 \end{figure}
 
 \subsection{Other Optimizations}
-Just quickly mention other optimizations 
+Apart from optimizations of \texttt{SystemIOAnalyzer}, other analyzers, that turned up slowest after the initial implementation, were improved in terms of their execution times.
 
 \subsubsection{\textbf{CMS Base Classes Analyzers}}
-symbol vs syntax - perf diftqferences
+This optimization includes the whole category of analyzers that inspect what base class the classes derive from. The earliest version of these analyzers registered syntax tree action and inspected all its class declarations. This approach turned out to be TODO slower than the final one, in which a symbol action for named types is registered. The analyzers do not need to query the semantic model, because the information about the inspected symbol is already present in the symbol analysis context action parameter.
+
+Symbol actions get invoked exactly once per discovered named type. Since partial classes are declared on multiple locations, but they only have one symbol, the diagnostic is raised for the first location of all the symbol's locations. 
 
 \subsubsection{\textbf{Syntax Heuristics for Method Invocation Analyzer}}
+Welp... this has not really helped.
 stats on how much it speeded up relevant analyzers
 
 \subsubsection{\textbf{String Analyzers}}
-how not using the generic MethodInvocationAnalyzer influenced the results
+As discussed in Section~\ref{sec:string-and-culture-approach-explained}, the analyzers in \textit{String and Culture} category do not use the \texttt{MethodInvocationAnalyzer} analysis helper as a strategy. They use customized approach based on the assumption, that all the diagnosed invocation will be on strings. The omission of the \texttt{MethodInvocationAnalyzer} from these analyzers led to approximate TODO increase in analyzers speed.
 
-\section{BugHunter Analyzers vs Original BugHunter Build Times}
-Compare multiple builds w/o BH, old and new versions... Is it significantly slower??
+\section{Influence of BugHunter analyzers on CMS Solution build time}
+\label{sec:build-times}
+After the deployment of BugHunter analyzers to the CMS solution, the impact on the overall build time had to be evaluated. In order to do that, the durations CMS solution's MSBuilds prior and after the analyzers deployment were collected. Both versions of the solution were built one hundred times and the results of the measurement are depicted in box plot diagram in Figure~\ref{fig:build-times-boxplots}.
 
 \begin{figure}
 		\centering
 			\includegraphics[scale=0.26]{img/build-time-boxplots}
-		\caption{Box plots comparing of CMS solution build time without any analyzers compared to build time with BugHunter analyzers. 100 runs.}
+		\caption{Box plots comparing the MSBuild time of CMS solution with and without BugHunter analyzers. Each dataset contains 100 measurements.}
 		\label{fig:build-times-boxplots}
 \end{figure}
+
+The version without the analyzers took an average of 5.09 minutes to build, whereas for the version with installed BugHunter analyzers it was 5.24 minutes. This means an average of 9 seconds that were added to the total build time which represents only 2.9\%. TODO... what else???
 
 \section{Performance Consideration for Large Solutions}
 https://github.com/dotnet/roslyn/wiki/Performance-considerations-for-large-solutions
