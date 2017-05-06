@@ -969,11 +969,11 @@ After the initial versions of all analyzers were implemented, the first measurem
 This analyzer belongs to CMS API Replacement category and the motivation behind its existence is described in~\cite{system-io-motivation}. It forbids the access to all members from \texttt{System.IO} namespace, apart from \texttt{System.IO.IOException} and \texttt{System.IO.Stream} classes and their subclasses, plus \texttt{System.IO.SeekOrigin} enumeration\footnote{All other members of the namespace have CMS equivalents, that must be used instead to make sure all parts of the product can work with virtual file systems (like  Azure or Amazon storage).}.
 
 \subsubsection{\textbf{Differences from Other CMS API Replacement Analyzers}}
-What makes this analyzer fundamentally different from all other analyzers in its category is, that instead of blacklisting particular members or methods from Microsoft API, it forbids the whole namespace (all classes, enums, methods, members, etc.) apart from few whitelisted, well defined, exceptions. Other analyzers in CMS API Replacement category can reliably cut off the analysis by looking at syntax and inspecting the name of an accessed member or method. Since only certain names are considered forbidden, vast majority of nodes will only be anayzed on the syntax level. 
+What makes this analyzer fundamentally different from all other analyzers in its category is, that instead of blacklisting particular members or methods from Microsoft API, it forbids the whole namespace (all classes, enums, methods, members, etc.) apart from few whitelisted, well defined, exceptions. Other analyzers in CMS API Replacement category can reliably cut off the analysis by looking at syntax and inspecting the name of an accessed member or method. Since only certain names are considered forbidden, vast majority of nodes will only be analyzed on the syntax level. 
 
-However, it would be infeasible for \texttt{SystemIOAnalyzer} to list all possibilities of forbidden API usage. Therefore the analyzer needs to advance to perform more complicated and expensive analysis on symbols. It analyzes whether the symbol is defined in \texttt{System.IO} namespace and whether it is not whitelisted. Only then it raises the diagnostic.
+However, it would be infeasible for \texttt{SystemIOAnalyzer} to list all possibilities of forbidden API usage. Therefore the analyzer needs to advance to perform more complicated and expensive analysis on symbols. It analyzers whether the symbol is defined in \texttt{System.IO} namespace and whether it is not whitelisted. Only then it raises the diagnostic.
 
-Unlike other analyzes in the category, that are bound to member access expressions or invocation expressions, the \texttt{SystemIOAnalyzer} must inspect all syntax nodes of kind \texttt{IdentifierName}. As seen in Table~\ref{tab:solution-statistics}, there are more than 1.4 million such nodes. With the naive implementation that directly accesses the semantic model, the performance of the analyzer degrades very quickly. The next two sections explain how the optimization of the analysis algorithm was achieved.
+Unlike other analyzers in the category, that are bound to member access expressions or invocation expressions, the \texttt{SystemIOAnalyzer} must inspect all syntax nodes of kind \texttt{IdentifierName}. As seen in Table~\ref{tab:solution-statistics}, there are more than 1.4 million such nodes. With the naive implementation that directly accesses the semantic model, the performance of the analyzer degrades very quickly. The next two sections explain how the optimization of the analysis algorithm was achieved.
 
 \subsubsection{\textbf{Different versions of SystemIOAnalyzer}}
 The very first version of the analyzer (hereafter referred to as V1), had an action registered on syntax nodes of kind \texttt{IdentifierName}. It accessed the semantic model straight away in order to perform the analysis on symbols. The V1 took more than 18 seconds to run on the CMS solution.
@@ -1067,38 +1067,24 @@ Only 40\% of the respondents claimed to had already used a suggested code fix. T
 % ============================= CHAPTER 7 =========================
 % =================================================================
 \chapter{Conclusion}
-The goal of this thesis was to create a custom static code analysis tool for Kentico company, using the new .NET Compiler Platform (\textit{"Roslyn"}). The tool was supposed to replace an existing console application that scans the Kentico source codes, and searches for violations of company's internal rules and coding guidelines.
+The goal of this thesis was to create a custom static code analysis tool for Kentico company, using the new .NET Compiler Platform (\textit{"Roslyn"}). The tool was supposed to replace an existing console application that scanned the Kentico source codes, and searched for violation s of company's internal rules and coding guidelines.
 
-The theoretical part of the thesis explain the ... The second part of this thesis descries the implementation of custom analyzers. It gives an insight to semantic grouping of the analyzers into categories and presents ... the 6th chapter ... performance considratoins...
+The theoretical part of the thesis explained the theory behind compiling the source code which is a crucial for part of static code analysis. It listed static code analysis tools available for .NET and then presented the new .NET Compiler Platform and how it could be used for building custom  analyzers. The second part of this thesis described the implementation of the new BugHunter analyzers and discussed the added value for the company, as well as the need for measuring and optimizing their performance.
 
-The current state of the project..
+The objectives of the thesis were met and the developed tool has already been installed to Kentico's CMS solution. It represents a significant upgrade to the previous simple console application, in terms of correctness, user experience and presence of code fixes suggested for the diagnosed issues. The questionnaire sent to the development team, one week after the analyzers' deployment, did not reveal any issues concerning tool's stability or performance.
 
-Pros...
+Rewriting the internal rules to Roslyn enabled more involved semantic analysis of the source code and pawed the way for advanced checks that were problematic in the previous solution. This not only led to discovering quite a few previously undetected issues in the code base, but it also enabled elimination of some obscure pieces of code, that were only present to avoid false positive results from the original BugHunter application. 
 
-Future?
+The extensive suite of unit tests, that were written for the new analyzers, make it possible to track the API changes of the Kentico's solution and keep the analysis rules up to date with the analyzed source code. Moreover, they also helped with uncovering some ever-present bugs in the original BugHunter.
 
+The new analyzers run as part of the continuous integration process, enforcing the compliance to the internal rules across the whole company. The fact that they are also integrated to the Visual Studio minimizes the time the developer needs to wait for the first feedback on his code. Majority of the analyzers also provide a code fix for the issue which may help the new developers on the team to learn the practices followed at Kentico more quickly.
 
-1. State the goal of the thesis
+Many helpers methods and strategy classes for analysis were created, which makes the rule set easily extendible, even for someone without previous experience with Roslyn. The current version of the Roslyn API used by the analyzers is~1.3.2. During the course of writing this thesis, version~2.0 was released and it provides some new features and promises a better performance. However, since the most of the developers at Kentico are still using Visual Studio 2015, the version of Roslyn was not updated since it requires Visual Studio 2017. Once the whole development team migrates to the new version of the IDE the version of the .NET Compiler Platform should be updated as well.
 
-?. Struktura jedny, paragrafom 
-
-2. Were the goal met? What is the current statu
- if the project?
- 
-3. How can be the work extended?
+Although the tool was primarily developed to aid the Kentico employees and enforce the guidelines within the company, in the future, it could be also used by the customers who work with the Kentico API or have purchased the licence that includes the Kentico source codes. The NuGet packages with BugHunter analyzers are currently only available at Kentico internal NuGet feed. However, after the stabilization and longer "testing", the plan is to make it publicly available through the NuGet Gallery. After that, anyone interested would be able to leverage the static code analysis guiding them to intended use of the Kentico API in their own projects.
 
 
-
-- what issue it solved (Equals, Response vs Request.Redirect())
-- what is the~current status of the~project
-- how it helped the~development teams...
-- how to maintain the~tool, 
-- how easy it is to add new analyzers, 
-- migration to Roslyn 2.0 (backward compatibility for customers, VS2017)
-
-- talk about kentico selling it's source code, so after stabilization, BH could be also available for them as nuget package and aid with the~development practices 
-
-Why stateful analyzers should not have compilation end actions -- for large solutions it can take more than one minute for the diagnostic to show up in VS... that is not usable at all and cannot be considered as "live" feedback.
+%Why stateful analyzers should not have compilation end actions -- for large solutions it can take more than one minute for the diagnostic to show up in VS... that is not usable at all and cannot be considered as "live" feedback.
 
 %
 %\section{Roslyn as SDK and Its Usage -- Considerations and Remarks}
