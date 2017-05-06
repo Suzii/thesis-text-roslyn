@@ -608,9 +608,9 @@ The size of the~company grew to more than 80 developers working on one product. 
 
 %why we are only concerned with this and do not check the~naming conventions or advanced refactoings - tools already exist for this (StyleCop and ReSharper) and were not implemented in new BH version - usings sorting and such is provided by other tools
 
-% TODO tell how ReSharper or StyleCop are used in Kentico
+% how ReSharper or StyleCop are used in Kentico
 \section{The Original BugHunter}
-BugHunter is a~simple console application developed at Kentico that searches for violations of internal rules and best practices in the~the CMS solution. Given the~file path to the~solution folder, the~BugHunter performs the~checks and outputs the~results to a~file. Each issue found is reported with a~short message plus additional information on its location in the~code (source file and line number). It contains various checks not, only for C\#, but also a~few for JavaScript (like no skipped tests allowed), ASPX\footnote{TODO} (preferred usage of Kentico controls to default ones), or XML files.
+BugHunter is a~simple console application developed at Kentico that searches for violations of internal rules and best practices in the~the CMS solution. Given the~file path to the~solution folder, the~BugHunter performs the~checks and outputs the~results to a~file. Each issue found is reported with a~short message plus additional information on its location in the~code (source file and line number). It contains various checks not, only for C\#, but also a~few for JavaScript (like no skipped tests allowed), ASPX\footnote{Active Server Page Extended is a file format used in Microsoft's APS.NET framework.} (preferred usage of Kentico controls to default ones), or XML files.
 
 Following sections explain the~main downsides of the~original BugHunter and how this thesis addresses them.
 
@@ -888,7 +888,7 @@ When implementing custom Roslyn analyzers, it is vital to consider their perform
 
 This holds for any custom analyzers written, but even more so if they are to be used with large solutions like Kentico's. Developers at Kentico complain about the responsiveness of Visual Studio with an~opened CMS solution. Some of them even admitted they had uninstalled the ReSharper extension, since it slowed down the IDE to an unbearable extent, and claimed that the plugin often caused IDE crashes. 
 
-Therefore, in order for the BugHunter analyzers to be usable, they have to be efficient. This chapter explains how the performance of the implemented analyzers was measured and provides a quick look at how some of them were optimized. The end of the chapter summarizes views of Kentico development team on the usability of new BugHunter.
+Therefore, in order for the BugHunter analyzers to be usable, they have to be efficient. This chapter explains how the performance of the implemented analyzers was measured and provides a quick look at their optimizations. The end of the chapter summarizes views of Kentico development team on the usability of new BugHunter.
 
 \section{CMS Solution Size}
 Before discussing the performance of the BugHunter analyzers, it is important to understand the structure of the CMS solution. This is helpful when considering which parts of the analyzers' code are crucial for the overall performance and which can be neglected.
@@ -925,15 +925,15 @@ The problem with measuring the performance of Roslyn analyzers lies in the fact,
 
 In the early stages of development, the idea was to compute benchmarks for different analyzer versions using BenchmarkDotNet framework\footnote{\url{https://github.com/dotnet/BenchmarkDotNet}}. However, the overhead of creating the compilation made it virtually impossible to extract only the relevant information from the obtained results.
 
-Before considering the overall impact of BugHunter analyzers on the compilation of the CMS solution, it is important to tune the performance of separate analyzers. There seem to be no third-party tools for measuring analyzers performance at the time of writing. The final approach for measuring their execution times was to rely on the only official possibility -- \texttt{/ReportAnalyzer} compilation switch. In order to minimize the impact of any outliers, the measurement was repeated many times. The procedure is described in greater detail in the following section. The impact of the analyzers on total build time is discussed in Section~\ref{sec:build-times}.
+Before considering the overall impact of BugHunter analyzers on the compilation of the CMS solution, it was important to tune the performance of separate analyzers. There seem to be no third-party tools for measuring analyzers performance at the time of writing. The final approach for measuring their execution times was to rely on the only official possibility -- \texttt{/ReportAnalyzer} compilation switch. In order to minimize the impact of any outliers, the measurement was repeated many times. The procedure is described in greater detail in the following section. The impact of the analyzers on total build time is discussed in Section~\ref{sec:build-times}.
 
-All the measurements were done on a desktop computer, 16 GB of RAM and i5 (TODO) and SSD disk, same as all developers at Kentico work on. 
+All the measurements were done on a desktop computer with 16 GB of RAM, i5 (TODO) processor and SSD disk -- same as all developers at Kentico work on. 
 
 \subsection{Performance of Separate Analzyers}
 The only way that Microsoft provides for measuring the analyzers' execution times is \texttt{/ReportAnalyzer} switch in CSC (CSharp Compiler). As stated in~\cite{report-analyzer}, if the compiler is invoked with \texttt{/ReportAnalyzer} command line switch, its output will contain total wall clock time spent in executing the analyzers along with the absolute and the relative times of separate analyzers. Since the analyzers can run concurrently, the total time should only be treated as the upper bound. The relative times per analyzer are useful for comparing their performance and identifying any outliers.
 
 In order to compile the whole solution, one must use the MSBuild process, that internally uses the CSC.
-The command, that also reports the execution times, looks like this\footnote{Note, that the official documentation (\url{https://msdn.microsoft.com/en-us/library/ms164311.aspx}) does not provide any information on running the MSBuild with reporting the analyzers. The only approach that worked, after numerous efforts, was the one shown above. The verbosity level diagnostic is vital here, since \texttt{verbosity:debug} completely omitted any information on analyzer reporting.}:
+The command, that also reports the execution times, looks like this\footnote{Note, that the official documentation (\url{https://msdn.microsoft.com/en-us/library/ms164311.aspx}) does not provide any information on running the MSBuild with reporting the analyzers. The only approach that worked, after numerous efforts, was the one shown above. The verbosity level set to \textit{diagnostic} is vital here, since \texttt{verbosity:debug} completely omitted any information on analyzer reporting.}:
 
 \begin{center}
 \texttt{msbuild /t:Clean,Build /p:ReportAnalyzer=True /verbosity:diagnostic CMS.sln}
@@ -961,9 +961,7 @@ The procedure described in the previous section was used to measure and compare 
 
 The slowest analyzers were iteratively optimized and the speed of different versions was also compared using the \textit{Report-Analyzer.ps1} script. The versions that performed the best where then integrated into the final NuGet package.
 
-Some of the optimizations were already briefly mentioned in the previous chapter: customized approach for analyzers in \textit{String and Culture} category instead of generic \texttt{MethodInvocationAnalyzer}; and the syntax heuristics utilized in \texttt{MethodInvocationAnalyzer}.
-
-This section presents the iterative process of optimizing \texttt{SystemIOAnalyzer}, as well as its final version.
+Some of the optimizations were already briefly mentioned in the previous chapter: customized approach for analyzers in \textit{String and Culture} category instead of generic \texttt{MethodInvocationAnalyzer}; or the syntax heuristics utilized in \texttt{MethodInvocationAnalyzer}. This section presents the iterative process of optimizing \texttt{SystemIOAnalyzer}, as well as its final version.
 
 \subsection{Optimizing the SystemIOAnalyzer}
 After the initial versions of all analyzers were implemented, the first measurements showed that \texttt{SystemIOAnalyzer} is by far the slowest one. It took more than 18 seconds to run on the CMS solution, whereas almost all other analyzers executed in less than 0.3 seconds.
@@ -971,7 +969,7 @@ After the initial versions of all analyzers were implemented, the first measurem
 This analyzer belongs to CMS API Replacement category and the motivation behind its existence is described in~\cite{system-io-motivation}. It forbids the access to all members from \texttt{System.IO} namespace, apart from \texttt{System.IO.IOException} and \texttt{System.IO.Stream} classes and their subclasses, plus \texttt{System.IO.SeekOrigin} enumeration\footnote{All other members of the namespace have CMS equivalents, that must be used instead to make sure all parts of the product can work with virtual file systems (like  Azure or Amazon storage).}.
 
 \subsubsection{\textbf{Differences from Other CMS API Replacement Analyzers}}
-What makes this analyzer fundamentally different from all other analyzers in its category is, that instead of blacklisting particular members or methods from Microsoft API, it forbids the whole namespace (all classes, enums, methods, members, etc.) apart from few whitelisted, well defined, exceptions. Other analyzers in CMS API Replacement category can reliably cut off the analysis by looking at syntax and inspecting the name of an accessed member or method. Since only certain names are considered forbidden, vast majority of nodes will only be anayzed on syntax level. 
+What makes this analyzer fundamentally different from all other analyzers in its category is, that instead of blacklisting particular members or methods from Microsoft API, it forbids the whole namespace (all classes, enums, methods, members, etc.) apart from few whitelisted, well defined, exceptions. Other analyzers in CMS API Replacement category can reliably cut off the analysis by looking at syntax and inspecting the name of an accessed member or method. Since only certain names are considered forbidden, vast majority of nodes will only be anayzed on the syntax level. 
 
 However, it would be infeasible for \texttt{SystemIOAnalyzer} to list all possibilities of forbidden API usage. Therefore the analyzer needs to advance to perform more complicated and expensive analysis on symbols. It analyzes whether the symbol is defined in \texttt{System.IO} namespace and whether it is not whitelisted. Only then it raises the diagnostic.
 
@@ -986,7 +984,7 @@ However, as pointed out in multiple discussions of Roslyn team's GitHub reposito
 
 The next optimization approach was to minimize the number of actions that need to be invoked. The analyzer must inspect all 1.4 million identifier name nodes. It can either register its action on syntax node of this kind, as the previous versions did, or register a syntax tree action and look for identifier names on its own. This reduces the number of callbacks to at most 11,136 (number of documents). 
 
-The logic, however, is more complicated, as the tree needs to be traversed in order to find the nodes to be inspected. On the other hand, if the document does not contain string \textit{".IO"} at all, there will be no diagnostic and its analysis can be skipped. The fastest version with syntax tree action took an over 9 seconds to perform the analysis. Even though it was faster than the V1, it was still not ideal.
+The logic, however, is more complicated, as the tree needs to be traversed in order to find the nodes to be inspected. On the other hand, if the document does not contain string \textit{".IO"} at all, there will be no diagnostic and its analysis can be skipped. For the fastest version with syntax tree action the analysis took over 9 seconds. Even though it was faster than the V1, it was still not ideal.
 
 \subsubsection{\textbf{The Final Version}}
 \begin{figure}
@@ -996,24 +994,24 @@ The logic, however, is more complicated, as the tree needs to be traversed in or
 		\label{fig:uml-system-io-activity-diagram}
 \end{figure}
 
-None of the versions described above provided a significant performance improvement compared to V1. To understand the limitations of the analysis, two artificial analyzers were created, that registered an action on identifier name syntax nodes. The first one only registered an empty callback. The second one obtained the symbol of the inspected node from the semantic model and then did a dummy comparison of its name\footnote{This was just to make sure that the compiler actually did not skip the semantic model access as part of an optimization, if the obtained symbol had not been used at all.}. Neither analyzer raised any diagnostic in CMS solution. 
+None of the versions described above provided a significant performance improvement compared to V1. To understand the limitations of the analysis, two artificial analyzers were created, that registered an action on identifier name syntax nodes. The first one only registered an empty callback. The second one obtained the symbol of the inspected node from the semantic model and then did a dummy comparison of its name\footnote{This was just to make sure that the compiler did not skip the command of accessing the semantic model, as part of an optimization (if the obtained symbol had not been used at all).}. Neither analyzer raised any diagnostic in the CMS solution. 
 
-The results of these measurements were very interesting. While the empty callback took 0.54 seconds on average \footnote{Presented values are averages from 100 runs. The box plots can be seen in~Figure~\ref{fig:system-io-versions-boxplots}.}, the second one run for an average of 7.89 seconds. 
+The results of these measurements were very interesting. While the empty callback took 0.54 seconds on average \footnote{The presented values are the averages from 100 MSBuild runs of the CMS solution, obtained from \textit{Report-Analyzer.ps1} script described in the previous section. The box plots can be seen in~Figure~\ref{fig:system-io-versions-boxplots}.}, the second one run for an average of 7.89 seconds. 
 
 These measurement clearly showed, that if the final version was to be faster, it had to implement some heuristic, that would allow to cut off the analysis of inspected node without need to access the semantic model. The analysis logic of the final solution is depicted by the activity diagram in Figure~\ref{fig:uml-system-io-activity-diagram}. 
 
-The most important steps of the whole optimization are the second and the third node of the diagram (inspection of \textit{containing syntax tree} and \textit{containing dotted expression}\footnote{The \textit{outermost dotted expression of an identifier name} is the outermost dotted expression of its parent, if the parent is of kind \texttt{QualifiedName} or \texttt{SimpleMemberAccessExpression}, or the node itself otherwise. For example, for identifier name \texttt{Stream} which is part of \texttt{System.IO.Stream}, the outermost dotted expression is the whole expression.}). They are performed purely on syntax and are extremely efficient in eliminating most of the irrelevant nodes. 
+The most important steps of the whole optimization are the second and the third node of the diagram (inspection of \textit{containing syntax tree} and \textit{containing dotted expression}\footnote{The \textit{outermost dotted expression of an identifier name} is the outermost dotted expression of its parent, if the parent is of kind \texttt{QualifiedName} or \texttt{SimpleMemberAccessExpression}, or the node itself otherwise. For example, for identifier name \texttt{Stream} which is part of \texttt{System.IO.Stream} expression, the outermost dotted expression is the whole expression.}). They are performed purely on syntax and are extremely efficient in eliminating most of the irrelevant nodes. 
 
 To prevent multiple inspections of same syntax tree for all its identifier name nodes, the information whether the tree contains \texttt{System.IO} using is cached in a concurrent dictionary. This optimization technique managed to shrink the analyzer's execution time on the CMS solution to an average of 2.40 seconds, whereas the non-cached version took 10.94 seconds on average. 
 
 \begin{figure}
 		\centering
-			\includegraphics[scale=0.175]{img/system-io-versions-boxpolt-1}
-		\caption{TODO change labels. Box plots of execution times of different versions of \texttt{SystemIOAnalyzer}.}
+			\includegraphics[scale=0.23]{img/system-io-versions-boxpolt}
+		\caption{Box plots of execution times of different versions of~the~\texttt{SystemIOAnalyzer}. Each dataset contains one~hundred~measurements.}
 		\label{fig:system-io-versions-boxplots}
 \end{figure}
 
-The execution times of final analyzer (with non-cached version as well), V1 analyzer and artificial analyzers serving as baselines are depicted in a box plot diagram in Figure~\ref{fig:system-io-versions-boxplots}. It is clear that the cached version provides by far the best results and was chosen as the final implementation.
+A box plot diagram in Figure~\ref{fig:system-io-versions-boxplots} depicts the execution times of final analyzer (with non-cached version as well), V1 analyzer and artificial analyzers serving as baselines. It is clear that the cached version provides by far the best results and was chosen as the final implementation.
 
 %\subsection{Other Optimizations}
 %Apart from optimizations of \texttt{SystemIOAnalyzer}, other analyzers, that turned up slowest after the initial implementation, were improved in terms of their execution times.
@@ -1034,44 +1032,69 @@ The execution times of final analyzer (with non-cached version as well), V1 anal
 \label{sec:build-times}
 After the deployment of BugHunter analyzers to the CMS solution, the impact on the overall build time had to be evaluated. In order to do that, the durations CMS solution's MSBuilds prior and after the analyzers deployment were collected. Both versions of the solution were built one hundred times and the results of the measurement are depicted in box plot diagram in Figure~\ref{fig:build-times-boxplots}.
 
-The version without the analyzers took an average of 5.09 minutes to build, whereas for the version with installed BugHunter analyzers it was 5.24 minutes. This means an average of 9 seconds that were added to the total build time which represents only 2.9\%. TODO... what else???
-
-\begin{figure}
+\begin{figure}[h!]
 		\centering   
 			\includegraphics[scale=0.26]{img/build-time-boxplots}
-		\caption{Box plots comparing the MSBuild time of CMS solution with and without BugHunter analyzers. Each dataset contains 100 measurements.}
+		\caption{Box plots comparing the MSBuild time of CMS solution with and without BugHunter analyzers. Each dataset contains one~hundred~measurements.}
 		\label{fig:build-times-boxplots}
 \end{figure}
 
+the~version without the~analyzers took an average of 5.09 minutes to build, whereas for the~version with installed BugHunter analyzers it was 5.24 minutes. This means an average of 9 seconds that were added to the~total build time. Considering this represents only 2.9\%, it is  not a significant slowdown.
+
+\newpage
 \section{Tool Evaluation}
-One week after the deployment of BugHunter analyzers, a questionnaire was sent to the development team at Kentico. The full version, along with the results, can be found in Appendix~\ref{appendix:questionnaire}. 
+One week after the~deployment of BugHunter analyzers, a questionnaire was sent to the~development team at Kentico. The full version, along with the results, can be found in Appendix~\ref{appendix:questionnaire}. 
 
 The primary goal was to evaluate these categories:
 
 \begin{itemize}
-\item[\textbf{Performance:}] Had they been experiencing any performance issues after BugHunter deployment? If so, what IDE set up were the developers using?
+\item[\textbf{Performance:}] Had they been experiencing any performance issues after the BugHunter analyzers deployment? If so, what IDE set up were the developers using?
 
 \item[\textbf{Correctness:}] Had they encountered any false positives/negatives while using the tool?
 
-\item[\textbf{Code fixes:}] Had they already used any suggested code fix? Do they find it useful?
+\item[\textbf{Code fixes:}] Had they already used any suggested code fix? Did they it useful?
 \end{itemize}
 
-Out of approximately 19 developers currently working on the product, 10 participated in the survey. None of them complained about any performance degradation. The interesting fact to find out was, that 60\% do not use any third party tools for static code analysis, while the rest uses mostly ReSharper.
+Out of approximately 19 developers currently working on the product, 10 participated in the survey. None of them complained about any performance degradation. The interesting fact to find out was, that 60\% of them did not use any third party tools for static code analysis, while the rest mostly used ReSharper.
 
-When asked about the false positive or false negative results from the tool, vast majority responded that they did not encounter any, while the others answered \textit{"Not sure"}.
+When asked about the false positive or false negative results from the tool, vast majority responded that they had not encountered any, while the others answered \textit{"Not sure"}.
 
-Only 40\% of the respondents claimed to had already used a suggested code fix. This could be caused by the fact, that most of them had been working on the product for a long time and simply were not suggested any code fix. However, one half found the code fixes useful (the others responded "Not sure") and 7 out of 10 participants believed the code fixes will help the new developers to learn the internal CMS guidelines more quickly.
+Only 40\% of the respondents claimed to had already used a suggested code fix. This could be caused by the fact, that most of them had been working on the product for a long time and simply were not suggested any code fix. However, one half found the code fixes useful (the others responded \textit{"Not sure"}) and 7 out of 10 participants believed the code fixes will help the new developers to learn the internal CMS guidelines more quickly.
+
+% TOOD mention "testing" of performance in VS.. codefixes?
 
 % =================================================================
 % ============================= CHAPTER 7 =========================
 % =================================================================
 \chapter{Conclusion}
-  - what issue it solved (Equals, Response vs Request.Redirect())
-  - what is the~current status of the~project
-  - how it helped the~development teams...
-  - how to maintain the~tool, 
-  - how easy it is to add new analyzers, 
-  - migration to Roslyn 2.0 (backward compatibility for customers, VS2017)
+The goal of this thesis was to create a custom static code analysis tool for Kentico company, using the new .NET Compiler Platform (\textit{"Roslyn"}). The tool was supposed to replace an existing console application that scans the Kentico source codes, and searches for violations of company's internal rules and coding guidelines.
+
+The theoretical part of the thesis explain the ... The second part of this thesis descries the implementation of custom analyzers. It gives an insight to semantic grouping of the analyzers into categories and presents ... the 6th chapter ... performance considratoins...
+
+The current state of the project..
+
+Pros...
+
+Future?
+
+
+1. State the goal of the thesis
+
+?. Struktura jedny, paragrafom 
+
+2. Were the goal met? What is the current statu
+ if the project?
+ 
+3. How can be the work extended?
+
+
+
+- what issue it solved (Equals, Response vs Request.Redirect())
+- what is the~current status of the~project
+- how it helped the~development teams...
+- how to maintain the~tool, 
+- how easy it is to add new analyzers, 
+- migration to Roslyn 2.0 (backward compatibility for customers, VS2017)
 
 - talk about kentico selling it's source code, so after stabilization, BH could be also available for them as nuget package and aid with the~development practices 
 
@@ -1098,17 +1121,17 @@ Why stateful analyzers should not have compilation end actions -- for large solu
 % =================================================================
 % =============================== STUFF ===========================
 % =================================================================
-	% From template
-	\makeatletter\thesis@blocks@clear\makeatother
-	\phantomsection %% Print the~index and insert it into the
-	\addcontentsline{toc}{chapter}{\indexname} %% table of contents.
+% From template
+\makeatletter\thesis@blocks@clear\makeatother
+\phantomsection %% Print the~index and insert it into the
+\addcontentsline{toc}{chapter}{\indexname} %% table of contents.
 
-	\printindex
+\printindex
     
 % =================================================================
 % =========================== BIBLIOGRAPHY ========================
 % =================================================================
-  \printbibliography
+\printbibliography
 % =================================================================
 % ============================ APPENDIX A =========================
 % =================================================================    
