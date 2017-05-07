@@ -70,6 +70,7 @@
 \usepackage{menukeys}
 \usepackage{tikz-qtree}
 \usepackage{minted}
+\usemintedstyle{vs}
 
 \begin{document}
 % =================================================================
@@ -535,19 +536,10 @@ Besides providing the code that performs the actual analysis (commonly referred 
   \item[\texttt{\textbf{RegisterCompilationAction}}], \texttt{\textbf{RegisterCodeBlockAction}} -- the~action will be invoked once per~compilations, or~code block, respectively.
 \end{compactitem}
 
-The compilation or code block start actions are usually registered for so called \textit{stateful analyzers}. These report diagnostics about specific code unit, as syntax node or a symbol (same as \textit{stateless analyzers}), but within the enclosing unit of code block or the compilation. They have to be designed carefully to perform effectively and not cause any memory leaks.
-
-For both categories of analyzers it is vital to be written defensively and not to throw any exceptions. Otherwise, Visual Studio might disable it. An example of an analyzer detecting an access to the \texttt{Cookies} property of \texttt{HttpResponse} object can be seen in Figure~\ref{fig:analyzer-example}. It is actually a very simplified version of \texttt{HttpResponseCookiesAnalyzer} implemented for this thesis.
-
-\begin{figure}[h!]
-		\centering
-			\includegraphics[scale=0.73]{img/analyzer-example}
-		\caption{An example of a Roslyn analyzer syntax node analysis}
-		\label{fig:analyzer-example}
-\end{figure}
+The compilation or code block start actions are usually registered for so called \textit{stateful analyzers}. These report diagnostics about specific code unit, as syntax node or a symbol (same as \textit{stateless analyzers}), but within the enclosing unit of code block or the compilation. They have to be designed carefully to perform effectively and not cause any memory leaks. For both categories of analyzers it is vital to be written defensively and not to throw any exceptions. Otherwise, Visual Studio might disable it. 
 
 \subsection{Code Fix Provider}
-A code fix is a quick action suggesting a possible solution to a diagnosed code issue found by the analyzer. It can be applied by invoking the quick actions (Ctrl+.) integrated into Visual Studio light bulb . Before applying, developer can view the live preview of the code fix action, as depicted in Figure~\ref{fig:codefix-example}.
+A code fix is a quick action suggesting a possible solution to a diagnosed code issue found by the analyzer. It can be applied by invoking the quick actions (Ctrl+.) integrated into Visual Studio light bulb. Before applying, developer can view the live preview of the code fix action, as depicted in Figure~\ref{fig:codefix-example}.
 
 \begin{figure}[h!]
 		\centering
@@ -743,7 +735,7 @@ The UML class diagram for \texttt{ApiReplacementForMemberAnalyzer} is depicted i
 The class \texttt{ApiReplacementForMethodAnalyzer} is very similar to analyzer for members that was introduced in the~previous section. It also accepts a~configuration object defining the~invocations of which members on which types are forbidden. 
 Instead of subscribing to member accesses it is interested in syntax nodes of kind \texttt{InvocationExpression}. It delegates the~analysis itself to a~strategy defined in \texttt{MethodInvocationAnalyzer}, described in the~following section.
 
-\section{Method Invocation Analyzer}
+\section{Strategy Class for Method Invocation Analyzer}
 This analyzer helper defines an~algorithm for analyzing invocation expression syntax nodes. The need for analyzing the~method invocations is not limited to the~API replacements. The same analysis needs to be performed when enforcing internal guidelines that are concerned with methods. It is important to locate the~specific methods invoked on specific types, before it is possible to analyze further whether or not they are used according to the~internal API conventions. 
 
 \subsection{Template Method Pattern}
