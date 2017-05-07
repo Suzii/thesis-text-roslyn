@@ -1,7 +1,3 @@
-History of static codee analysis:
-http://www.coverity.com/library/pdf/Coverity_White_Paper-SAT-Next_Generation_Static_Analysis.pdf
-
-
 %Ideas:
 %
 %What is code quality, why is it important, tool that support it.. compilers, diversion ... aaaand here comes Roslyn which provides compiler as a platform.  

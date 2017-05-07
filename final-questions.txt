@@ -1,2 +1,10 @@
 DFD vs pseudo-activity diagram
 build times in minutes, or minutes + seconds?
+
+History of static codee analysis -- add to bibliography
+http://www.coverity.com/library/pdf/Coverity_White_Paper-SAT-Next_Generation_Static_Analysis.pdf
+
+OK Intro into compilers chapter
+OK Intro into SCA chapter, mention tools available for .NET
+- Add some sources to the definition of SCA
+- issue/flaw/buf/problem

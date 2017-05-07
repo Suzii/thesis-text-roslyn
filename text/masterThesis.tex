@@ -117,10 +117,11 @@ Lastly, the sixth chapter focuses on the performance aspect of the developed too
 % =================================================================
 % ============================= CHAPTER 2 =========================
 % =================================================================
-\chapter{Compilers}
+\chapter{Background -- Compiling Source Code}
 \label{chap:compilers}
-As~per~\cite{dragon-book
-}, a compiler is a~program that can read a~program in a~\textit{source} language and~translate it into a~semantically equivalent program in~a~\textit{target} language while reporting any errors detected in~the~translation process. The compiler may sometimes rely on other programs. For example, \textit{preprocessor} is responsible for collecting the~source code to be fed to the~compiler by expanding shorthands (macros) into source language statements. 
+This chapter presents the theory of compiling the source code. It focuses primarily on an analysis part of a compilation process which is fundamental for the rest of the thesis for being a concept behind all static code analysis tools.
+
+As~per~\cite{dragon-book}, a compiler is a~program that can read a~program in a~\textit{source} language and~translate it into a~semantically equivalent program in~a~\textit{target} language while reporting any errors detected in~the~translation process. The compiler may sometimes rely on other programs. For example, \textit{preprocessor} is responsible for collecting the~source code to be fed to the~compiler by expanding shorthands (macros) into source language statements. 
 
 The compilation process can be divided into two parts: \textit{analysis} and \textit{synthesis}; commonly referred to as \textit{front end} and \textit{back end} of the~compiler.
 
@@ -216,10 +217,10 @@ where nonterminals \textit{stmt} and \textit{expr} stand for a~statement and exp
   % TODO bullet points
 There are several types of errors that can be encountered during the~compilation process:
 \begin{compactitem}
-  \item\textbf{lexical errors} such as misspelling the~identifier name,
-  \item\textbf{syntactic errors} like missing semicolon,
-  \item\textbf{semantic error} for example incorrect number of function arguments,
-  \item\textbf{logical errors} that do not really prevent the~program from compiling but can indicate possible mistakes (for instance using the~assignment operator \texttt{=} instead of the~comparison operator \texttt{==} in condition of an~if-statement).
+  \item\textbf{lexical errors}, such as misspelling the~identifier name,
+  \item\textbf{syntactic errors}, for example a missing semicolon,
+  \item\textbf{semantic error}, like incorrect number of function arguments,
+  \item\textbf{logical errors}, that do not really prevent the~program from compiling, but can indicate possible mistakes (for instance using the~assignment operator \texttt{=} instead of the~comparison operator \texttt{==} in condition of an~if-statement).
 \end{compactitem} 
 %\textit{Lexical errors} such as misspelling the~identifier name, \textit{syntactic errors} like missing semicolon, \textit{semantic error}, for example incorrect number of function arguments or \textit{logical errors} that do not really prevent the~program from compiling but can indicate possible mistakes (for instance using the~assignment operator \texttt{=} instead of the~comparison operator \texttt{==} in condition of an~if-statement).
 
@@ -257,23 +258,26 @@ The following chapters on static code analysis and .NET compiler platform will b
 % =================================================================
 \chapter{Static Code Analysis}
 \label{chap:static-code-analysis}
+This chapter introduces the concept of static code analysis. It compares the analysis of source and compile code, and focuses on the source code analysis, listing its advantages and disadvantages. The endo of the chapter provides an overview of static code analysis tools available for the .NET Compiler Platform.
+
+% TODO add citation
 Static code analysis refers to a~process of assessing the~program based on its form, structure, content and documentation and reasoning over its possible behaviours without actually executing the~code. The aim of static analysis is to check the~compliance to specific rules and identify parts of the~program that might lead to possible vulnerabilities. The term static code analysis is mostly used when speaking of an~automated tool. In contrast, \textit{code inspections} or \textit{code reviews} are performed by humans and can benefit from using static code analysis tools~\cite{oswap-sca, sca-ppt}.
 
 \section{Source Code vs. Compiled Code Analysis}
 There are two different approaches when analyzing a~program by an~automated tool: analyzing the~source code (as seen by the~compiler), and analyzing the~compiled code -- either some form of byte code~\footnote{An intermediate representation of a~program, also known as "portable code", which is often for just-in-time compilation by interpreters.} or an~executable.
 
-Sometimes it might be very complicated, or even infeasible, to obtain the~actual source code of the~program to be analyzed and the~only possibility is to analyze the~executable code. When the~tool is looking at a~compiled version of the~program, the~ambiguity of how the~source will be translated by the~compiler is removed and thus the~analyzer does not need to guess. 
+Sometimes it might be very complicated, or even infeasible, to obtain the~actual source code of the~program to be analyzed and the~only possibility is to analyze the~executable code. When the~tool is looking at a~compiled version of the~program, the~ambiguity of how the~source code will be translated by~the~compiler is removed.
 
 However, analyzing compiled code can be very complex. Even if the~tool manages to decode the~binary, it lacks the~original type information. Moreover, the~optimizations performed by the~compiler obscure the~original meaning of the~program and making sense of semantics out of implementation may be unattainable. Likewise, if the~error is found, reporting it to the~programmer can be challenging since there is not always a~clear mapping from binary back to source. 
 
-Although the~above-mentioned complications speak clearly against analyzing binaries, the~situation is different when analyzing byte code formats (such as Java bytecode), where the~type and debugging information is present. The following sections will discuss the~theory behind the~static code analysis.
+Although the~above-mentioned complications speak clearly against analyzing binaries, the~situation is different when analyzing byte code formats (such as Java bytecode), where the~type and debugging information is present. The rest of the thesis focuses solely on source code analysis and the following sections discuss the~theory behind it.
 
 \section{How It Works}
 There are many tools for static code analysis and each can analyze different flaws in the~program. However, for a~majority of them, the~basic structure looks the~same, as depicted in Figure~\ref{fig:static-code-analysis-internals}.
 
 \begin{figure}[h!]
 		\centering
-			\includegraphics[scale=0.75]{img/static-code-analysis-internals}
+			\includegraphics[scale=0.80]{img/static-code-analysis-internals}
 		\caption{The process of static analysis (adopted from~\cite{secure-programming-with-sca})}
 		\label{fig:static-code-analysis-internals}
 \end{figure}
@@ -588,7 +592,7 @@ BugHunter is a~simple console application developed at Kentico that searches for
 Following sections explain the~main downsides of the~original BugHunter and how this thesis addresses them.
 
 \subsection{Need for Semantic Analysis}
-The biggest disadvantage of the~previous BugHunter was that the~tool performed the~checks purely by string comparison. It did not build any model of the~analyzed code and therefore possessed no knowledge of the~semantics. 
+The biggest disadvantage of the~previous BugHunter was that the~tool performed the~checks purely by string comparison. It did not build any model of the~analyzed code, and therefore possessed no knowledge of the~semantics. 
 
 This caused an~enormous number of false negatives. A typical example would be the~tool trying to prevent the~access to the~\texttt{Cookies} property of the~\texttt{HttpRequest} object. The old BugHunter check looked something like this:
 
@@ -599,11 +603,11 @@ if (line.Contains("Request.Cookies")) \\
 \}
 $$
 
-If the~programmer used the~most common approach\footnote{Accessing the~static property of the~class that is handling the~request.} of accessing the~\texttt{Cookies} collection on the~\texttt{Request} object, everything was fine and the~BugHunter correctly reported the~problem. However, it had no means of detecting other possible accesses to the~property. If the~\texttt{Request} object was passed to a~function as an~argument or stored in a~variable, the~accesses of the~cookies collection could not be detected by the~BugHunter. 
+If the~programmer used the~most common approach\footnote{Accessing the~static property of the~class that is handling the~request.} of accessing the~\texttt{Cookies} collection on the~\texttt{Request} object, everything was fine and the~BugHunter correctly reported the~problem. However, it had no means of detecting other possible accesses to the~property. If the~\texttt{Request} object was passed to a~function as an~argument or stored in a~variable, the~accesses of the~cookies collection could not be detected by the~original BugHunter. 
 
 There were other use cases that could lead to false negatives when using just primitive string comparisons. For example, in C\# it is allowed to put an~arbitrary number of whitespace characters between the~object, the~dot token, and the~property being accessed. This could have been solved by using a~bit more complicated regular expression, but it would still cover only a~fraction of use cases. Things like using variable or even alias usings\footnote{\url{https://msdn.microsoft.com/en-us/library/aa664765(v=vs.71).aspx}} would stay undetected by the~tool. 
 
-The only way to solve this was to introduce the~semantics into the~analysis which was a~relatively easy task for new Roslyn analyzers developed as part of this thesis.
+However, all the above mentioned problems can be solved by introducing the~semantics into the~analysis. As discussed in Chapters~\ref{chap:compilers} and~\ref{chap:static-code-analysis}, once the source code is parsed, and both AST and symbol tables are available, the analysis tool should have all the information necessary for understanding of the analyzed code. This approach is far superior to plain string matching performed by the original BugHunter, and the analyzers developed as part of this thesis leverage it thanks to Roslyn Diagnostic APIs.
 
 \subsection{Ease of Use}
 As mentioned in the~Chapter~\ref{chap:static-code-analysis}, the~key to success of a~static code analysis tool is the~ease of use. This means that running the~tool should not be complicated and interpreting the~results should be straightforward. If this is not the~case, programmers will not use the~tool or they will ignore the~results it produces. 
@@ -698,10 +702,10 @@ Similar to CMS API Replacements category, the~analyzers search for classes that 
 \subsection{String and Culture}
 This category of analyzers makes sure that string comparison\footnote{\texttt{Equals()}, \texttt{Compare()}, \texttt{IndexOf()} and their variants} and manipulation\footnote{\texttt{ToLower()}, \texttt{ToUpper()}} methods are always used with the~overload specifying \texttt{StringComparison} or \texttt{CultureInfo} parameter explicitly. This is vital for an~application like CMS that is used with culture specific data. For more information on what issues can be caused when not following this rule, like the~\textit{"Turkish-I problem"}, see \cite{best-practices-for-using-strings-in-dot-net}. 
 
-\section{API Replacement Analyzer}
+\section{Strategy Classes for API Replacement Analyzers}
 The CMS API Replacement category contains 15 analyzers which represents almost one half of total 31 analyzers that were created. Vast majority of these analyzers search for a~particular member being accessed or invoked on a~particular type. Any such usage found by the~analyzer shall be reported as CMS API contains a~replacement for it, with a~code fix suggested where applicable.
 
-In order to prevent code duplication and ease the~process of adding new analyzers, the~analysis logic for the~analyzers in this category was extracted into two helper classes: \texttt{ApiReplacementForMemberAnalyzer} and \texttt{ApiReplacementForMethodAnalyzer}. These are instantiated and configured by the~concrete end-analyzer to perform the~analysis on their behalf.
+In order to prevent code duplication and ease the~process of adding new analyzers, the~analysis logic for the~analyzers in this category was extracted into two strategy classes\footnote{\url{http://www.oodesign.com/strategy-pattern.html}}: \texttt{ApiReplacementForMemberAnalyzer} and \texttt{ApiReplacementForMethodAnalyzer}. These are instantiated and configured by the~concrete end-analyzer to perform the~analysis on their behalf.
 
 \subsection{Configuration}
 There are only a~few things the~API replacement analyzer need to know in order to perform the~actual analysis. This information is encapsulated in \texttt{ApiReplacementConfig} object. The object is passed as a~constructor argument upon creation of the~API replacement analyzer. It contains following properties:
@@ -724,7 +728,7 @@ It is not enough for the~analyzer to subscribe only to \texttt{SimpleMemberAcces
 
 Even though it would be possible to subscribe to both kinds of syntax nodes with one callback, the~underlying syntax of these two is so much different, it would make the~code cluttered and full of if-statements. Moreover, if Microsoft decides to add another possibility to access members in next language version, the~existing code would have to be modified.
 
-Therefore, it was decided to encapsulate the~strategies for analyzing a~particular syntax node into separate classes. The API replacement for member analyzer instantiates the~strategy helpers, configures them, and tells them to run the~analysis methods as callbacks subscribed syntax node of a~particular kind. This makes the~code easily extendible.
+Therefore, the~strategies for analyzing a~particular syntax node were encapsulated into separate classes. The API replacement for member analyzer instantiates the~strategy helpers, configures them, and tells them to run the~analysis methods as callbacks subscribed syntax node of a~particular kind. This makes the~code easily extendible.
 
 \begin{figure}[h!]
 		\centering
