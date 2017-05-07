@@ -1,0 +1,78 @@
+History of static codee analysis:
+http://www.coverity.com/library/pdf/Coverity_White_Paper-SAT-Next_Generation_Static_Analysis.pdf
+
+
+%Ideas:
+%
+%What is code quality, why is it important, tool that support it.. compilers, diversion ... aaaand here comes Roslyn which provides compiler as a platform.  
+%
+% ============================
+% ===== CODE QUALITY ======
+% \section{Why}
+% Describe why not only testig, differences, what is code quality
+%Software quality is~\cite{software-engineering-practicioners-approach}: \textit{"An effective software process applied in a~manner that creates a~useful product that provides measurable value for those who produce it and those who use it."} This definition can be viewed from two perspectives:
+%\begin{compactitem}
+%  \item \textbf{user (customer) perspective} -- \textit{a useful product}
+%  \item \textbf{developer perspective} -- \textit{an effective software process}
+%\end{compactitem}
+%
+%Software quality is represented by internal and external software characteristics~\cite{code-complete}.
+%
+%External quality characteristics are ones that the~user of the~software product is primarily concerned with. These are for example correctness, usability, efficiency, reliability, integrity, adaptability, accuracy and robustness. 
+%
+%On the~other hand, internal characteristics such as maintainability, flexibility, portability, reusability, readability and testability; are only important for programmers and have no visible customer value. 
+%
+%However, these attributes influence the~external characteristics. For example, if software is not readable internally, it is hard to find and fix bugs which directly affect users perception of software's reliability and correctness. For a~software company, high internal quality means less maintenance effort, faster time-to-market, fewer bug and thus reduced customer support. It enables engineers to focus on developing new features rather then dealing with unmaintainable code base. 
+%  
+%While external quality, or conformance to customer requirements, is mostly -?- checked -?- by functional testing, there is more to software quality. Next sections will take a~look at who overall quality of code can be raised... OMG this is such a~wierd paragraph... 
+%
+%\section{...}
+%  
+%\section{Code review process}
+%- Code review process = manual inspections of the~code
+%- types of code review: pair programming, formal, informal
+%-where does the~SCA fit here
+%
+%"A static analysis
+%tool can make the~code review process faster and more fruitful by hypothesizing
+%a set of potential problems for consideration during a~code review." [secure-programming p.13]
+%
+%Pridat obrzok z SQ lecture 10 slide 48 a~premostit tak ku SCA "The Review Cycle" Secure programming p 48
+%
+%\subsection{How does it fit to SDLC}
+%- integration to IDE, 
+%- SCA part of code review process
+%- is cheaper when it finds bug than testing
+
+%---------
+%The software quality is represented by its internal and external characteristics. For the customers, only the external characteristics like correctness, reliability, efficiency or usability are noticeable. On the~other hand, the internal characteristics, such as maintainability, reusability, readability and testability; are only important for programmers and have no visible customer value. However, these attribute group directly influence each other. A badly written piece of code, that is hard to maintain, directly affects the users' perception of software's reliability an correctness.
+
+%However, these attributes directly influence the~external characteristics. For example, if software is not readable internally, it is hard to find and fix bugs which directly affect users perception of software's reliability and correctness. For a~software company, high internal quality means less maintenance effort, faster time-to-market, fewer bug and thus reduced customer support. It enables engineers to focus on developing new features rather then dealing with unmaintainable code base. 
+
+
+% ============================
+% --- Compilers + Roslyn ---
+%In~the~.NET world, the~compiler used~to~be a~black box that given the~file paths to~the~source text, produced an~executable. In~order~to do that, compiler has to collect large amount of~information about the~code it is processing. This knowledge, however, was unavailable to~anyone but the~compiler itself and it was immediately forgotten once the~translated output was produced~\cite{roslyn-overview}. 
+%
+%Why is this an~issue when for decades this black-boxes served us well? Programmers are increasingly becoming reliant~upon the~powerful integrated development environments (IDEs). Features like IntelliSense, intelligent rename, refactoring or~"Find all references" are key~to~developers' productivity; and~even more so in~an~enterprise-size systems. 
+%
+%This gave a~rise to~number of~tools that analyze the~code for common issues and are able to~suggest a~refactoring. The problem is that that such~tool needs to~parse the~code first in~order~to be~able~to~understand and~analyze it. As a result companies need to invest fair amount of resources to duplicate the~logic that the~.NET compiler already possesses. Not only is it possible that the~compiler and the~tool may disagree on some specific piece of code, but with every new version of C\# the~tool needs to be updated to handle new language features\cite{dot-net-development-using-the-compiler-api}.
+%
+%With roslyn.. etc. etc. .. API for analysis.. use in companies for custom analyzers... etc. etc....
+% https://github.com/dotnet/roslyn/wiki/Roslyn Overview -- motivation
+%Make sure to stress out that ".NET Compiler Platform" and "Roslyn" names will be used interchangably as it is in Roslyn Succinctly on page 11.
+
+% --- KEntico ---
+%Kentico Software is an~IT company based in Brno, developing an~all-in-one solution for web content management, e-commerce and online marketing using ASP.NET architecture. The leading product is Kentico CMS (Content Management System) that has been on the~market since 2004 with 11th version currently being developed. 
+%
+%Over the~course of almost 13 years, feature after feature was added to the~product and the~solution grew to an~enormous extend. To give an~overview, the~current version of Kentico CMS contains XY projects and YZ source files. A lot of knowledge was accumulated and many internal conventions and guidelines were set. Much of the~features like globalization were developed in-house first, only to be added as an~integral part of the~.NET framework itself a few years later to be added.
+%
+%The size of the~company grew to more than 80 developers working on the~same product. It became increasingly harder to share all the~knowledge about the~internal conventions and even when trying to keep the~track of them, one can always forget about something when writing the~code. It is the~role of the~code review to spot those inconsistencies and make sure they are fixed. However, with the~increasing complexity of the~project, the~main focus of the~reviewer is to inspect the~general architecture and analyze how the~new code influences the~other parts of the~system, in order not to break anything. The manual and often repetitive task of checking the~compliance with the~internal guidelines and correct use of the~API during the~code review became very tiresome and dragged the~focus of the~reviewer from the~higher perspective on the~code.
+%
+%With this size of a codebase, number of internal knowledge and a large development team, the~need for an~automated tool checking for compliance with the~internal guidelines arose. 
+
+%This led to a need for an~automated tool that would take care of the~repetitive checks that needed to be done by the~reviewer. Tools such as ReSharper or StyleCop, mentioned in the~Chapter~\ref{chap:static-code-analysis}, are easily configurable to enforce the~code style (spacing and naming conventions) and suggest general code refactorings. However, if a company wants to go beyond the~general best practices and enforce the~internal knowledge and rules to be followed, they must either use some advanced features of the~available static code analysis tools, which are often insufficient, or develop something on their own. 
+%
+%In Kentico this need led to a creation of an~internal tool called \textit{BugHunter}. The BugHunter is a very simple console application that given the~file path to the~solution, performs set of checks and outputs the~results. The output gives short desctrption on each problem along with an~information on its location (source file and line number).
+%
+%However, this tool is very primitive and has many issues. Since the~aim of this thesis is to check for the~same rules that the~old version of BugHunter does, the~following sections elaborate on the~downsides of this console application.

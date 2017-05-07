@@ -33,8 +33,8 @@
     advisor       = Bruno Rossi PhD,
     title         = {Custom Roslyn Tool for Static Code Analysis},
     TeXtitle      = {Custom Roslyn Tool for Static Code Analysis},
-    keywords      = {roslyn, C\#, compilers, code review, .NET compiler platform, Kentico, analyzer, code fix...},
-    TeXkeywords   = {roslyn, C\#, compilers, code review, .NET compiler platform, Kentico, analyzer, code fix..., \ldots},
+    keywords      = {static code analysis, Roslyn, .NET compiler platform, C\#, compilers, code review, Kentico, analyzer, code fix, ...},
+    TeXkeywords   = {static code analysis, Roslyn, .NET compiler platform, C\#, compilers, code review, Kentico, analyzer, code fix, \ldots},
 }
 \thesislong{abstract}{
     TODO: This is the~abstract ...
@@ -76,42 +76,50 @@
 % ============================= CHAPTER 1 =========================
 % ====================================================  =============
 \chapter{Introduction}
-TODO...
-%Ideas:
-%
-%What is code quality, why is it important, tool that support it.. compilers, diversion ... aaaand here comes Roslyn which provides compiler as a platform.  
-%
-% --- Compilers + Roslyn ---
-%In~the~.NET world, the~compiler used~to~be a~black box that given the~file paths to~the~source text, produced an~executable. In~order~to do that, compiler has to collect large amount of~information about the~code it is processing. This knowledge, however, was unavailable to~anyone but the~compiler itself and it was immediately forgotten once the~translated output was produced~\cite{roslyn-overview}. 
-%
-%Why is this an~issue when for decades this black-boxes served us well? Programmers are increasingly becoming reliant~upon the~powerful integrated development environments (IDEs). Features like IntelliSense, intelligent rename, refactoring or~"Find all references" are key~to~developers' productivity; and~even more so in~an~enterprise-size systems. 
-%
-%This gave a~rise to~number of~tools that analyze the~code for common issues and are able to~suggest a~refactoring. The problem is that that such~tool needs to~parse the~code first in~order~to be~able~to~understand and~analyze it. As a result companies need to invest fair amount of resources to duplicate the~logic that the~.NET compiler already possesses. Not only is it possible that the~compiler and the~tool may disagree on some specific piece of code, but with every new version of C\# the~tool needs to be updated to handle new language features\cite{dot-net-development-using-the-compiler-api}.
-%
-%With roslyn.. etc. etc. .. API for analysis.. use in companies for custom analyzers... etc. etc....
-% https://github.com/dotnet/roslyn/wiki/Roslyn Overview -- motivation
-%Make sure to stress out that ".NET Compiler Platform" and "Roslyn" names will be used interchangably as it is in Roslyn Succinctly on page 11.
+%First some paragraphs for the introduction of the topic (references to general articles can be taken from other parts of the thesis). In this case, this can be an introduction about the importance of static code analysis in general (and in the specific for Kentico);
 
-% --- KEntico ---
-%Kentico Software is an~IT company based in Brno, developing an~all-in-one solution for web content management, e-commerce and online marketing using ASP.NET architecture. The leading product is Kentico CMS (Content Management System) that has been on the~market since 2004 with 11th version currently being developed. 
-%
-%Over the~course of almost 13 years, feature after feature was added to the~product and the~solution grew to an~enormous extend. To give an~overview, the~current version of Kentico CMS contains XY projects and YZ source files. A lot of knowledge was accumulated and many internal conventions and guidelines were set. Much of the~features like globalization were developed in-house first, only to be added as an~integral part of the~.NET framework itself a few years later to be added.
-%
-%The size of the~company grew to more than 80 developers working on the~same product. It became increasingly harder to share all the~knowledge about the~internal conventions and even when trying to keep the~track of them, one can always forget about something when writing the~code. It is the~role of the~code review to spot those inconsistencies and make sure they are fixed. However, with the~increasing complexity of the~project, the~main focus of the~reviewer is to inspect the~general architecture and analyze how the~new code influences the~other parts of the~system, in order not to break anything. The manual and often repetitive task of checking the~compliance with the~internal guidelines and correct use of the~API during the~code review became very tiresome and dragged the~focus of the~reviewer from the~higher perspective on the~code.
-%
-%With this size of a codebase, number of internal knowledge and a large development team, the~need for an~automated tool checking for compliance with the~internal guidelines arose. 
+Software bugs have been around for as long as the software itself. Even for a program that has been thoroughly tested, the bugs are inevitable. The longer they are present in the code, the more expensive and difficult it is for them to be removed. 
 
-%This led to a need for an~automated tool that would take care of the~repetitive checks that needed to be done by the~reviewer. Tools such as ReSharper or StyleCop, mentioned in the~Chapter~\ref{chap:static-code-analysis}, are easily configurable to enforce the~code style (spacing and naming conventions) and suggest general code refactorings. However, if a company wants to go beyond the~general best practices and enforce the~internal knowledge and rules to be followed, they must either use some advanced features of the~available static code analysis tools, which are often insufficient, or develop something on their own. 
-%
-%In Kentico this need led to a creation of an~internal tool called \textit{BugHunter}. The BugHunter is a very simple console application that given the~file path to the~solution, performs set of checks and outputs the~results. The output gives short desctrption on each problem along with an~information on its location (source file and line number).
-%
-%However, this tool is very primitive and has many issues. Since the~aim of this thesis is to check for the~same rules that the~old version of BugHunter does, the~following sections elaborate on the~downsides of this console application.
+Every year, billions of dollars are lost due to software that does not perform as expected. Hours of downtime, maintenance costs, countless calls to customer support, and angry users among the visible implications of the software product not meeting its requirements. 
+
+While the conformance to the customer requirements is mostly validated by functional testing, there is more to software quality than that. To cover the attributes like maintenance, readability, reusability or testability, that directly affect cutomers' perception of product's quality, other inspection techniques need to be involved as well. Different possibilities from formal inspections of the code, peer code reviews, pair programming, or use of automated tools for static code analysis, can be applied to ensure the quality of the code itself. The key to achieving quality software lies in the combination of these techniques. 
+
+With the ever-growing sizes of the software products, arose the need for automated tools that would help with identifying code issues. Applying static code analysis on a software project brings a first form of code review before the software is even run. They can be applied in the earliest stages of the software development lifecycle. Unlike testing, static code analysis can be done on unfinished or even uncompilable source code. Moreover, it identifies the root causes of the bugs, unlike dynamic testing which only points out to their consequences. 
+
+Use of static code analysis tools provides an obvious solution for they are great in unveiling bugs that are commonly missed by unit, integration or system testing. Furthermore, they are cheaper, repeatable and more effective than manual code reviews. 
+
+For a~software company like Kentico, that develops a product for millions of other developers and marketers building their own business on the top of Kentico's CMS, high internal quality is extremely important. It means less maintenance effort, faster time-to-market, fewer bugs, and therefore reduced customer support. It enables engineers to focus on developing new features rather then dealing with unmaintainable code base. 
+
+%then there should be some Problem Statement section: which problem the current thesis addresses. It should also tell why it's an important problem to be solved;
+
+Over the course of last ten years, many internal guidelines and best practices were established at Kentico. Since it became increasingly harder to keep a track of all those rules during the manual code reviews, a console application BugHunter was developed. It checked the for most common mistakes violations of internal rules within the Kentico solution. The checks were performed by simple string matching. Even though its simplicity shrank the initial costs of developing such tool to minimum, the reliability paid the price. 
+
+Occasional false positive results meant that some pieces of the code had to be written in an obscure way in order to pass the BugHunter check. Due to lack of any semantic analysis, many issues were not detected at all and with false negatives slipping also through the code reviews, this could have caused bugs in production. 
+
+%+ the goal(s) of the thesis that needs to be reached
+%+ the contribution that the the thesis provides to a reader (e.g. also a prototype software is a contribution)\
+The goal of this thesis is to create a new static code analysis tool, that would replace the original C\# checks in BugHunter, and would mitigate the flaws of the previous solution. The tool should be written using the new .NET Compiler Platform (code-named \textit{"Roslyn"}) and should be integrated to both Visual Studio and the Continuous Integration process at Kentico. The new BugHunter analyzers should raise warnings for code that does not comply to Kentico's internal guidelines. Where suitable, the tool should also provide a code fix. Since the tool will be deployed in the production, it needs to be thoroughly tested and be efficient, so that it does not degrade the developers' experience.
+
+The analyzers will not be concerned with things like naming or ordering conventions, since there are already many (also Roslyn-based) tools dealing with this problem. These can be easily configured to specific needs of the development team. Instead, the new analyzers will only focus on the rules which require tailored approach that cannot be found in other available solutions. 
+
+%+ the structure for all the chapters in the thesis
+The second chapter provides a theoretical background behind the static code analysis tools in general -- source code compilation. It shortly describes the phases of the compilation process and focuses on the analysis or \textit{front end} part which is fundamental for any static code analysis tool.
+
+In the third chapter, the concept of the static code analysis is described. It informs the reader about the possibilities of analyzing the compiled code and then focuses on the analysis of the source code. It provides an overview of the problems that can be solved by static code analysis and lists the advantages and disadvantages. The last section presents the tools for static code analysis available for .NET platform.
+
+The fourth chapter of the thesis concludes the theoretical part by introducing the .NET Compiler Platform which was utilized during the development. It gives an insight into the internals of the CSharp compiler, familiarizes the reader with the immutable data structures used when working with Roslyn and demonstrates, how the Diagnostic APIs\footnote{Application Programming Interfaces} can be applied to build custom static code analyzers and code fixes.
+
+The second part of the thesis is concerned with the implementation of the new BugHunter analyzers. In the fifth chapter the original BugHunter application is introduced, along with the issues that are being addressed by this thesis. It defines the analyzers' categories and shows some of the design patterns that were utilized during the implementation. The chapter shortly mentions the implemented code fixes and stresses the importance of the tests.
+
+Lastly, the sixth chapter focuses on the performance aspect of the developed tool. It explains how the performance of the separate analyzers was measured and specifically points out the iterative optimization of one particular analyzer. It also assesses the impact of the analyzers on build times and wraps up the views on the development team on the new tool.
+
 % =================================================================
 % ============================= CHAPTER 2 =========================
 % =================================================================
 \chapter{Compilers}
 \label{chap:compilers}
-As~per~\cite{dragon-book}, a compiler is a~program that can read a~program in a~\textit{source} language and~translate it into a~semantically equivalent program in~a~\textit{target} language while reporting any errors detected in~the~translation process. The compiler may sometimes rely on other programs. For example, \textit{preprocessor} is responsible for collecting the~source code to be fed to the~compiler by expanding shorthands (macros) into source language statements. 
+As~per~\cite{dragon-book
+}, a compiler is a~program that can read a~program in a~\textit{source} language and~translate it into a~semantically equivalent program in~a~\textit{target} language while reporting any errors detected in~the~translation process. The compiler may sometimes rely on other programs. For example, \textit{preprocessor} is responsible for collecting the~source code to be fed to the~compiler by expanding shorthands (macros) into source language statements. 
 
 The compilation process can be divided into two parts: \textit{analysis} and \textit{synthesis}; commonly referred to as \textit{front end} and \textit{back end} of the~compiler.
 
@@ -250,42 +258,6 @@ The following chapters on static code analysis and .NET compiler platform will b
 \label{chap:static-code-analysis}
 Static code analysis refers to a~process of assessing the~program based on its form, structure, content and documentation and reasoning over its possible behaviours without actually executing the~code. The aim of static analysis is to check the~compliance to specific rules and identify parts of the~program that might lead to possible vulnerabilities. The term static code analysis is mostly used when speaking of an~automated tool. In contrast, \textit{code inspections} or \textit{code reviews} are performed by humans and can benefit from using static code analysis tools~\cite{oswap-sca, sca-ppt}.
 
-% \section{Why}
-% Describe why not only testig, differences, what is code quality
-%Software quality is~\cite{software-engineering-practicioners-approach}: \textit{"An effective software process applied in a~manner that creates a~useful product that provides measurable value for those who produce it and those who use it."} This definition can be viewed from two perspectives:
-%\begin{compactitem}
-%  \item \textbf{user (customer) perspective} -- \textit{a useful product}
-%  \item \textbf{developer perspective} -- \textit{an effective software process}
-%\end{compactitem}
-%
-%Software quality is represented by internal and external software characteristics~\cite{code-complete}.
-%
-%External quality characteristics are ones that the~user of the~software product is primarily concerned with. These are for example correctness, usability, efficiency, reliability, integrity, adaptability, accuracy and robustness. 
-%
-%On the~other hand, internal characteristics such as maintainability, flexibility, portability, reusability, readability and testability; are only important for programmers and have no visible customer value. 
-%
-%However, these attributes influence the~external characteristics. For example, if software is not readable internally, it is hard to find and fix bugs which directly affect users perception of software's reliability and correctness. For a~software company, high internal quality means less maintenance effort, faster time-to-market, fewer bug and thus reduced customer support. It enables engineers to focus on developing new features rather then dealing with unmaintainable code base. 
-%  
-%While external quality, or conformance to customer requirements, is mostly -?- checked -?- by functional testing, there is more to software quality. Next sections will take a~look at who overall quality of code can be raised... OMG this is such a~wierd paragraph... 
-%
-%\section{...}
-%  
-%\section{Code review process}
-%- Code review process = manual inspections of the~code
-%- types of code review: pair programming, formal, informal
-%-where does the~SCA fit here
-%
-%"A static analysis
-%tool can make the~code review process faster and more fruitful by hypothesizing
-%a set of potential problems for consideration during a~code review." [secure-programming p.13]
-%
-%Pridat obrzok z SQ lecture 10 slide 48 a~premostit tak ku SCA "The Review Cycle" Secure programming p 48
-%
-%\subsection{How does it fit to SDLC}
-%- integration to IDE, 
-%- SCA part of code review process
-%- is cheaper when it finds bug than testing
-
 \section{Source Code vs. Compiled Code Analysis}
 There are two different approaches when analyzing a~program by an~automated tool: analyzing the~source code (as seen by the~compiler), and analyzing the~compiled code -- either some form of byte code~\footnote{An intermediate representation of a~program, also known as "portable code", which is often for just-in-time compilation by interpreters.} or an~executable.
 
@@ -391,15 +363,15 @@ ReSharper provides hundreds of quick-fixes that solve discovered problems and ha
 
 
 \subsection{Analyzers Written with Roslyn}
-The tools described above have one aspect in common -- they all need to parse the~code before they can analyze it. The cost of maintaining a~custom C\# parser and keep it up to date with every new language version is fairly difficult, inefficient, and of course, costly. 
+The tools described above have one aspect in common -- they all need to parse the~code before they can analyze it. The cost of maintaining a~custom C\# parser and keeping it up to date with every new language version is fairly difficult, inefficient, and of course, costly. 
 
 With the~release of new .NET Compiler Platform (Roslyn), which is discussed in detail in the~following chapter, the~need for parsing C\# and Visual Basic sources is eliminated and tools that build upon this platform can concentrate solely on analysis itself.
 
 Some vendors, like Jet Brains, who invested years of development into the~creation of the~tools, claim ~\cite{resharper-and-roslyn-qa}, it does not pay off to rewrite the~whole program so that it uses new Microsoft compiler. Not only would it take an~enormous effort to rewrite all the~functionality to use new framework, but they would risk destabilizing the~product and losing years of optimizations and testing. Moreover, ReSharper is multilingual tool whereas .NET Compiler platform "only" provides C\# and Visual Basic parsers.
 
-Other companies, such as DevExpress with CodeRush\footnote{CodeRush Classic referrs to the~version before Roslyn} or Microsoft with StyleCop Analyzers, decided to use this new approach. The effects on Visual Studio performance were immediate, since solution does not have to be parsed by the~tool, nor duplicate syntax trees stored. As a~result, the~load times and memory consumption were significantly lowered.
+Other companies, such as DevExpress with CodeRush\footnote{CodeRush Classic referrs to the~version before Roslyn} or Microsoft with StyleCop Analyzers, decided to use this new approach. The effects on Visual Studio performance were immediate. Neither the solution has to be parsed by the~tool, nor duplicate syntax trees need to be stored. As a~result, the~load times and memory consumption were significantly lowered.
 
-The Roslyn APIs also gave rise to more open source projects dealing with static code analysis, such as CodeCracker\footnote{\url{https://code-cracker.github.io}}. As challenging as it was in the~past, static code analysis is now rather easy, thanks to powerful analysis APIs. Following chapter takes a~look at the~.NET Compiler Platform and how it can be used to perform the~static code analysis.
+The Roslyn APIs also gave rise to more open source projects dealing with static code analysis, such as CodeCracker\footnote{\url{https://code-cracker.github.io}}. As challenging as it was in the~past, static code analysis is now rather easy, thanks to powerful analysis APIs. The following chapter takes a~look at the~.NET Compiler Platform and how it can be used to perform the~static code analysis.
 
 % =================================================================
 % ============================= CHAPTER 4 =========================
@@ -416,7 +388,7 @@ In~the~.NET world, the~compiler used~to~be a~black box that given the~file paths
 
 Not only have been compilers for both Visual Basic and C\# rewritten into the~entirely managed code\footnote{The term managed code refers to program source code written in one of high-level programming languages available for use with Microsoft .NET Framework, and require a~Common Language Runtime virtual machine in order to be executed.}, they also expose the~internals of the~compiler pipeline via a~public .NET API~\footnote{Application Programming Interface}. This makes them a~platform (also known as \textit{compiler-as-as-service}) with rich code analysis APIs that can be leveraged by developers to perform analysis, code generation or dynamic compilation in their own programs~\cite{roslyn-succinctly}. Those can be then easily integrated into Visual Studio all without the~hard work of duplicating compilers' parsing logic.
 
-This chapter will take a~look at how the~Roslyn API layers are structured, how the~original source code is represented by the~compiler and how developers can build tools upon the~compiler's API. Note, that although Roslyn provides equivalent APIs for both VisualBasic and C\#, this thesis only focuses on the~latter since it is relevant for the~practical part of the~thesis.  
+This chapter takes a~look at how the~Roslyn API layers are structured, how the~original source code is represented by the~compiler, and how developers can build tools upon the~compiler's API. Note, that although Roslyn provides equivalent APIs for both Visual Basic and C\#, this thesis only focuses on the~latter since it is relevant for the~practical part of the~thesis.  
   
 \section{The Compiler Pipeline}
 Roslyn compilers expose an~API layer that mirrors the~traditional compiler pipeline (see Figure~\ref{fig:roslyn-compiler-pipeline}). Instead of a~single process of generating the~target program, each compilation step is treated as a~separate component~\cite{roslyn-overview}:
@@ -1081,7 +1053,7 @@ The new analyzers run as part of the continuous integration process, enforcing t
 
 Many helpers methods and strategy classes for analysis were created, which makes the rule set easily extendible, even for someone without previous experience with Roslyn. The current version of the Roslyn API used by the analyzers is~1.3.2. During the course of writing this thesis, version~2.0 was released and it provides some new features and promises a better performance. However, since the most of the developers at Kentico are still using Visual Studio 2015, the version of Roslyn was not updated since it requires Visual Studio 2017. Once the whole development team migrates to the new version of the IDE the version of the .NET Compiler Platform should be updated as well.
 
-Although the tool was primarily developed to aid the Kentico employees and enforce the guidelines within the company, in the future, it could be also used by the customers who work with the Kentico API or have purchased the licence that includes the Kentico source codes. The NuGet packages with BugHunter analyzers are currently only available at Kentico internal NuGet feed. However, after the stabilization and longer "testing", the plan is to make it publicly available through the NuGet Gallery. After that, anyone interested would be able to leverage the static code analysis guiding them to intended use of the Kentico API in their own projects.
+Although the tool was primarily developed to aid the Kentico employees and en  force the guidelines within the company, in the future, it could be also used by the customers who work with the Kentico API or have purchased the licence that includes the Kentico source codes. The NuGet packages with BugHunter analyzers are currently only available at Kentico internal NuGet feed. However, after the stabilization and longer "testing", the plan is to make it publicly available through the NuGet Gallery. After that, anyone interested would be able to leverage the static code analysis guiding them to intended use of the Kentico API in their own projects.
 
 
 %Why stateful analyzers should not have compilation end actions -- for large solutions it can take more than one minute for the diagnostic to show up in VS... that is not usable at all and cannot be considered as "live" feedback.
