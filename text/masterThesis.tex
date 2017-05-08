@@ -877,35 +877,35 @@ Number of syntax nodes        & 6,279,993 \\
 % ---------------------------------------------------
 
 \section{Measuring the~Performance}
-The~goal of the~performance measurements done in this thesis was to evaluate the~effectiveness of implemented analyzers, in order to spot and eliminated possible anomalies in the~implementation, and assess the~overall impact of the~analyzers on the~length of MSBuild.
+The~goal of the~performance measurements done in this thesis was to evaluate the~effectiveness of implemented analyzers, in order to spot and eliminate possible anomalies in the~implementation, and assess the~overall impact of the~analyzers on the~length of MSBuild.
+
+In the~early stages of development, the~idea was to compute benchmarks for different analyzer versions using \textit{BenchmarkDotNet} framework\footnote{\url{https://github.com/dotnet/BenchmarkDotNet}}. However, the~overhead of creating the~compilation made it virtually impossible to extract only the~relevant information from the~obtained results.
 
 The~challenge of measuring the~performance of Roslyn analyzers lies in the~fact, that their execution is tightly coupled with the~compilation process of the~project they are installed to. Therefore, it is difficult to measure the~exact execution time from the~outside. 
 
-In the~early stages of development, the~idea was to compute benchmarks for different analyzer versions using BenchmarkDotNet framework\footnote{\url{https://github.com/dotnet/BenchmarkDotNet}}. However, the~overhead of creating the~compilation made it virtually impossible to extract only the~relevant information from the~obtained results.
+Before considering the~overall impact of BugHunter analyzers on the~compilation of the~CMS solution, it was important to tune the~performance of separate analyzers. There seem to be no third-party tools for measuring analyzers performance at the~time of writing. The~final approach for measuring their execution times was to rely on the~only official option -- \texttt{/ReportAnalyzer} compilation switch. In~order to minimize the~impact of any outliers, the~measurement was repeated multiple times. The~procedure is described in greater detail in the~following section. The~impact of the~analyzers on total build time is discussed in Section~\ref{sec:build-times}.
 
-Before considering the~overall impact of BugHunter analyzers on the~compilation of the~CMS solution, it was important to tune the~performance of separate analyzers. There seem to be no third-party tools for measuring analyzers performance at the~time of writing. The~final approach for measuring their execution times was to rely on the~only official option -- \texttt{/ReportAnalyzer} compilation switch. In order to minimize the~impact of any outliers, the~measurement was repeated multiple times. The~procedure is described in greater detail in the~following section. The~impact of the~analyzers on total build time is discussed in Section~\ref{sec:build-times}.
-
-All the~measurements were done on a~desktop computer with 16 GB of RAM, i5 (TODO) processor and SSD disk -- same as all developers at Kentico work on. 
+All the~measurements were done on a~desktop computer with 16~GB of~RAM, Intel~i5~quad-core processor (3.5~GHz) and SSD disk -- same as all developers at Kentico work on. 
 
 \subsection{Performance of Separate Analzyers}
 The~only way that Microsoft provides for measuring the~analyzers' execution times is \texttt{/ReportAnalyzer} switch in CSC (CSharp Compiler). As stated in~\cite{report-analyzer}, if the~compiler is invoked with \texttt{/ReportAnalyzer} command line switch, its output will contain total wall clock time spent in executing the~analyzers along with the~absolute and the~relative times of separate analyzers. Since the~analyzers can run concurrently, the~total time should only be treated as the~upper bound. The~relative times per analyzer are useful for comparing their performance and identifying any outliers.
 
 In order to compile the~whole solution, one must use the~MSBuild process, that internally uses the~CSC.
-The~command, that also reports the~execution times, looks like this\footnote{Note, that the~official documentation (\url{https://msdn.microsoft.com/en-us/library/ms164311.aspx}) does not provide any information on running the~MSBuild with reporting the~analyzers. The~only approach that worked was the~one shown above. The~verbosity level set to \textit{diagnostic} is vital here, since \texttt{verbosity:debug} completely omitted any information on analyzer reporting.}:
+The~command, that also reports the~execution times, looks like this\footnote{Note, that the~official documentation (\url{https://msdn.microsoft.com/en-us/library/ms164311.aspx}) does not provide any information on running the~MSBuild with reporting the~analyzers. The~only approach that worked was the~one shown above. The~verbosity level set to \textit{diagnostic} is vital here, since \textit{verbosity:debug} completely omitted any information on analyzer reporting.}:
 
 \begin{center}
 \texttt{msbuild /t:Clean,Build /p:ReportAnalyzer=True /verbosity:diagnostic CMS.sln}
 \end{center}
 
 \subsubsection{\textbf{Parsing and Aggregating Per-project Results}}
-The~size of resulting MSBuild output is over 500MB and, besides normal compiler output, it contains information on analyzers' execution times for every project that the~analyzers' NuGet is installed to. For CMS solution this means 125 projects. For the~purpose of this thesis, however, only performance over~the~whole solution is relevant. 
+The~size of the~resulting MSBuild output is over 500MB and, besides normal compiler output, it contains information on analyzers' execution times for every project that the~analyzers' NuGet is installed~to. For the~CMS solution this means 125 projects. For the~purpose of this thesis, however, only performance over~the~whole solution is relevant. 
 
-In order to parse the~results from the~large output, a~console application \textit{ReportAnalyzerTimes.Parser} was developed. It extracts all data related to the~analyzers' execution times from the~log (based on the~format described in~\cite{report-analyzer}). After that, it sums up the~absolute execution times\footnote{The~smallest value, that can be reported, for the~execution time is \texttt{<0.001s} and it is treated as 0.001s by the~parsing application.} for same analyzers across the~solution (sums per-project results) and outputs them into a~file.
+In order to parse the~results from the~large output, a~console application \textit{ReportAnalyzerTimes.Parser} was developed. It extracts all data related to the~analyzers' execution times from the~log (based on the~format described in~\cite{report-analyzer}). After that, it sums up the~absolute execution times\footnote{The~smallest value, that can be reported, for the~execution time is \textit{<0.001s} and it is treated as \textit{0.001s} by the~parsing application.} for same analyzers across the~solution (sums per-project results) and outputs them into a~file.
 
 \subsubsection{\textbf{Aggregating Results from Multiple Runs}}
 Since a~single compiler run should not be relied upon to provide accurate results, a~PowerShell script (\textit{Report-Analyzer.ps1}, see Figure~\ref{fig:uml-report-analyzer-dfd}) was written that executes the~CMS solution MSBuild multiple times. After every run, it runs the~above mentioned \textit{ReportAnalyzerTimes.Parser} application on the~compiler output, and results from all runs are saved in multiple text files. 
 
-Once the~predefined number of builds were completed, another console application, \textit{ReportAnalyzerTimes.Aggregator}, is used to aggregate the~results into a~single CSV\footnote{Comma Separated Values} file. For every analyzer, there is a~name and the~accumulated per-project execution times from every run of the~solution's build.
+Once the~predefined number of builds was completed, another console application, \textit{ReportAnalyzerTimes.Aggregator}, is used to aggregate the~results into a~single CSV\footnote{Comma Separated Values} file. For every analyzer, there is a~name and the~accumulated per-project execution times from every run of the~solution's build.
 
 \begin{figure}[h!]
 		\centering
@@ -924,25 +924,25 @@ Some of the~optimizations were already briefly mentioned in the~previous chapter
 \subsection{Optimizing the~SystemIOAnalyzer}
 After the~initial versions of all analyzers were implemented, the~first measurements showed that \texttt{SystemIOAnalyzer} is by far the~slowest one. It took more than 18 seconds to run on the~CMS solution, whereas almost all other analyzers executed in less than 0.3 seconds.
 
-This analyzer belongs to CMS API Replacement category and the~motivation behind its existence is described in~\cite{system-io-motivation}. It forbids the~access to all members from \texttt{System.IO} namespace, apart from \texttt{System.IO.IOException} and \texttt{System.IO.Stream} classes and their subclasses, plus \texttt{System.IO.SeekOrigin} enumeration\footnote{All other members of the~namespace have CMS equivalents, that must be used instead to make sure all parts of the~product can work with virtual file systems (like  Azure or Amazon storage).}.
+This analyzer belongs to the~\textit{CMS API Replacement} category and the~motivation behind its existence is described in~\cite{system-io-motivation}. It forbids the~access to all members from \texttt{System.IO} namespace, with an exception of \texttt{System.IO.Stream} and \texttt{System.IO.IOException} classes (and their subclasses), plus \texttt{System.IO.SeekOrigin} enumeration\footnote{All other members of the~namespace have CMS equivalents which must be used instead to make sure all parts of the~product can work with virtual file systems (like  Azure or Amazon storage).}.
 
 \subsubsection{\textbf{Differences from Other CMS API Replacement Analyzers}}
-What makes this analyzer fundamentally different from all other analyzers in its category is, that instead of blacklisting particular members or methods from Microsoft API, it forbids the~whole namespace (all classes, enums, methods, members, etc.) apart from few whitelisted, well defined, exceptions. Other analyzers in CMS API Replacement category can reliably cut off the~analysis by looking at syntax and inspecting the~name of an~accessed member or method. Since only certain names are considered forbidden, vast majority of nodes will only be analyzed on the~syntax level. 
+What makes this analyzer fundamentally different from all other analyzers in its category is, that instead of blacklisting particular members or methods from Microsoft API, it forbids the~whole namespace (all classes, enums, methods, members, etc.) apart from few whitelisted, well defined, exceptions. Other analyzers in the~\textit{CMS API Replacement} category can reliably cut off the~analysis by looking at syntax and inspecting the~name of an~accessed member or method. Since only certain names are considered forbidden, vast majority of nodes will only be analyzed on the~syntax level. 
 
 However, it would be infeasible for \texttt{SystemIOAnalyzer} to list all possibilities of forbidden API usage. Therefore the~analyzer needs to advance to perform more complicated and expensive analysis on symbols. It analyzers whether the~symbol is defined in \texttt{System.IO} namespace and whether it is not whitelisted. Only then it raises the~diagnostic.
 
 Unlike other analyzers in the~category, that are bound to member access expressions or invocation expressions, the~\texttt{SystemIOAnalyzer} must inspect all syntax nodes of kind \texttt{IdentifierName}. As seen in Table~\ref{tab:solution-statistics}, there are more than 1.4 million such nodes. With the~naive implementation that directly accesses the~semantic model, the~performance of the~analyzer degrades very quickly. The~next two sections explain how the~optimization of the~analysis algorithm was achieved.
 
 \subsubsection{\textbf{Different versions of SystemIOAnalyzer}}
-The~very first version of the~analyzer (hereafter referred to as V1), had an~action registered on syntax nodes of kind \texttt{IdentifierName}. It accessed the~semantic model straight away in order to perform the~analysis on symbols. The~V1 took more than 18 seconds to run on the~CMS solution.
+The~very first version of the~analyzer (hereafter referred to as \textit{V1}), had an~action registered on syntax nodes of kind \texttt{IdentifierName}. It accessed the~semantic model straight away in order to perform the~analysis on symbols. The~\textit{V1} took more than 18 seconds to run on the~CMS solution.
 
-First optimization attempts were to register the~syntax node action within compilation start action. The~fastest version with this approach collected all diagnosed nodes in a~collection. In the~compilation end action, the~diagnostics were raised for all collected nodes in a~parallel for-loop. On average, this version of the~analyzer performed almost 2-times faster than the~V1.
+First optimization attempts were to register the~syntax node action within the~compilation start action. The~fastest version with this approach collected all diagnosed nodes in a~collection. In the~compilation end action, the~diagnostics were raised for all collected nodes in a~parallel \textit{for-loop}. On average, this version of the~analyzer performed almost 2-times faster than the~\textit{V1}.
 
-However, as pointed out by Roslyn development team on the~official GitHub repository~\cite{compilation-end-action-1, compilation-end-action-2}, registering compilation start and its end action, can cause problems for large solutions. This holds particularly for IDE live analysis. Not only can be the~analyzer's feedback delayed by several minutes, it might also lead to stale diagnostics in \textit{Error list} window.
+However, as pointed out by Roslyn development team on the~official GitHub repository~\cite{compilation-end-action-1, compilation-end-action-2}, registering compilation start and its end action, can cause problems for large solutions. This holds particularly for live IDE analysis. Not only can be the~analyzer's feedback delayed by several minutes, it might also lead to stale diagnostics in the~\textit{Error list} window.
 
-The~next optimization approach was to minimize the~number of actions that need to be invoked. The~analyzer must inspect all 1.4 million identifier name nodes. It can either register its action on syntax node of this kind, as the~previous versions did, or register a~syntax tree action and look for identifier names on its own. This reduces the~number of callbacks to at most 11,136 (number of documents). 
+The~next optimization approach was to minimize the~number of actions that need to be invoked. The~analyzer must inspect all 1.4~million identifier name nodes. It can either register its action on the~syntax node of this kind, as the~previous versions did, or register a~syntax tree action and look for identifier names on its own. This reduces the~number of callbacks to at most 11,136 (number of documents). 
 
-The~logic, however, is more complicated, as the~tree needs to be traversed in order to find the~nodes to be inspected. On the~other hand, if the~document does not contain string \textit{".IO"} at all, there will be no diagnostic and its analysis can be skipped. For the~fastest version with syntax tree action the~analysis took over 9 seconds. Even though it was faster than the~V1, it was still not ideal.
+The~logic, however, is more complicated, as the~tree needs to be traversed in order to find the~nodes to be inspected. On the~other hand, if the~document does not contain string \textit{".IO"} at all, there will be no diagnostic and its analysis can be skipped. For the~fastest version with syntax tree action the~analysis took over 9~seconds. Even though it was faster than the~\textit{V1}, it was still not ideal.
 
 \subsubsection{\textbf{The~Final Version}}
 \begin{figure}
@@ -952,24 +952,24 @@ The~logic, however, is more complicated, as the~tree needs to be traversed in or
 		\label{fig:uml-system-io-activity-diagram}
 \end{figure}
 
-None of the~versions described above provided a~significant performance improvement compared to V1. To understand the~limitations of the~analysis, two artificial analyzers were created, that registered an~action on identifier name syntax nodes. The~first one only registered an~empty callback. The~second one obtained the~symbol of the~inspected node from the~semantic model and then did a~dummy comparison of its name\footnote{This was just to make sure that the~compiler did not skip the~command of accessing the~semantic model, as part of an~optimization (if the~obtained symbol had not been used at all).}. Neither analyzer raised any diagnostic in the~CMS solution. 
+None of the~versions described above provided a~significant performance improvement compared to \textit{V1}. To understand the~limitations of the~analysis, two artificial analyzers were created, that registered an~action on identifier name syntax nodes. The~first one only registered an~empty callback. The~second one obtained the~symbol of the~inspected node from the~semantic model and then did a~dummy comparison of its name\footnote{This was just to make sure that the~compiler did not skip the~command of accessing the~semantic model, as part of an~optimization (if the~obtained symbol had not been used at all).}. Neither analyzer raised any diagnostic in the~CMS solution. 
 
 The~difference between the~execution times of these analyzers was significant. While the~empty callback took 0.54 seconds on average \footnote{The~presented values are the~averages from 100 MSBuild runs of the~CMS solution, obtained from \textit{Report-Analyzer.ps1} script described in the~previous section. The~box plots can be seen in~Figure~\ref{fig:system-io-versions-boxplots}.}, the~second one run for an~average of 7.89 seconds. 
 
-These measurement clearly showed, that if the~final version was to be faster, it had to implement some heuristic, that would allow to cut off the~analysis of inspected node without need to access the~semantic model. The~analysis logic of the~final solution is depicted by the~activity diagram in Figure~\ref{fig:uml-system-io-activity-diagram}. 
+These measurement clearly showed, that if the~final version was to be faster, it had to implement some heuristic, that would allow to cut off the~analysis of inspected node without need to access the~semantic model. The~analysis logic of the~final solution is depicted by an~activity diagram in Figure~\ref{fig:uml-system-io-activity-diagram}. 
 
-The~most important steps of the~whole optimization are the~second and the~third node of the~diagram (inspection of \textit{containing syntax tree} and \textit{containing dotted expression}\footnote{The~\textit{outermost dotted expression of an~identifier name} is the~outermost dotted expression of its parent, if the~parent is of kind \texttt{QualifiedName} or \texttt{SimpleMemberAccessExpression}, or the~node itself otherwise. For example, for identifier name \texttt{Stream} which is part of \texttt{System.IO.Stream} expression, the~outermost dotted expression is the~whole expression.}). They are performed purely on syntax and are extremely efficient in eliminating most of the~irrelevant nodes. 
+The~most important steps for the~optimization are the~second and the~third node of the~diagram (inspection of \textit{containing syntax tree} and \textit{containing dotted expression}\footnote{The~\textit{outermost dotted expression of an~identifier name} is the~outermost dotted expression of its parent, if the~parent is of kind \texttt{QualifiedName} or \texttt{SimpleMemberAccessExpression}, or the~node itself otherwise. For example, for identifier name \texttt{Stream} which is part of \texttt{System.IO.Stream} expression, the~outermost dotted expression is the~whole expression.}). They are performed purely on syntax and are extremely efficient in eliminating most of the~irrelevant nodes. 
 
-To prevent multiple inspections of same syntax tree for all its identifier name nodes, the~information whether the~tree contains \texttt{System.IO} using is cached in a~concurrent dictionary. This optimization technique managed to shrink the~analyzer's execution time on the~CMS solution to an~average of 2.40 seconds, whereas the~non-cached version took 10.94 seconds on average. 
+To prevent multiple inspections of same syntax tree for all its identifier name nodes, the~information whether the~tree contains \texttt{System.IO} using is cached in a~concurrent dictionary. This optimization technique managed to shrink the~analyzer's execution time on the~CMS solution to an~average of 2.40~seconds, whereas the~non-cached version took 10.94~seconds on average. 
 
 \begin{figure}
 		\centering
 			\includegraphics[scale=0.23]{img/system-io-versions-boxpolt}
-		\caption{Box plots of execution times of different versions of~the~\texttt{SystemIOAnalyzer}. Each dataset contains one~hundred~measurements.}
+		\caption{Box plots of execution times for different versions of~the~\texttt{SystemIOAnalyzer}. Each dataset contains one~hundred~measurements.}
 		\label{fig:system-io-versions-boxplots}
 \end{figure}
 
-A box plot diagram in Figure~\ref{fig:system-io-versions-boxplots} depicts the~execution times of final analyzer (with non-cached version as well), V1 analyzer and artificial analyzers serving as baselines. It is clear that the~cached version provides by far the~best results and was chosen as the~final implementation.
+A box plot diagram in Figure~\ref{fig:system-io-versions-boxplots} depicts the~execution times of the~final analyzer (with non-cached version as well), \textit{V1} analyzer, and artificial analyzers serving as baselines. It is clear that the~cached version provides by far the~best results and was chosen as the~final implementation.
 
 %\subsection{Other Optimizations}
 %Apart from optimizations of \texttt{SystemIOAnalyzer}, other analyzers, that turned up slowest after the~initial implementation, were improved in terms of their execution times.
@@ -988,16 +988,16 @@ A box plot diagram in Figure~\ref{fig:system-io-versions-boxplots} depicts the~e
 
 \section{Impact on build times}
 \label{sec:build-times}
-After the~deployment of BugHunter analyzers to the~CMS solution, the~impact on the~overall build time had to be evaluated. In order to do that, the~durations CMS solution's MSBuilds prior and after the~analyzers deployment were collected. Both versions of the~solution were built one hundred times and the~results of the~measurement are depicted in box plot diagram in Figure~\ref{fig:build-times-boxplots}.
+After the~deployment of BugHunter analyzers to the~CMS solution, the~impact on the~overall build time had to be evaluated. In order to do that, the~durations CMS solution's MSBuilds prior and after the~analyzers' deployment were collected. Both versions of the~solution were built one hundred times and the~results of the~measurement are depicted in box plot diagram in Figure~\ref{fig:build-times-boxplots}.
 
 \begin{figure}[h!]
 		\centering   
 			\includegraphics[scale=0.26]{img/build-time-boxplots}
-		\caption{Box plots comparing the~MSBuild time of CMS solution with and without BugHunter analyzers. Each dataset contains one~hundred~measurements.}
+		\caption{Box plots comparing the~MSBuild time of the~CMS solution with and without BugHunter analyzers. Each dataset contains one~hundred~measurements.}
 		\label{fig:build-times-boxplots}
 \end{figure}
 
-The~version without the~analyzers took an~average of 5.09 minutes to build, whereas for the~version with installed BugHunter analyzers it was 5.24 minutes. This means an~average of 9 seconds that were added to the~total build time. Considering this represents only 2.9\%, it is  not a~significant slowdown.
+The~version without the~analyzers took an~average of 5.09~minutes to build, whereas for the~version with installed BugHunter analyzers it was 5.24~minutes. This means an~average of 9~seconds that were added to the~total build time. Considering this represents only 2.9\%, it is  not a~significant slowdown.
 
 \newpage
 \section{Tool Evaluation}
@@ -1013,7 +1013,7 @@ The~primary goal was to evaluate these categories:
 \item[\textbf{Code fixes:}] Had they already used any suggested code fix? Did they it useful?
 \end{itemize}
 
-Out of approximately 19 developers currently working on the~product, 10 participated in the~survey. None of them complained about any performance degradation. The~interesting fact to find out was that 60\% of them did not use any third party tools for static code analysis, while the~rest mostly used ReSharper.
+Out of approximately 19~developers currently working on the~product, 10~participated in the~survey. None of them complained about any performance degradation. The~interesting fact to find out was that 60\% of them did not use any third party tools for static code analysis, while the~rest mostly used ReSharper.
 
 When asked about the~false positive or false negative results from the~tool, more than three quarters responded that they had not encountered any, while the~others answered \textit{"Not sure"}.
 
