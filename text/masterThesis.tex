@@ -258,7 +258,6 @@ The~following chapters on static code analysis and .NET compiler platform will b
 \label{chap:static-code-analysis}
 This chapter introduces the~concept of static code analysis. It compares the~analysis of source and compiled code, and focuses on the~source code analysis, listing its advantages and disadvantages. The~end of the~chapter provides an~overview of static code analysis tools available for the~.NET Compiler Platform.
 
-% TODO add citation
 As per~\cite{sca-ppt} and~\cite{sca-approach-in-sw-dev}, static code analysis refers to a~process of assessing the~program based on its form, structure, content and documentation; and reasoning over its possible behaviours without actually executing the~code. The~aim of static code analysis is to check the~compliance to specific rules and identify parts of the~program that might lead to possible vulnerabilities. The~term static code analysis is mostly used when speaking of an~automated tool. In contrast, \textit{code inspections} or \textit{code reviews} are performed by humans and can benefit from using static code analysis tools.
 
 \section{Source Code vs. Compiled Code Analysis}
@@ -314,7 +313,7 @@ The~integral part of every compiler for statically typed language. Rules are typ
 The~style checker defines rules for spacing, naming, commenting and general program structure that affect mostly the~readability and the~maintainability of the~program. 
 
 \subsubsection{\textbf{Program Understanding}}
-These tools aim to provide a~high-level program understanding beneficial mainly for larger codebases. They are most effective when integrated into the~IDEs where they can support \textit{go to declaration} or \textit{find all references} features, or even automatic program refactorings such as renaming or extracting a~variable.
+These tools aim to provide a~high-level program understanding beneficial mainly for larger codebases. They are most effective when integrated into the~IDEs\footnote{Integrated Development Environments} where they can support \textit{go to declaration} or \textit{find all references} features, or even automatic program refactorings such as renaming or extracting a~variable.
 
 \subsubsection{\textbf{Bug Finding}}
 The~ purpose of these type of static analyzers is to point out common mistakes in the~code. They report warnings in parts of the~program that are compliant with the~language specification but might not express the~programmer's intent, such as ignoring the~return value of a~function call.
@@ -328,7 +327,7 @@ Static inspections detect symptoms together with causes, whereas testing only po
 
 Manual code inspections can be very time-consuming and require high level of expertise from the~reviewer. Static code analysis helps to make the~code review process more efficient by checking for well-known issues which do not have to be considered during the~code review.
 
-Another advantage of automated code analysis is repeatability and scalability. Code analysis tool can be part of continuous integration\footnote{Process in which developers contribute regularly (multiple times a~day) into a~shared repository where the~code is continuously being verified by an~automated build and suite of automated tests.} (CI) process and can be also integrated to programming IDEs\footnote{Integrated Development Environment}. 
+Another advantage of automated code analysis is repeatability and scalability. Code analysis tool can be part of continuous integration\footnote{Process in which developers contribute regularly (multiple times a~day) into a~shared repository where the~code is continuously being verified by an~automated build and suite of automated tests.} (CI) process and can be also integrated to programming IDEs.
 
 As such, they are great for programmers who get instant feedback and learn more about mistakes they made. The~tools enforce higher code quality and guidelines compliance. As a~result, the~code should be more consistent, maintainable and easier to debug.
   
@@ -341,7 +340,7 @@ Worse, from the~security perspective, though, are the~false negatives. Not only 
 
 As presented earlier in this chapter, a~vast majority of code inspection tools must build a~model of the~source program in order to be able to analyze it. This requires duplication of compiler's logic, which itself is fairly complicated, and there is no guarantee that the~tool interprets the~source exactly the~same as the~compiler does. Moreover, for the~authors of the~tool, it means the~parsing logic has to be always up to date with the~language version in use. 
 
-\section{Static Code Analysis Tools Available on the~.NET Platform}
+\section{Static Code Analysis Tools Available for~.NET}
 Even if imperfect, static analysis tools are still a~valuable asset in software development process. This section presents tools for static code analysis that are commonly used on the~.NET platform.
 
 \subsection{FxCop}
@@ -382,7 +381,7 @@ The~Roslyn APIs also gave rise to more open source projects dealing with static 
 \chapter{The~.NET Compiler Platform}
 In~the~.NET world, the~compiler used~to~be a~black box that given the~file paths to~the~source text, produced an~executable. This perception was changed in~2015 when Microsoft introduced the~.NET Compiler Platform (commonly referred to as \textit{"Roslyn"}).
 
-Not only have been compilers for both Visual Basic and C\# rewritten into an~entirely managed code\footnote{The~term managed code refers to a~source code written in one of the~high-level programming languages available for use with Microsoft .NET Framework and require a~Common Language Runtime virtual machine in order to be executed.}, but they also expose the~internals of the~compiler pipeline via a~public .NET API~\footnote{Application Programming Interface}. This makes them a~platform (also known as \textit{compiler-as-a-service}) with rich code analysis APIs that can be leveraged by developers to perform analysis, code generation, or dynamic compilation in their own programs~\cite{roslyn-succinctly}. Those can be then easily integrated into Visual Studio without the~hard work of duplicating compilers' parsing logic.
+Not only have been compilers for both Visual Basic and C\# rewritten into an~entirely managed code\footnote{The~term managed code refers to a~source code written in one of the~high-level programming languages available for use with Microsoft .NET Framework and require a~Common Language Runtime virtual machine in order to be executed.}, but they also expose the~internals of the~compiler pipeline via a~public .NET API. This makes them a~platform (also known as \textit{compiler-as-a-service}) with rich code analysis APIs that can be leveraged by developers to perform analysis, code generation, or dynamic compilation in their own programs~\cite{roslyn-succinctly}. Those can be then easily integrated into Visual Studio without the~hard work of duplicating compilers' parsing logic.
 
 This chapter takes a~look at how the~Roslyn API layers are structured, how the~original source code is represented by the~compiler, and how developers can build tools upon the~compiler's API. Note, that although Roslyn provides equivalent APIs for both Visual Basic and C\#, this thesis only focuses on the~latter since it is relevant for the~practical part of the~thesis.  
   
