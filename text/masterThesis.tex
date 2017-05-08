@@ -256,13 +256,13 @@ The~following chapters on static code analysis and .NET compiler platform will b
 % =================================================================
 \chapter{Static Code Analysis}
 \label{chap:static-code-analysis}
-This chapter introduces the~concept of static code analysis. It compares the~analysis of source and compile code, and focuses on the~source code analysis, listing its advantages and disadvantages. The~endo of the~chapter provides an~overview of static code analysis tools available for the~.NET Compiler Platform.
+This chapter introduces the~concept of static code analysis. It compares the~analysis of source and compiled code, and focuses on the~source code analysis, listing its advantages and disadvantages. The~end of the~chapter provides an~overview of static code analysis tools available for the~.NET Compiler Platform.
 
 % TODO add citation
-Static code analysis refers to a~process of assessing the~program based on its form, structure, content and documentation and reasoning over its possible behaviours without actually executing the~code. The~aim of static analysis is to check the~compliance to specific rules and identify parts of the~program that might lead to possible vulnerabilities. The~term static code analysis is mostly used when speaking of an~automated tool. In contrast, \textit{code inspections} or \textit{code reviews} are performed by humans and can benefit from using static code analysis tools~\cite{oswap-sca, sca-ppt}.
+As per~\cite{sca-ppt} and~\cite{sca-approach-in-sw-dev}, static code analysis refers to a~process of assessing the~program based on its form, structure, content and documentation; and reasoning over its possible behaviours without actually executing the~code. The~aim of static code analysis is to check the~compliance to specific rules and identify parts of the~program that might lead to possible vulnerabilities. The~term static code analysis is mostly used when speaking of an~automated tool. In contrast, \textit{code inspections} or \textit{code reviews} are performed by humans and can benefit from using static code analysis tools.
 
 \section{Source Code vs. Compiled Code Analysis}
-There are two different approaches when analyzing a~program by an~automated tool: analyzing the~source code (as seen by the~compiler), and analyzing the~compiled code -- either some form of byte code~\footnote{An~intermediate representation of a~program, also known as "portable code", which is often for just-in-time compilation by interpreters.} or an~executable.
+There are two different approaches when analyzing a~program by an~automated tool~\cite{secure-programming-with-sca}: analyzing the~source code (as seen by the~compiler), or analyzing the~compiled code -- either some form of byte code~\footnote{An~intermediate representation of a~program, also known as "portable code", which is often an~input for just-in-time compilation by interpreters.} or an~executable.
 
 Sometimes it might be very complicated, or even infeasible, to obtain the~actual source code of the~program to be analyzed and the~only possibility is to analyze the~executable code. When the~tool is looking at a~compiled version of the~program, the~ambiguity of how the~source code will be translated by~the~compiler is removed.
 
@@ -271,12 +271,12 @@ However, analyzing compiled code can be very complex. Even if the~tool manages t
 Although the~above-mentioned complications speak clearly against analyzing binaries, the~situation is different when analyzing byte code formats (such as Java bytecode), where the~type and debugging information is present. The~rest of the~thesis focuses solely on source code analysis and the~following sections discuss the~theory behind it.
 
 \section{How It Works}
-There are many tools for static code analysis and each can analyze different flaws in the~program. However, for a~majority of them, the~basic structure looks the~same, as depicted in Figure~\ref{fig:static-code-analysis-internals}.
+There are many tools for static code analysis and each can be concerned with different attributes of the~program. However, for a~majority of them, the~basic structure looks the~same, as depicted in Figure~\ref{fig:static-code-analysis-internals}.
 
 \begin{figure}[h!]
 		\centering
 			\includegraphics[scale=0.80]{img/static-code-analysis-internals}
-		\caption{The~process of static analysis (adopted from~\cite{secure-programming-with-sca})}
+		\caption{The~process of static analysis, adopted from~\cite{secure-programming-with-sca}}.
 		\label{fig:static-code-analysis-internals}
 \end{figure}
 
@@ -294,15 +294,15 @@ In order to explore different execution paths that can take place when the~progr
 Data flow analysis is used to examine how data passes through the~program. Compilers utilize data flow analysis when doing code optimizations in order to remove unreachable code and allocate registers. An~example of how data flow analysis can be used by static analysis tools is to check that memory is always freed only once -- function \texttt{free(p)} was called at most once with the~address stored in pointer \texttt{p}.
 
 \subsubsection{\textbf{Taint Analysis}}
-According to~\cite{oswap-sca}, taint analysis attempts to identify variables containing possibly tainted user input using data flow analysis technique. If these variables are used as arguments to vulnerable functions without being sanitized first, the~tool reports their usage as vulnerable. The~taint propagation analysis is particularly relevant for security analysis, a~prime example being the~detection of a~potential SQL injection.
+According to~\cite{oswap-sca}, taint analysis attempts to identify variables containing possibly tainted user input using the~data flow analysis technique. If these variables are used as arguments to vulnerable functions without being sanitized first, the~tool reports their usage as vulnerable. The~taint propagation analysis is particularly relevant for security analysis, a~prime example being the~detection of a~potential SQL injection.
 
 \subsection{Rules}
 As stated in~\cite{sca-for-security}: \textit{"...if a~rule hasn’t been written yet to find a~particular problem, the~tool will never find that problem."} This implies that the~rules that specify what the~static analysis tool should report are just as important (or even more important) as the~heuristics and algorithms implemented by the~tool. Best tools for static code analysis externalize the~rule set in order to easily add, remove or alter the~rules, without modifying the~tool itself.
 
 \subsection{Report the~Results}
-An~often overlooked part of the~static analysis is the~result reporting. The~\cite{coverity-sca} asserts, that if a~programmer cannot understand the~output of the~static analysis, the~results are effectively useless as misunderstood explanation ends up with error being ignored or, worse, interpreted as a~false positive.
+An~often overlooked part of the~static analysis is the~result reporting. The~\cite{coverity-sca} asserts, that if a~programmer cannot understand the~output of the~static analysis, the~results are effectively useless since a~misunderstood explanation ends up with error being ignored or, worse, interpreted as a~false positive.
 
-As discussed in~\cite{secure-programming-with-sca}, good static analysis tool should provide means of \textit{grouping and sorting} the~results, \textit{suppressing the~unwanted results} (either directly in the~code with pragmas or code annotations or alternatively in a~configuration file) and mainly \textit{explaining the~results}. Every issue that is detected by the~tool should provide a~short title followed by a~detailed description of the~problem, severity of the~issue, recommendations on how the~problem can be fixed and possible further references to the~topic. The~tool can additionally provide a~confidence level estimating the~likelihood that the~finding is really correct.
+As discussed in~\cite{secure-programming-with-sca}, a~good static analysis tool should provide means of \textit{grouping and sorting} the~results, \textit{suppressing the~unwanted results} (either directly in the~code with pragmas or code annotations, or alternatively in a~configuration file) and mainly \textit{explaining the~results}. Every issue that is detected by the~tool should provide a~short title followed by a~detailed description of the~problem, severity of the~issue, recommendations on how the~problem can be fixed and possible further references to the~topic. The~tool can additionally provide a~confidence level estimating the~likelihood that the~finding is really correct.
 
 \section{What Problems Can Be Solved by SCA}
 There are different types of problems the~static analysis tool can tackle. This section enumerates some of the~categories applicable to static code analysis, as listed in~\cite{secure-programming-with-sca}.
@@ -314,45 +314,45 @@ The~integral part of every compiler for statically typed language. Rules are typ
 The~style checker defines rules for spacing, naming, commenting and general program structure that affect mostly the~readability and the~maintainability of the~program. 
 
 \subsubsection{\textbf{Program Understanding}}
-These tools aim to provide a~high-level program understanding beneficial mainly for larger codebases. They are most effective when integrated into the~IDEs where they can support "go to declaration" or "find all references" features or even automatic program refactorings such as renaming or extracting a~variable.
+These tools aim to provide a~high-level program understanding beneficial mainly for larger codebases. They are most effective when integrated into the~IDEs where they can support \textit{go to declaration} or \textit{find all references} features, or even automatic program refactorings such as renaming or extracting a~variable.
 
 \subsubsection{\textbf{Bug Finding}}
-The~ purpose of these type of static analyzers is to point out common mistakes in the~code. They report warnings in parts of program that are compliant with the~language specification but might not express the~programmer's intent, such as ignoring the~return value of a~function call.
+The~ purpose of these type of static analyzers is to point out common mistakes in the~code. They report warnings in parts of the~program that are compliant with the~language specification but might not express the~programmer's intent, such as ignoring the~return value of a~function call.
 
 Special type of bug finding checker is \textit{security review}, where specific vulnerabilities found in the~source code are reported. Security review searches for possible exploitations like buffer overflow or tainted inputs.
   
 \section{Advantages}
 One of the~key factors that advocate the~use of tools for static analysis, is how early in the~development process they can be applied. As opposed to dynamic testing, static code analysis can be performed on unfinished or even uncompilable code. The~longer the~defect stays in the~system, the~more damage it can cause and the~higher are the~costs of fixing it. As stated in~\cite[p. 29]{code-complete}, the~costs of fixing a~defect introduced during construction of a~program are 10-times higher if detected during system testing and 10 to 25-times higher in production, than it would be to fix it while still in development. Therefore, it is desirable to detect bugs as early as possible, which is where static code analysis can be leveraged.
 
-Static inspections detect symptoms together with causes whereas testing only points out the~symptoms with further effort required to find the~source of the~problem before it can be fixed~\cite[p. 472]{code-complete}.
+Static inspections detect symptoms together with causes, whereas testing only points out the~symptoms with further effort required to find the~source of the~problem before it can be fixed~\cite[p. 472]{code-complete}.
 
-Manual code inspections can be very time-consuming and require high level of expertise from the~reviewer. Static code analysis help to make the~code review process more efficient by checking for well-known flaws which do not have to be considered during code review.
+Manual code inspections can be very time-consuming and require high level of expertise from the~reviewer. Static code analysis helps to make the~code review process more efficient by checking for well-known issues which do not have to be considered during the~code review.
 
-Another advantage of automated code analysis is repeatability and scalability. Code analysis tool can be part of Continuous Integration\footnote{Process in which developers contribute regularly (multiple times a~day) into a~shared repository where the~code is continuously being verified by an~automated build and suite of automated tests.} (CI) process and can be also integrated to programming IDEs\footnote{Integrated Development Environment}. 
+Another advantage of automated code analysis is repeatability and scalability. Code analysis tool can be part of continuous integration\footnote{Process in which developers contribute regularly (multiple times a~day) into a~shared repository where the~code is continuously being verified by an~automated build and suite of automated tests.} (CI) process and can be also integrated to programming IDEs\footnote{Integrated Development Environment}. 
 
-As such, they are a~great for programmers who get instant feedback and learn more about mistakes they made. The~tools enforce higher code quality and guidelines compliance. As a~result, the~code should be more consistent, maintainable and easier to debug.
+As such, they are great for programmers who get instant feedback and learn more about mistakes they made. The~tools enforce higher code quality and guidelines compliance. As a~result, the~code should be more consistent, maintainable and easier to debug.
   
 \section{Disadvantages}
 The~Rice's theorem~\cite{direct-proofs-of-rices-theorem} says, that any non-trivial question about program's semantics is undecidable. As a~consequence, there will never be a~static analysis tool able to answer all the~questions perfectly. The~tools can produce \textit{false positives} (a problem which does not actually exist is reported) and \textit{false negatives} (the program contains a~problem, but it was not reported by the~tool).
 
 Prevailing complaints against static analysis tools concern false positives. A long list of false positives means real bugs can be overlooked and programmers can eventually lose trust in the~tool.
 
-Worse, from the~security perspective, are false negatives. Not only the~bug was not found and might cause future problems, but they also provide a~false sense of security to the~programmers. 
+Worse, from the~security perspective, though, are the~false negatives. Not only the~bug was not found and might cause future problems, but they also provide a~false sense of security to the~programmers. 
 
 As presented earlier in this chapter, a~vast majority of code inspection tools must build a~model of the~source program in order to be able to analyze it. This requires duplication of compiler's logic, which itself is fairly complicated, and there is no guarantee that the~tool interprets the~source exactly the~same as the~compiler does. Moreover, for the~authors of the~tool, it means the~parsing logic has to be always up to date with the~language version in use. 
 
 \section{Static Code Analysis Tools Available on the~.NET Platform}
-Even if imperfect, static analysis tools are still valuable asset in software development process. This section presents tools for static code analysis that are commonly used on the~.NET platform.
+Even if imperfect, static analysis tools are still a~valuable asset in software development process. This section presents tools for static code analysis that are commonly used on the~.NET platform.
 
 \subsection{FxCop}
 FxCop is a~free tool by Microsoft for analyzing managed code assemblies (targeting .NET Framework) for conformance to .NET Framework Design Guidelines\footnote{\url{https://msdn.microsoft.com/en-us/library/ms229042(v=vs.110).aspx}} in areas such as design, localization, performance, security, naming or portability. 
 
-It includes more than 200 predefined checks and a~possibility to add custom rules using FxCop SDK\footnote{Software Development Kit}. It is available in two forms: fully featured application with graphical user interface and a~command line tool that is easily integrated to automated build process. 
+It includes more than 200 predefined checks and a~possibility to add custom rules using FxCop SDK\footnote{Software Development Kit}. It is available in two forms: fully featured application with graphical user interface and a~command line tool that is easily integrated into an~automated build process. 
 
 \subsection{StyleCop}
 Another tool by Microsoft is an~open source project StyleCop\footnote{\url{https://github.com/StyleCop/StyleCop}} for analyzing C\# code for conformance to style and consistency with .NET Framework Design Guidelines. Unlike FxCop, StyleCop analysis is performed on the~source code, which enables it to look for a~different set of style violations. The~rules are divided into categories such as documentation, naming, ordering, spacing and readability. 
 
-Some of the~rules are: placing the~opening curly brace on a~new line, spaces around binary operators, method names starting with an~upper-case. The~tool is configurable and development team can specify its own style to be checked, for example, to enforce spaces over tabs. It is available either a~Visual Studio extension or a~NuGet package that can be installed to the~project.
+Some of the~rules are: placing the~opening curly brace on a~new line, spaces around binary operators, method names starting with an~upper-case. The~tool is configurable and development team can specify its own style to be checked, for example, to enforce spaces over tabs. It is available either as a~Visual Studio extension or as a~NuGet package that can be installed to the~project.
 
 \subsection{CodeRush Classic}
 CodeRush Classic\footnote{\url{https://www.devexpress.com/Products/CodeRush}} is a~solution-wide static code analysis tool for Visual Studio by vendor DevExpress. It enhances the~IDE with more advanced features like assembly decompilation, automated code generation, advanced code selection, code formatting and cleanup. The~tool focuses on developer's productivity by not only finding bugs but also providing an~automated way of fixing them.
@@ -368,13 +368,13 @@ ReSharper provides hundreds of quick-fixes that solve discovered problems and ha
 \subsection{Analyzers Written with Roslyn}
 The~tools described above have one aspect in common -- they all need to parse the~code before they can analyze it. The~cost of maintaining a~custom C\# parser and keeping it up to date with every new language version is fairly difficult, inefficient, and of course, costly. 
 
-With the~release of new .NET Compiler Platform (Roslyn), which is discussed in detail in the~following chapter, the~need for parsing C\# and Visual Basic sources is eliminated and tools that build upon this platform can concentrate solely on analysis itself.
+With the~release of new .NET Compiler Platform (Roslyn), which is discussed in detail in the~following chapter, the~need for parsing C\# and Visual Basic sources is eliminated and tools that build upon this platform can concentrate solely on the~analysis itself.
 
-Some vendors, like Jet Brains, who invested years of development into the~creation of the~tools, claim ~\cite{resharper-and-roslyn-qa}, it does not pay off to rewrite the~whole program so that it uses new Microsoft compiler. Not only would it take an~enormous effort to rewrite all the~functionality to use new framework, but they would risk destabilizing the~product and losing years of optimizations and testing. Moreover, ReSharper is multilingual tool whereas .NET Compiler platform "only" provides C\# and Visual Basic parsers.
+Some vendors, like Jet Brains, who invested years of development into the~creation of the~tools, claim~\cite{resharper-and-roslyn-qa}, it does not pay off to rewrite the~whole program so that it uses new Microsoft compiler. Not only would it take an~enormous effort to rewrite all the~functionality to use the~new framework, but they would also risk destabilizing the~product and losing years of optimizations and testing. Moreover, ReSharper is multilingual tool whereas .NET Compiler platform "only" provides C\# and Visual Basic parsers.
 
 Other companies, such as DevExpress with CodeRush\footnote{CodeRush Classic referrs to the~version before Roslyn} or Microsoft with StyleCop Analyzers, decided to use this new approach. The~effects on Visual Studio performance were immediate. Neither the~solution has to be parsed by the~tool, nor duplicate syntax trees need to be stored. As a~result, the~load times and memory consumption were significantly lowered.
 
-The~Roslyn APIs also gave rise to more open source projects dealing with static code analysis, such as CodeCracker\footnote{\url{https://code-cracker.github.io}}. As challenging as it was in the~past, static code analysis is now rather easy, thanks to powerful analysis APIs. The~following chapter takes a~look at the~.NET Compiler Platform and how it can be used to perform the~static code analysis.
+The~Roslyn APIs also gave rise to more open source projects dealing with static code analysis, such as CodeCracker\footnote{\url{https://code-cracker.github.io}}. As challenging as it was in the~past, static code analysis is now rather easy, thanks to powerful analysis APIs. The~following chapter takes a~look at the~.NET Compiler Platform and how it can be used to write custom tool for the~static code analysis.
 
 % =================================================================
 % ============================= CHAPTER 4 =========================
