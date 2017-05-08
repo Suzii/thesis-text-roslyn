@@ -1,9 +1,9 @@
 % Change 'digital' to 'printed' before printing
 \documentclass[
   digital, %% This option enables the~default options for the
-           %% digital version of a document. Replace with `printed`
+           %% digital version of a~document. Replace with `printed`
            %% to enable the~default options for the~printed version
-           %% of a document.
+           %% of a~document.
   table,   %% Causes the~coloring of tables. Replace with `notable`
            %% to restore plain tables.
   lof,     %% Prints the~List of Figures. Replace with `nolof` to
@@ -14,7 +14,7 @@
   %% More options are listed in the~user guide at
   %% <http://mirrors.ctan.org/macros/latex/contrib/fithesis/guide/mu/fi.pdf>.
 ]{fithesis3}
-%% The following section sets up the~locales used in the~thesis.
+%% The~following section sets up the~locales used in the~thesis.
 \usepackage[resetfonts]{cmap} %% We need to load the~T2A font encoding
 \usepackage[main=english, slovak]{babel}
 
@@ -22,7 +22,7 @@
 %% fonts:
 \usepackage{paratype}
 %%1
-%% The following section sets up the~metadata of the~thesis.
+%% The~following section sets up the~metadata of the~thesis.
 \thesissetup{
     date          = 2017/5/22,
     university    = mu,
@@ -44,7 +44,7 @@
 
 }
 
-%% The following section sets up the~bibliography.
+%% The~following section sets up the~bibliography.
 \usepackage{csquotes}
 \usepackage[              %% When typesetting the~bibliography, the
   backend=biber,          %% `numeric` style will be used for the
@@ -54,10 +54,10 @@
   sortlocale=auto         %% For more unformation about the~available
 ]{biblatex}               %% `style`s and `citestyles`, see:
 %% <http://mirrors.ctan.org/macros/latex/contrib/biblatex/doc/biblatex.pdf>.
-\addbibresource{mybib.bib} %% The bibliograpic database within
+\addbibresource{mybib.bib} %% The~bibliograpic database within
                           %% the~file `example.bib` will be used.
 
-\usepackage{makeidx}      %% The `makeidx` package contains
+\usepackage{makeidx}      %% The~`makeidx` package contains
 \makeindex                %% helper commands for index typesetting.
 
 %% These additional packages are used within the~document:
@@ -77,58 +77,58 @@
 % ============================= CHAPTER 1 =========================
 % ====================================================  =============
 \chapter{Introduction}
-%First some paragraphs for the introduction of the topic (references to general articles can be taken from other parts of the thesis). In this case, this can be an introduction about the importance of static code analysis in general (and in the specific for Kentico);
+%First some paragraphs for the~introduction of the~topic (references to general articles can be taken from other parts of the~thesis). In this case, this can be an~introduction about the~importance of static code analysis in general (and in the~specific for Kentico);
 
-Software bugs have been around for as long as the software itself. Even for a program that has been thoroughly tested, the bugs are inevitable. The longer they are present in the code, the more expensive and difficult it is for them to be removed. 
+Software bugs have been around for as long as the~software itself. Even for a~program that has been thoroughly tested, the~bugs are inevitable. The~longer they are present in the~code, the~more expensive and difficult it is for them to be removed. 
 
 Every year, billions of dollars are lost due to software that does not perform as expected. 
-%Hours of downtime, maintenance costs, countless calls to customer support, and angry users among the visible implications of the software product not meeting its requirements. 
-While the conformance to the customer requirements is mostly validated by functional testing, there is more to software quality than that. To cover the attributes like maintenance, readability, reusability or testability, that directly affect customers' perception of product's quality, other inspection techniques need to be involved as well. Different possibilities from formal inspections of the code, peer code reviews, pair programming, or use of automated tools for static code analysis, can be applied to ensure the quality of the code. The key to achieving quality software lies in the combination of these techniques. 
+%Hours of downtime, maintenance costs, countless calls to customer support, and angry users among the~visible implications of the~software product not meeting its requirements. 
+While the~conformance to the~customer requirements is mostly validated by functional testing, there is more to software quality than that. To cover the~attributes like maintenance, readability, reusability or testability, that directly affect customers' perception of product's quality, other inspection techniques need to be involved as well. Different possibilities from formal inspections of the~code, peer code reviews, pair programming, or use of automated tools for static code analysis, can be applied to ensure the~quality of the~code. The~key to achieving quality software lies in the~combination of these techniques. 
 
-With the ever-growing sizes of the software products, arose the need for automated tools that would help with identifying code issues. Applying static code analysis on a software project brings a first form of code review before the software is even run. They can be applied in the earliest stages of the software development lifecycle. Unlike testing, static code analysis can be done on unfinished or even uncompilable source code. Moreover, it identifies the root causes of the bugs, unlike dynamic testing which only points out to their consequences. 
+With the~ever-growing sizes of the~software products, arose the~need for automated tools that would help with identifying code issues. Applying static code analysis on a~software project brings a~first form of code review before the~software is even run. They can be applied in the~earliest stages of the~software development lifecycle. Unlike testing, static code analysis can be done on unfinished or even uncompilable source code. Moreover, it identifies the~root causes of the~bugs, unlike dynamic testing which only points out to their consequences. 
 
-Use of static code analysis tools provides an obvious solution for they are great in unveiling bugs that are commonly missed by unit, integration or system testing. Furthermore, they are cheaper, repeatable and more efficient than manual code reviews. 
+Use of static code analysis tools provides an~obvious solution for they are great in unveiling bugs that are commonly missed by unit, integration or system testing. Furthermore, they are cheaper, repeatable and more efficient than manual code reviews. 
 
-For a~software company like Kentico, that develops a product for thousands of other developers and marketers building their own business on the top of Kentico's CMS, high source code quality is extremely important. It means faster time-to-market, less maintenance effort, fewer bugs, and therefore reduced costs for customer support. It enables engineers to focus on developing new features rather then dealing with unmaintainable code base. 
+For a~software company like Kentico, that develops a~product for thousands of other developers and marketers building their own business on the~top of Kentico's CMS, high source code quality is extremely important. It means faster time-to-market, less maintenance effort, fewer bugs, and therefore reduced costs for customer support. It enables engineers to focus on developing new features rather then dealing with unmaintainable code base. 
 
-%then there should be some Problem Statement section: which problem the current thesis addresses. It should also tell why it's an important problem to be solved;
+%then there should be some Problem Statement section: which problem the~current thesis addresses. It should also tell why it's an~important problem to be solved;
 
-Over the course of last ten years, many internal guidelines and best practices were established at Kentico. Since it became increasingly harder to keep a track of all those rules during the manual code reviews, a console application BugHunter was developed. It checked for the most common mistakes and violations of internal rules within the Kentico solution. The checks were performed by simple string matching. Even though its simplicity shrank the initial costs of developing such tool to minimum, the reliability paid the price. 
+Over the~course of last ten years, many internal guidelines and best practices were established at Kentico. Since it became increasingly harder to keep a~track of all those rules during the~manual code reviews, a~console application BugHunter was developed. It checked for the~most common mistakes and violations of internal rules within the~Kentico solution. The~checks were performed by simple string matching. Even though its simplicity shrank the~initial costs of developing such tool to minimum, the~reliability paid the~price. 
 
-Occasional false positive results meant that some pieces of the code had to be written in an obscure way in order to pass the BugHunter check. Due to lack of any semantic analysis, many issues were not detected at all, and with false negatives slipping also through the code reviews, this could have caused bugs in production. 
+Occasional false positive results meant that some pieces of the~code had to be written in an~obscure way in order to pass the~BugHunter check. Due to lack of any semantic analysis, many issues were not detected at all, and with false negatives slipping also through the~code reviews, this could have caused bugs in production. 
 
-%+ the goal(s) of the thesis that needs to be reached
-%+ the contribution that the the thesis provides to a reader (e.g. also a prototype software is a contribution)\
-The goal of this thesis is to create a new static code analysis tool, that would replace the original C\# checks in BugHunter, and would mitigate the flaws of the previous solution. The tool should be written using the new .NET Compiler Platform (code-named \textit{"Roslyn"}) and should be integrated to both Visual Studio and the Continuous Integration process at Kentico. The new BugHunter analyzers should raise warnings for code that does not comply to Kentico's internal guidelines. Where suitable, the tool should also provide an instant code fix. Since the tool will be deployed in the production, it needs to be thoroughly tested and be efficient, so that it does not degrade the developers' experience.
+%+ the~goal(s) of the~thesis that needs to be reached
+%+ the~contribution that the~the thesis provides to a~reader (e.g. also a~prototype software is a~contribution)\
+The~goal of this thesis is to create a~new static code analysis tool, that would replace the~original C\# checks in BugHunter, and would mitigate the~flaws of the~previous solution. The~tool should be written using the~new .NET Compiler Platform (code-named \textit{"Roslyn"}) and should be integrated to both Visual Studio and the~Continuous Integration process at Kentico. The~new BugHunter analyzers should raise warnings for code that does not comply to Kentico's internal guidelines. Where suitable, the~tool should also provide an~instant code fix. Since the~tool will be deployed in the~production, it needs to be thoroughly tested and be efficient, so that it does not degrade the~developers' experience.
 
-The implemented analyzers are not be concerned with naming or ordering conventions, since there are already many (also Roslyn-based) tools dealing with this problem. These can be easily configured to specific needs of the development team. Instead, the new analyzers will only focus on the rules which require tailored approach that cannot be found in other available solutions. 
+The~implemented analyzers are not be concerned with naming or ordering conventions, since there are already many (also Roslyn-based) tools dealing with this problem. These can be easily configured to specific needs of the~development team. Instead, the~new analyzers will only focus on the~rules which require tailored approach that cannot be found in other available solutions. 
 
-%+ the structure for all the chapters in the thesis
-The second chapter provides a theoretical background behind the static code analysis tools in general -- source code compilation. It shortly describes the phases of the compilation process and focuses on the analysis or \textit{front end} part which is fundamental for any static code analysis tool.
+%+ the~structure for all the~chapters in the~thesis
+The~second chapter provides a~theoretical background behind the~static code analysis tools in general -- source code compilation. It shortly describes the~phases of the~compilation process and focuses on the~analysis or \textit{front end} part which is fundamental for any static code analysis tool.
 
-In the third chapter, the concept of the static code analysis is described. It informs the reader about the possibilities of analyzing the compiled code and then focuses on the analysis of the source code. It provides an overview of the problems that can be solved by static code analysis and lists the advantages and disadvantages. The last section presents the tools for static code analysis available for .NET platform.
+In the~third chapter, the~concept of the~static code analysis is described. It informs the~reader about the~possibilities of analyzing the~compiled code and then focuses on the~analysis of the~source code. It provides an~overview of the~problems that can be solved by static code analysis and lists the~advantages and disadvantages. The~last section presents the~tools for static code analysis available for .NET platform.
 
-The fourth chapter of the thesis concludes the theoretical part by introducing the .NET Compiler Platform which was utilized during the development. It gives an insight into the internals of the CSharp compiler, familiarizes the reader with the immutable data structures used when working with Roslyn, and demonstrates how the Diagnostic APIs\footnote{Application Programming Interfaces} can be applied to build custom static code analyzers and code fixes.
+The~fourth chapter of the~thesis concludes the~theoretical part by introducing the~.NET Compiler Platform which was utilized during the~development. It gives an~insight into the~internals of the~CSharp compiler, familiarizes the~reader with the~immutable data structures used when working with Roslyn, and demonstrates how the~Diagnostic APIs\footnote{Application Programming Interfaces} can be applied to build custom static code analyzers and code fixes.
 
-The second part of the thesis is concerned with the implementation of the new BugHunter analyzers. In the fifth chapter the original BugHunter application is introduced, along with the issues that are being addressed by this thesis. It defines the analyzers' categories and shows some of the design patterns that were utilized during the implementation. The chapter shortly mentions the implemented code fixes and discusses the importance of tests.
+The~second part of the~thesis is concerned with the~implementation of the~new BugHunter analyzers. In the~fifth chapter the~original BugHunter application is introduced, along with the~issues that are being addressed by this thesis. It defines the~analyzers' categories and shows some of the~design patterns that were utilized during the~implementation. The~chapter shortly mentions the~implemented code fixes and discusses the~importance of tests.
 
-Lastly, the sixth chapter focuses on the performance aspect of the developed tool. It explains how the performance of the separate analyzers was measured and specifically points out the iterative optimization of one particular analyzer. It also assesses the impact of the analyzers on build times and summarizes the views on the development team on the new tool.
+Lastly, the~sixth chapter focuses on the~performance aspect of the~developed tool. It explains how the~performance of the~separate analyzers was measured and specifically points out the~iterative optimization of one particular analyzer. It also assesses the~impact of the~analyzers on build times and summarizes the~views on the~development team on the~new tool.
 
 
 % =================================================================
 % ============================= CHAPTER 2 =========================
 % =================================================================
-\chapter{Background -- Compiling Source Code}
+\chapter{Compiling Source Code}
 \label{chap:compilers}
-This chapter presents the theory of compiling the source code. It focuses primarily on an analysis part of a compilation process which is fundamental for the rest of the thesis for being a concept behind all static code analysis tools.
+This chapter explains the~theory behind the~source code compilation. It focuses primarily on~an~analysis part of~a~compilation process which is fundamental for the~rest of~the~thesis for~being a~concept behind all~static code analysis tools.
 
-As~per~\cite{dragon-book}, a compiler is a~program that can read a~program in a~\textit{source} language and~translate it into a~semantically equivalent program in~a~\textit{target} language while reporting any errors detected in~the~translation process. The compiler may sometimes rely on other programs. For example, \textit{preprocessor} is responsible for collecting the~source code to be fed to the~compiler by expanding shorthands (macros) into source language statements. 
+As~per~\cite{dragon-book}, a~compiler is a~program that can read a~program in a~\textit{source} language and~translate it into a~semantically equivalent program in~a~\textit{target} language while reporting any errors detected during the~translation. The~compiler may sometimes rely on~other programs. For example, \textit{preprocessor} is responsible for~collecting the~source code to~be~fed to~the~compiler by expanding shorthands (macros) into~source language statements. 
 
-The compilation process can be divided into two parts: \textit{analysis} and \textit{synthesis}; commonly referred to as \textit{front end} and \textit{back end} of the~compiler.
+The~compilation process can be divided into~two parts: \textit{analysis} and \textit{synthesis}; commonly referred~to as~\textit{front end} and \textit{back end} of~the~compiler.
 
-The purpose of the~analysis part is to break up the~source program into chunks and build up a~grammatical structure that it corresponds to, based on the~source language grammar. This structure is subsequently transformed into an~intermediate representation of the~source program. Along the~way, the~compiler collects information about the~program and stores it into a~data structure called \textit{symbol table}. If any errors in syntax or semantics are encountered, analysis part shall inform the~programmer about the~problem. Otherwise, both intermediate representation and symbol table are passed to the~synthesis part where they are used for the~construction of the~target program.
+The~purpose of~the~analysis part is~to break~up the~source program into~chunks and build~up a~grammatical structure that it corresponds~to, based on~the~source language grammar. This structure is subsequently transformed into an~intermediate representation of the~source program. Along the~way, the~compiler collects information about the~program and stores it into a~data structure called \textit{symbol table}. If~any~errors in~syntax or semantics are encountered, analysis part shall inform the~programmer about the~problem. Otherwise, both intermediate representation and symbol table are passed to~the~synthesis part where they are used for~the~construction of~the~target program.
 
-The two main steps of compilation process internally consist of different phases as shown in Figure~\ref{fig:compiler-phases}. Each phase transforms one representation of source language into another, and passes it to the~following phase while working with the~symbol table during the~process. In synthesis phase, an~optional machine-independent optimizations can take place and are done on the~top of intermediate representation. After target machine code is generated, additional machine-dependent code optimizations are performed.
+The~two main steps of compilation process internally consist of different phases as shown in Figure~\ref{fig:compiler-phases}. Each phase transforms one representation of source language into another, and passes it to the~following phase while working with the~symbol table during the~process. In synthesis phase, an~optional machine-independent optimizations can take place and are done on the~top of intermediate representation. After target machine code is generated, additional machine-dependent code optimizations are performed.
 
 \begin{figure}[h!]
 		\centering
@@ -140,11 +140,11 @@ The two main steps of compilation process internally consist of different phases
 For the~purpose of this thesis, mainly the~analysis part is relevant and following section will elaborate on its respective phases.
 
   \section{Lexical analysis}
-The compilation process starts with \textit{lexical analysis} or \textit{scanning}. The scanner transforms stream of characters of the~source program, as written by the~programmer, into the~series of meaningful sequences called \textit{lexemes}. Most programming languages allow for an~arbitrary number of white spaces to be present in the~source text to aid readability. However, white spaces, similarly as comments, are unimportant for the~target code generation itself, and thus the~lexical analyzer is responsible for discarding them completely.
+The~compilation process starts with \textit{lexical analysis} or \textit{scanning}. The~scanner transforms stream of characters of the~source program, as written by the~programmer, into the~series of meaningful sequences called \textit{lexemes}. Most programming languages allow for an~arbitrary number of white spaces to be present in the~source text to aid readability. However, white spaces, similarly as comments, are unimportant for the~target code generation itself, and thus the~lexical analyzer is responsible for discarding them completely.
 
-In order to be able to correctly recognize the~lexeme, lexical analyzer may need to read ahead. For example, in C--like languages if the~scanner sees \texttt{<} character, it cannot decide whether it is a~lexeme for \textit{"less than"} operator or it is s part of \textit{"less then or equal to"} lexeme. In order to do that, it needs to read ahead and see if the~following character is \texttt{=} or not. Reading ahead is usually implemented with an~input buffer which the~lexical analyzer can read from and push back to. The use of buffer also boosts the~performance as fetching block of characters is more efficient as fetching one at a~time~\cite{dragon-book}.
+In order to be able to correctly recognize the~lexeme, lexical analyzer may need to read ahead. For example, in C--like languages if the~scanner sees \texttt{<} character, it cannot decide whether it is a~lexeme for \textit{"less than"} operator or it is s part of \textit{"less then or equal to"} lexeme. In order to do that, it needs to read ahead and see if the~following character is \texttt{=} or not. Reading ahead is usually implemented with an~input buffer which the~lexical analyzer can read from and push back to. The~use of buffer also boosts the~performance as fetching block of characters is more efficient as fetching one at a~time~\cite{dragon-book}.
 
-The lexical analyzer typically uses regular expressions to identify the~lexemes and for each lexeme, it outputs a~\textit{token} (or \textit{token object}) of the~form 
+The~lexical analyzer typically uses regular expressions to identify the~lexemes and for each lexeme, it outputs a~\textit{token} (or \textit{token object}) of the~form 
 \begin{equation}
   \langle token \textnormal{-} name, attribute \textnormal{-} name \rangle \textnormal{.}
 \end{equation}
@@ -166,14 +166,14 @@ the scanner output could be
   \langle id, 3 \rangle
 \end{equation}
 
-Lexemes can be divided into logical groups such as identifiers, relational operators, arithmetical operators, constants or keywords as seen in the~example above. The scanner often uses regular expressions to identify tokens.
+Lexemes can be divided into logical groups such as identifiers, relational operators, arithmetical operators, constants or keywords as seen in the~example above. The~scanner often uses regular expressions to identify tokens.
 
 Each identifier (\texttt{id}) has an~attribute which points to the~entry of the~symbol table, where information about identifier name, type or position in the~source text is stored. Similar holds for constants like "42" in the~example. In the~(2.3) example, the~assignment and addition symbols do not have attributes but different representation can be used, such as $ \langle bin \textnormal{-} op, 2 \rangle $. In this case, \texttt{bin-op} would denote it is a~binary operator and number two would be a~pointer to symbol table with all symbols for binary operations while the~second index suggests that it represents an~addition.
 
   \section{Syntax Analysis}
-The stream of token objects along with partially populated symbol table is an~input for the~subsequent compiler phase -- \textit{syntax analysis} or \textit{parsing}. The parser has to verify that the~sequence of token names can be produced by the~grammar for the~source language and for a~well-formed program, it shall output a~\textit{syntax tree} or often referred to as an~abstract syntax tree (AST)\footnote{The AST is an~intermediate representation of source program in which each interior node represents an~operation (programming construct) with the~children of the~node representing the~arguments of that operation. As opposed to \textit{parse syntax tree}, in which interior nodes are nonterminals of the~grammar, ASTs are more lightweight and they might omit some nodes which exist purely as a~result of grammar's production rules~\cite{secure-programming-with-sca}.}.
+The~stream of token objects along with partially populated symbol table is an~input for the~subsequent compiler phase -- \textit{syntax analysis} or \textit{parsing}. The~parser has to verify that the~sequence of token names can be produced by the~grammar for the~source language and for a~well-formed program, it shall output a~\textit{syntax tree} or often referred to as an~abstract syntax tree (AST)\footnote{The~AST is an~intermediate representation of source program in which each interior node represents an~operation (programming construct) with the~children of the~node representing the~arguments of that operation. As opposed to \textit{parse syntax tree}, in which interior nodes are nonterminals of the~grammar, ASTs are more lightweight and they might omit some nodes which exist purely as a~result of grammar's production rules~\cite{secure-programming-with-sca}.}.
 
-The resulting AST for the~token stream generated in (2.2) is depicted in Figure~\ref{fig:compilers-abstract-syntax-tree}. The tree shows how multiplication precedence rule of the~language's grammar was applied on the~expression.
+The~resulting AST for the~token stream generated in (2.2) is depicted in Figure~\ref{fig:compilers-abstract-syntax-tree}. The~tree shows how multiplication precedence rule of the~language's grammar was applied on the~expression.
 
 \begin{figure}
   \centering
@@ -194,7 +194,7 @@ The resulting AST for the~token stream generated in (2.2) is depicted in Figure~
   \label{fig:compilers-abstract-syntax-tree}
 \end{figure}
 
-The syntax analyzer uses a~context free grammar (CFG) to form the~syntax tree. The CFG is defined by a~4-tuple consisting of:
+The~syntax analyzer uses a~context free grammar (CFG) to form the~syntax tree. The~CFG is defined by a~4-tuple consisting of:
 \begin{description}
   \item[Terminals] -- token names (first component of the~token) as obtained from the~previous compilation step.
   \item[Nonterminals] -- syntactic variables that help to impose the~hierarchical structure of the~language and represent set of strings.
@@ -202,7 +202,7 @@ The syntax analyzer uses a~context free grammar (CFG) to form the~syntax tree. T
   \item[Productions] -- rules that specify how nonterminals can be rewritten to sequences of zero or more terminal and nonterminal symbols. 
 \end{description}
 
-An example of a~production denoting the~construction of a~\texttt{while-cycle} would be
+An~example of a~production denoting the~construction of a~\texttt{while-cycle} would be
 \begin{equation}
   stmt 
   \rightarrow 
@@ -219,7 +219,7 @@ where nonterminals \textit{stmt} and \textit{expr} stand for a~statement and exp
 There are several types of errors that can be encountered during the~compilation process:
 \begin{compactitem}
   \item\textbf{lexical errors}, such as misspelling the~identifier name,
-  \item\textbf{syntactic errors}, for example a missing semicolon,
+  \item\textbf{syntactic errors}, for example a~missing semicolon,
   \item\textbf{semantic error}, like incorrect number of function arguments,
   \item\textbf{logical errors}, that do not really prevent the~program from compiling, but can indicate possible mistakes (for instance using the~assignment operator \texttt{=} instead of the~comparison operator \texttt{==} in condition of an~if-statement).
 \end{compactitem} 
@@ -228,7 +228,7 @@ There are several types of errors that can be encountered during the~compilation
 It's parser responsibility to report the~presence of potential syntactic error and recover from the~error in order to continue with syntactic analysis and be able to detect any subsequent errors. There are two main strategies for the~error recovery~\cite{dragon-book}
 
   \subsubsection{\textbf{Panic-Mode Recovery}}
-In this method, after parser encounters an~error, it searches for a~\textit{synchronizing token} (usually delimiters such as semicolon or close brace) and until found, all the~symbols are thrown away one by one. Even though panic-mode recovery often discards significant amount of input while searching for the~synchronization token, it is guaranteed not to end up in an infinite loop.
+In this method, after parser encounters an~error, it searches for a~\textit{synchronizing token} (usually delimiters such as semicolon or close brace) and until found, all the~symbols are thrown away one by one. Even though panic-mode recovery often discards significant amount of input while searching for the~synchronization token, it is guaranteed not to end up in an~infinite loop.
 
   \subsubsection{\textbf{Phrase-Level Recovery}}
 Another approach the~parser can take to recover from an~erroneous input is to try to perform a~local correction. This can be achieved by replacing the~prefix of the~following input by some tokens that would enable syntactic analyzer to continue parsing. A prime example of phrase-level recovery is inserting a~missing semicolon or replacing comma with a~semicolon. Even though this technique is very powerful, as it can cope with all possible problems in the~input, it might lead to infinite loops (e.g. always inserting symbols ahead of the~current symbol).
@@ -246,32 +246,32 @@ Semantic analyzer utilizes the~information from symbol table to perform all sort
 \end{compactitem}
     
   \section{Intermediate Code Generation}
-The semantic analysis is followed by the~\textit{intermediate code generation} which completes the~front end part of the~compilation process. Depending on the~specific compiler implementation, the~\textit{intermediate representation} (\textit{IR}) that is the~result of this phase can take different forms. The IR should be easy to produce and easy to translate into the~target machine code. For some compilers, the~IR may be the~abstract syntax tree itself.
+The~semantic analysis is followed by the~\textit{intermediate code generation} which completes the~front end part of the~compilation process. Depending on the~specific compiler implementation, the~\textit{intermediate representation} (\textit{IR}) that is the~result of this phase can take different forms. The~IR should be easy to produce and easy to translate into the~target machine code. For some compilers, the~IR may be the~abstract syntax tree itself.
 
 \bigskip
 Together with symbol table, IR is passed to back end part of compiler -- synthesis, where machine independent optimizations can be performed. These contain \textit{control flow analysis} where control flow graph is constructed and utilized in subsequent \textit{data flow analysis}. As a~result of these optimizations, compiler might remove dead code from the~IR or perform other optimizations that will lead to shorter and more efficient target code.
 
 \bigskip
-The following chapters on static code analysis and .NET compiler platform will build upon fundamentals presented here and show how these concepts are relevant when considering the~implementation of a~static code analyzer.
+The~following chapters on static code analysis and .NET compiler platform will build upon fundamentals presented here and show how these concepts are relevant when considering the~implementation of a~static code analyzer.
 
 % =================================================================
 % ============================= CHAPTER 3 =========================
 % =================================================================
 \chapter{Static Code Analysis}
 \label{chap:static-code-analysis}
-This chapter introduces the concept of static code analysis. It compares the analysis of source and compile code, and focuses on the source code analysis, listing its advantages and disadvantages. The endo of the chapter provides an overview of static code analysis tools available for the .NET Compiler Platform.
+This chapter introduces the~concept of static code analysis. It compares the~analysis of source and compile code, and focuses on the~source code analysis, listing its advantages and disadvantages. The~endo of the~chapter provides an~overview of static code analysis tools available for the~.NET Compiler Platform.
 
 % TODO add citation
-Static code analysis refers to a~process of assessing the~program based on its form, structure, content and documentation and reasoning over its possible behaviours without actually executing the~code. The aim of static analysis is to check the~compliance to specific rules and identify parts of the~program that might lead to possible vulnerabilities. The term static code analysis is mostly used when speaking of an~automated tool. In contrast, \textit{code inspections} or \textit{code reviews} are performed by humans and can benefit from using static code analysis tools~\cite{oswap-sca, sca-ppt}.
+Static code analysis refers to a~process of assessing the~program based on its form, structure, content and documentation and reasoning over its possible behaviours without actually executing the~code. The~aim of static analysis is to check the~compliance to specific rules and identify parts of the~program that might lead to possible vulnerabilities. The~term static code analysis is mostly used when speaking of an~automated tool. In contrast, \textit{code inspections} or \textit{code reviews} are performed by humans and can benefit from using static code analysis tools~\cite{oswap-sca, sca-ppt}.
 
 \section{Source Code vs. Compiled Code Analysis}
-There are two different approaches when analyzing a~program by an~automated tool: analyzing the~source code (as seen by the~compiler), and analyzing the~compiled code -- either some form of byte code~\footnote{An intermediate representation of a~program, also known as "portable code", which is often for just-in-time compilation by interpreters.} or an~executable.
+There are two different approaches when analyzing a~program by an~automated tool: analyzing the~source code (as seen by the~compiler), and analyzing the~compiled code -- either some form of byte code~\footnote{An~intermediate representation of a~program, also known as "portable code", which is often for just-in-time compilation by interpreters.} or an~executable.
 
 Sometimes it might be very complicated, or even infeasible, to obtain the~actual source code of the~program to be analyzed and the~only possibility is to analyze the~executable code. When the~tool is looking at a~compiled version of the~program, the~ambiguity of how the~source code will be translated by~the~compiler is removed.
 
 However, analyzing compiled code can be very complex. Even if the~tool manages to decode the~binary, it lacks the~original type information. Moreover, the~optimizations performed by the~compiler obscure the~original meaning of the~program and making sense of semantics out of implementation may be unattainable. Likewise, if the~error is found, reporting it to the~programmer can be challenging since there is not always a~clear mapping from binary back to source. 
 
-Although the~above-mentioned complications speak clearly against analyzing binaries, the~situation is different when analyzing byte code formats (such as Java bytecode), where the~type and debugging information is present. The rest of the thesis focuses solely on source code analysis and the following sections discuss the~theory behind it.
+Although the~above-mentioned complications speak clearly against analyzing binaries, the~situation is different when analyzing byte code formats (such as Java bytecode), where the~type and debugging information is present. The~rest of the~thesis focuses solely on source code analysis and the~following sections discuss the~theory behind it.
 
 \section{How It Works}
 There are many tools for static code analysis and each can analyze different flaws in the~program. However, for a~majority of them, the~basic structure looks the~same, as depicted in Figure~\ref{fig:static-code-analysis-internals}.
@@ -279,7 +279,7 @@ There are many tools for static code analysis and each can analyze different fla
 \begin{figure}[h!]
 		\centering
 			\includegraphics[scale=0.80]{img/static-code-analysis-internals}
-		\caption{The process of static analysis (adopted from~\cite{secure-programming-with-sca})}
+		\caption{The~process of static analysis (adopted from~\cite{secure-programming-with-sca})}
 		\label{fig:static-code-analysis-internals}
 \end{figure}
 
@@ -288,44 +288,44 @@ There are many tools for static code analysis and each can analyze different fla
 In order to analyze the~program, the~analysis tool must first understand it. Therefore, the~initial task is to \textit{create a~structured model} that represents the~source code. This model has a~lot in common with the~AST and symbol tables that were discussed in Chapter~\ref{chap:compilers}. In fact, model building phase of static code analyzers closely mimics the~front end part of the~compilation process, executing lexical analysis, parsing and semantic analysis.
 
 \subsection{Perform the~Analysis}
-After obtaining the~model, the~next step is to perform the~actual analysis. Many different algorithms can be applied in this step and it is common that they are combined into one solution. The approaches are often derived from techniques used by the~compilers, specifically:
+After obtaining the~model, the~next step is to perform the~actual analysis. Many different algorithms can be applied in this step and it is common that they are combined into one solution. The~approaches are often derived from techniques used by the~compilers, specifically:
 
 \subsubsection{\textbf{Control Flow}}
-In order to explore different execution paths that can take place when the~program is executed, the~static code analysis tool can construct a~\textit{control flow graph} on the~top of the~AST. The nodes of the~graph represent basic blocks -- sequences of program instructions that will be all executed once block is entered. The edges between basic blocks represent different paths that the~program can take depending on matched conditions. Any back edges in the~graph signal potential loops in the~program execution.
+In order to explore different execution paths that can take place when the~program is executed, the~static code analysis tool can construct a~\textit{control flow graph} on the~top of the~AST. The~nodes of the~graph represent basic blocks -- sequences of program instructions that will be all executed once block is entered. The~edges between basic blocks represent different paths that the~program can take depending on matched conditions. Any back edges in the~graph signal potential loops in the~program execution.
 
 \subsubsection{\textbf{Tracking Data Flow}}
-Data flow analysis is used to examine how data passes through the~program. Compilers utilize data flow analysis when doing code optimizations in order to remove unreachable code and allocate registers. An example of how data flow analysis can be used by static analysis tools is to check that memory is always freed only once -- function \texttt{free(p)} was called at most once with the~address stored in pointer \texttt{p}.
+Data flow analysis is used to examine how data passes through the~program. Compilers utilize data flow analysis when doing code optimizations in order to remove unreachable code and allocate registers. An~example of how data flow analysis can be used by static analysis tools is to check that memory is always freed only once -- function \texttt{free(p)} was called at most once with the~address stored in pointer \texttt{p}.
 
 \subsubsection{\textbf{Taint Analysis}}
-According to~\cite{oswap-sca}, taint analysis attempts to identify variables containing possibly tainted user input using data flow analysis technique. If these variables are used as arguments to vulnerable functions without being sanitized first, the~tool reports their usage as vulnerable. The taint propagation analysis is particularly relevant for security analysis, a~prime example being the~detection of a~potential SQL injection.
+According to~\cite{oswap-sca}, taint analysis attempts to identify variables containing possibly tainted user input using data flow analysis technique. If these variables are used as arguments to vulnerable functions without being sanitized first, the~tool reports their usage as vulnerable. The~taint propagation analysis is particularly relevant for security analysis, a~prime example being the~detection of a~potential SQL injection.
 
 \subsection{Rules}
 As stated in~\cite{sca-for-security}: \textit{"...if a~rule hasn’t been written yet to find a~particular problem, the~tool will never find that problem."} This implies that the~rules that specify what the~static analysis tool should report are just as important (or even more important) as the~heuristics and algorithms implemented by the~tool. Best tools for static code analysis externalize the~rule set in order to easily add, remove or alter the~rules, without modifying the~tool itself.
 
 \subsection{Report the~Results}
-An often overlooked part of the~static analysis is the~result reporting. The~\cite{coverity-sca} asserts, that if a~programmer cannot understand the~output of the~static analysis, the~results are effectively useless as misunderstood explanation ends up with error being ignored or, worse, interpreted as a~false positive.
+An~often overlooked part of the~static analysis is the~result reporting. The~\cite{coverity-sca} asserts, that if a~programmer cannot understand the~output of the~static analysis, the~results are effectively useless as misunderstood explanation ends up with error being ignored or, worse, interpreted as a~false positive.
 
-As discussed in~\cite{secure-programming-with-sca}, good static analysis tool should provide means of \textit{grouping and sorting} the~results, \textit{suppressing the~unwanted results} (either directly in the~code with pragmas or code annotations or alternatively in a~configuration file) and mainly \textit{explaining the~results}. Every issue that is detected by the~tool should provide a~short title followed by a~detailed description of the~problem, severity of the~issue, recommendations on how the~problem can be fixed and possible further references to the~topic. The tool can additionally provide a~confidence level estimating the~likelihood that the~finding is really correct.
+As discussed in~\cite{secure-programming-with-sca}, good static analysis tool should provide means of \textit{grouping and sorting} the~results, \textit{suppressing the~unwanted results} (either directly in the~code with pragmas or code annotations or alternatively in a~configuration file) and mainly \textit{explaining the~results}. Every issue that is detected by the~tool should provide a~short title followed by a~detailed description of the~problem, severity of the~issue, recommendations on how the~problem can be fixed and possible further references to the~topic. The~tool can additionally provide a~confidence level estimating the~likelihood that the~finding is really correct.
 
 \section{What Problems Can Be Solved by SCA}
 There are different types of problems the~static analysis tool can tackle. This section enumerates some of the~categories applicable to static code analysis, as listed in~\cite{secure-programming-with-sca}.
 
 \subsubsection{\textbf{Type Checking}}
-The integral part of every compiler for statically typed language. Rules are typically implied by the~language itself.
+The~integral part of every compiler for statically typed language. Rules are typically implied by the~language itself.
 
 \subsubsection{\textbf{Style Checking}}
-The style checker defines rules for spacing, naming, commenting and general program structure that affect mostly the~readability and the~maintainability of the~program. 
+The~style checker defines rules for spacing, naming, commenting and general program structure that affect mostly the~readability and the~maintainability of the~program. 
 
 \subsubsection{\textbf{Program Understanding}}
 These tools aim to provide a~high-level program understanding beneficial mainly for larger codebases. They are most effective when integrated into the~IDEs where they can support "go to declaration" or "find all references" features or even automatic program refactorings such as renaming or extracting a~variable.
 
 \subsubsection{\textbf{Bug Finding}}
-The  purpose of these type of static analyzers is to point out common mistakes in the~code. They report warnings in parts of program that are compliant with the~language specification but might not express the~programmer's intent, such as ignoring the~return value of a~function call.
+The~ purpose of these type of static analyzers is to point out common mistakes in the~code. They report warnings in parts of program that are compliant with the~language specification but might not express the~programmer's intent, such as ignoring the~return value of a~function call.
 
 Special type of bug finding checker is \textit{security review}, where specific vulnerabilities found in the~source code are reported. Security review searches for possible exploitations like buffer overflow or tainted inputs.
   
 \section{Advantages}
-One of the~key factors that advocate the~use of tools for static analysis, is how early in the~development process they can be applied. As opposed to dynamic testing, static code analysis can be performed on unfinished or even uncompilable code. The longer the~defect stays in the~system, the~more damage it can cause and the~higher are the~costs of fixing it. As stated in~\cite[p. 29]{code-complete}, the~costs of fixing a~defect introduced during construction of a~program are 10-times higher if detected during system testing and 10 to 25-times higher in production, than it would be to fix it while still in development. Therefore, it is desirable to detect bugs as early as possible, which is where static code analysis can be leveraged.
+One of the~key factors that advocate the~use of tools for static analysis, is how early in the~development process they can be applied. As opposed to dynamic testing, static code analysis can be performed on unfinished or even uncompilable code. The~longer the~defect stays in the~system, the~more damage it can cause and the~higher are the~costs of fixing it. As stated in~\cite[p. 29]{code-complete}, the~costs of fixing a~defect introduced during construction of a~program are 10-times higher if detected during system testing and 10 to 25-times higher in production, than it would be to fix it while still in development. Therefore, it is desirable to detect bugs as early as possible, which is where static code analysis can be leveraged.
 
 Static inspections detect symptoms together with causes whereas testing only points out the~symptoms with further effort required to find the~source of the~problem before it can be fixed~\cite[p. 472]{code-complete}.
 
@@ -333,10 +333,10 @@ Manual code inspections can be very time-consuming and require high level of exp
 
 Another advantage of automated code analysis is repeatability and scalability. Code analysis tool can be part of Continuous Integration\footnote{Process in which developers contribute regularly (multiple times a~day) into a~shared repository where the~code is continuously being verified by an~automated build and suite of automated tests.} (CI) process and can be also integrated to programming IDEs\footnote{Integrated Development Environment}. 
 
-As such, they are a~great for programmers who get instant feedback and learn more about mistakes they made. The tools enforce higher code quality and guidelines compliance. As a~result, the~code should be more consistent, maintainable and easier to debug.
+As such, they are a~great for programmers who get instant feedback and learn more about mistakes they made. The~tools enforce higher code quality and guidelines compliance. As a~result, the~code should be more consistent, maintainable and easier to debug.
   
 \section{Disadvantages}
-The Rice's theorem~\cite{direct-proofs-of-rices-theorem} says, that any non-trivial question about program's semantics is undecidable. As a~consequence, there will never be a~static analysis tool able to answer all the~questions perfectly. The tools can produce \textit{false positives} (a problem which does not actually exist is reported) and \textit{false negatives} (the program contains a~problem, but it was not reported by the~tool).
+The~Rice's theorem~\cite{direct-proofs-of-rices-theorem} says, that any non-trivial question about program's semantics is undecidable. As a~consequence, there will never be a~static analysis tool able to answer all the~questions perfectly. The~tools can produce \textit{false positives} (a problem which does not actually exist is reported) and \textit{false negatives} (the program contains a~problem, but it was not reported by the~tool).
 
 Prevailing complaints against static analysis tools concern false positives. A long list of false positives means real bugs can be overlooked and programmers can eventually lose trust in the~tool.
 
@@ -344,7 +344,7 @@ Worse, from the~security perspective, are false negatives. Not only the~bug was 
 
 As presented earlier in this chapter, a~vast majority of code inspection tools must build a~model of the~source program in order to be able to analyze it. This requires duplication of compiler's logic, which itself is fairly complicated, and there is no guarantee that the~tool interprets the~source exactly the~same as the~compiler does. Moreover, for the~authors of the~tool, it means the~parsing logic has to be always up to date with the~language version in use. 
 
-\section{Static Code Analysis Tools Available on the .NET Platform}
+\section{Static Code Analysis Tools Available on the~.NET Platform}
 Even if imperfect, static analysis tools are still valuable asset in software development process. This section presents tools for static code analysis that are commonly used on the~.NET platform.
 
 \subsection{FxCop}
@@ -353,14 +353,14 @@ FxCop is a~free tool by Microsoft for analyzing managed code assemblies (targeti
 It includes more than 200 predefined checks and a~possibility to add custom rules using FxCop SDK\footnote{Software Development Kit}. It is available in two forms: fully featured application with graphical user interface and a~command line tool that is easily integrated to automated build process. 
 
 \subsection{StyleCop}
-Another tool by Microsoft is an~open source project StyleCop\footnote{\url{https://github.com/StyleCop/StyleCop}} for analyzing C\# code for conformance to style and consistency with .NET Framework Design Guidelines. Unlike FxCop, StyleCop analysis is performed on the~source code, which enables it to look for a~different set of style violations. The rules are divided into categories such as documentation, naming, ordering, spacing and readability. 
+Another tool by Microsoft is an~open source project StyleCop\footnote{\url{https://github.com/StyleCop/StyleCop}} for analyzing C\# code for conformance to style and consistency with .NET Framework Design Guidelines. Unlike FxCop, StyleCop analysis is performed on the~source code, which enables it to look for a~different set of style violations. The~rules are divided into categories such as documentation, naming, ordering, spacing and readability. 
 
-Some of the~rules are: placing the~opening curly brace on a~new line, spaces around binary operators, method names starting with an~upper-case. The tool is configurable and development team can specify its own style to be checked, for example, to enforce spaces over tabs. It is available either a~Visual Studio extension or a~NuGet package that can be installed to the~project.
+Some of the~rules are: placing the~opening curly brace on a~new line, spaces around binary operators, method names starting with an~upper-case. The~tool is configurable and development team can specify its own style to be checked, for example, to enforce spaces over tabs. It is available either a~Visual Studio extension or a~NuGet package that can be installed to the~project.
 
 \subsection{CodeRush Classic}
-CodeRush Classic\footnote{\url{https://www.devexpress.com/Products/CodeRush}} is a~solution-wide static code analysis tool for Visual Studio by vendor DevExpress. It enhances the~IDE with more advanced features like assembly decompilation, automated code generation, advanced code selection, code formatting and cleanup. The tool focuses on developer's productivity by not only finding bugs but also providing an~automated way of fixing them.
+CodeRush Classic\footnote{\url{https://www.devexpress.com/Products/CodeRush}} is a~solution-wide static code analysis tool for Visual Studio by vendor DevExpress. It enhances the~IDE with more advanced features like assembly decompilation, automated code generation, advanced code selection, code formatting and cleanup. The~tool focuses on developer's productivity by not only finding bugs but also providing an~automated way of fixing them.
 
-It provides an~API enabling developers to extend the~basic functionality with 3rd party plugins such as spell checker or copy project. The CodeRush Classic provides static analysis not only for .NET languages, but also for JavaScript, HTML and XML.
+It provides an~API enabling developers to extend the~basic functionality with 3rd party plugins such as spell checker or copy project. The~CodeRush Classic provides static analysis not only for .NET languages, but also for JavaScript, HTML and XML.
 
 \subsection{Resharper}
 Very similar to CodeRush, ReSharper is a~Visual Studio extension for .NET developers by Jet Brains\footnote{\url{https://www.jetbrains.com/resharper}}. It analyzes code quality of C\#, Visual Basic, ASP.NET, JavaScrtipt, TypeScript, CSS, HTML and XML. For each of these languages it is possible to define code style and formatting to make the~tool compatible with the~coding standards followed by a~development team. 
@@ -369,20 +369,20 @@ ReSharper provides hundreds of quick-fixes that solve discovered problems and ha
 
 
 \subsection{Analyzers Written with Roslyn}
-The tools described above have one aspect in common -- they all need to parse the~code before they can analyze it. The cost of maintaining a~custom C\# parser and keeping it up to date with every new language version is fairly difficult, inefficient, and of course, costly. 
+The~tools described above have one aspect in common -- they all need to parse the~code before they can analyze it. The~cost of maintaining a~custom C\# parser and keeping it up to date with every new language version is fairly difficult, inefficient, and of course, costly. 
 
 With the~release of new .NET Compiler Platform (Roslyn), which is discussed in detail in the~following chapter, the~need for parsing C\# and Visual Basic sources is eliminated and tools that build upon this platform can concentrate solely on analysis itself.
 
 Some vendors, like Jet Brains, who invested years of development into the~creation of the~tools, claim ~\cite{resharper-and-roslyn-qa}, it does not pay off to rewrite the~whole program so that it uses new Microsoft compiler. Not only would it take an~enormous effort to rewrite all the~functionality to use new framework, but they would risk destabilizing the~product and losing years of optimizations and testing. Moreover, ReSharper is multilingual tool whereas .NET Compiler platform "only" provides C\# and Visual Basic parsers.
 
-Other companies, such as DevExpress with CodeRush\footnote{CodeRush Classic referrs to the~version before Roslyn} or Microsoft with StyleCop Analyzers, decided to use this new approach. The effects on Visual Studio performance were immediate. Neither the solution has to be parsed by the~tool, nor duplicate syntax trees need to be stored. As a~result, the~load times and memory consumption were significantly lowered.
+Other companies, such as DevExpress with CodeRush\footnote{CodeRush Classic referrs to the~version before Roslyn} or Microsoft with StyleCop Analyzers, decided to use this new approach. The~effects on Visual Studio performance were immediate. Neither the~solution has to be parsed by the~tool, nor duplicate syntax trees need to be stored. As a~result, the~load times and memory consumption were significantly lowered.
 
-The Roslyn APIs also gave rise to more open source projects dealing with static code analysis, such as CodeCracker\footnote{\url{https://code-cracker.github.io}}. As challenging as it was in the~past, static code analysis is now rather easy, thanks to powerful analysis APIs. The following chapter takes a~look at the~.NET Compiler Platform and how it can be used to perform the~static code analysis.
+The~Roslyn APIs also gave rise to more open source projects dealing with static code analysis, such as CodeCracker\footnote{\url{https://code-cracker.github.io}}. As challenging as it was in the~past, static code analysis is now rather easy, thanks to powerful analysis APIs. The~following chapter takes a~look at the~.NET Compiler Platform and how it can be used to perform the~static code analysis.
 
 % =================================================================
 % ============================= CHAPTER 4 =========================
 % =================================================================
-\chapter{The .NET Compiler Platform}
+\chapter{The~.NET Compiler Platform}
 In~the~.NET world, the~compiler used~to~be a~black box that given the~file paths to~the~source text, produced an~executable. This perception was changed in~2015 when Microsoft introduced the~.NET Compiler Platform (commonly referred to as "Project Roslyn").  
 
 %\begin{figure}[h!]
@@ -392,11 +392,11 @@ In~the~.NET world, the~compiler used~to~be a~black box that given the~file paths
 %		\label{fig:compiler-as-a-black-box}
 %\end{figure}
 
-Not only have been compilers for both Visual Basic and C\# rewritten into the~entirely managed code\footnote{The term managed code refers to program source code written in one of high-level programming languages available for use with Microsoft .NET Framework, and require a~Common Language Runtime virtual machine in order to be executed.}, they also expose the~internals of the~compiler pipeline via a~public .NET API~\footnote{Application Programming Interface}. This makes them a~platform (also known as \textit{compiler-as-as-service}) with rich code analysis APIs that can be leveraged by developers to perform analysis, code generation or dynamic compilation in their own programs~\cite{roslyn-succinctly}. Those can be then easily integrated into Visual Studio all without the~hard work of duplicating compilers' parsing logic.
+Not only have been compilers for both Visual Basic and C\# rewritten into the~entirely managed code\footnote{The~term managed code refers to program source code written in one of high-level programming languages available for use with Microsoft .NET Framework, and require a~Common Language Runtime virtual machine in order to be executed.}, they also expose the~internals of the~compiler pipeline via a~public .NET API~\footnote{Application Programming Interface}. This makes them a~platform (also known as \textit{compiler-as-as-service}) with rich code analysis APIs that can be leveraged by developers to perform analysis, code generation or dynamic compilation in their own programs~\cite{roslyn-succinctly}. Those can be then easily integrated into Visual Studio all without the~hard work of duplicating compilers' parsing logic.
 
 This chapter takes a~look at how the~Roslyn API layers are structured, how the~original source code is represented by the~compiler, and how developers can build tools upon the~compiler's API. Note, that although Roslyn provides equivalent APIs for both Visual Basic and C\#, this thesis only focuses on the~latter since it is relevant for the~practical part of the~thesis.  
   
-\section{The Compiler Pipeline}
+\section{The~Compiler Pipeline}
 Roslyn compilers expose an~API layer that mirrors the~traditional compiler pipeline (see Figure~\ref{fig:roslyn-compiler-pipeline}). Instead of a~single process of generating the~target program, each compilation step is treated as a~separate component~\cite{roslyn-overview}:
 
 \begin{itemize}
@@ -416,10 +416,10 @@ Roslyn compilers expose an~API layer that mirrors the~traditional compiler pipel
 		\label{fig:roslyn-compiler-pipeline}
 \end{figure}
 
-In each phase, the~.NET Compiler Platform creates an~object model containing gathered information and exposes it through the~API in form of .NET objects. These objects are also used internally by Visual Studio~\footnote{The new generation of Visual Stuio leveraging from the~Roslyn compiler are called vNext and the first one was VS 2015.} to support basic IDE functionality. For instance \textbf{syntax tree}, that is the~result of the~parse phase, is used to support formatting and colorizing the~code in the~editor. The result of the~second phase -- \textbf{hierarchical symbol table}, is the~basis for \textit{Object browser} and \textit{Navigate~to} functionality. Binding phase is represented as an~\textbf{object model that exposes the~result of the~semantic analysis} and is utilized in \textit{Find all~references} or \textit{Go~to~definition}. Finally, the~Emit phase produces the~Intermediate Language (IL) byte codes and is also used for \textit{Edit and~Continue} feature~\cite{roslyn-overview}.
+In each phase, the~.NET Compiler Platform creates an~object model containing gathered information and exposes it through the~API in form of .NET objects. These objects are also used internally by Visual Studio~\footnote{The~new generation of Visual Stuio leveraging from the~Roslyn compiler are called vNext and the~first one was VS 2015.} to support basic IDE functionality. For instance \textbf{syntax tree}, that is the~result of the~parse phase, is used to support formatting and colorizing the~code in the~editor. The~result of the~second phase -- \textbf{hierarchical symbol table}, is the~basis for \textit{Object browser} and \textit{Navigate~to} functionality. Binding phase is represented as an~\textbf{object model that exposes the~result of the~semantic analysis} and is utilized in \textit{Find all~references} or \textit{Go~to~definition}. Finally, the~Emit phase produces the~Intermediate Language (IL) byte codes and is also used for \textit{Edit and~Continue} feature~\cite{roslyn-overview}.
 
-\section{The .NET Compiler Platform's Architecture}
-The Roslyn's architecture consists of two main layers - Compiler and Workspaces APIs, and one secondary layer - Features API, as seen on Figure~\ref{fig:roslyn-compiler-architecture}.
+\section{The~.NET Compiler Platform's Architecture}
+The~Roslyn's architecture consists of two main layers - Compiler and Workspaces APIs, and one secondary layer - Features API, as seen on Figure~\ref{fig:roslyn-compiler-architecture}.
 
 \begin{figure}[h!]
 		\centering
@@ -428,15 +428,15 @@ The Roslyn's architecture consists of two main layers - Compiler and Workspaces 
 		\label{fig:roslyn-compiler-architecture}
 \end{figure}
 
-One of the~key concepts of .NET Compiler Platform is immutability. The compiler exposes hundreds of types that represent all information about source code from \texttt{Project} and \texttt{Document} to \texttt{SyntaxTrees} with almost all of those types being immutable. This means, that once created, the~object cannot change. In order to alter it in any way, new instance must be created, either manually, or from an~existing instance by applying one of many \texttt{With()} methods that the~API provides.
+One of the~key concepts of .NET Compiler Platform is immutability. The~compiler exposes hundreds of types that represent all information about source code from \texttt{Project} and \texttt{Document} to \texttt{SyntaxTrees} with almost all of those types being immutable. This means, that once created, the~object cannot change. In order to alter it in any way, new instance must be created, either manually, or from an~existing instance by applying one of many \texttt{With()} methods that the~API provides.
 
-The immutability enables the~compiler to perform parallel work without need to create duplicate objects or apply any locks on them. This concept is useful for the~command line compiler but it is considered extremely important for IDEs where it enables for one document to be handled by multiple analyzers in parallel.
+The~immutability enables the~compiler to perform parallel work without need to create duplicate objects or apply any locks on them. This concept is useful for the~command line compiler but it is considered extremely important for IDEs where it enables for one document to be handled by multiple analyzers in parallel.
 
 \subsection{Compiler APIs}
 As discussed in the~previous section, the~Compiler APIs offer an~object model representing the~results of syntactic and semantic analysis produced by the~respective phases of the~compiler pipeline. Moreover, it also includes an~immutable snapshot of a~single compiler invocation, along with assembly references, compiler options, and source files. This layer is agnostic of any Visual Studio components, and as such can be used in stand-alone applications as well. There are two separate, though very similar, APIs for Visual Basic and C\#, each providing functionality tailored for specific language nuances.
 
 \subsubsection{\textbf{Diagnostic APIs}}
-Apart from parsing code and producing an~assembly, the~compiler is also capable of raising diagnostics, covering everything from syntax to semantics, and report them as errors, warnings or information messages~\cite{roslyn-succinctly}. This is achieved through the~compilers' Diagnostics APIs that allow developers to effectively plug-in to compiler pipeline, analyze the~source code using the~exposed object models, and surface custom diagnostics along with those defined by the~compiler itself. These APIs are integrated to both MSBuild~\footnote{The Microsoft Build Engine \url{https://github.com/Microsoft/msbuild}} and Visual Studio (2015 and newer), providing seamless developer experience. Since the practical part of~this thesis, and~both Chapter~\ref{chap:custom-roslyn-analyzers} and~\ref{chap:performance}, rely on~Diagnostic APIs to~provide custom diagnostics, they are discussed in~more detail in~Section~\ref{sec:analyzers-and-code-fixes}.
+Apart from parsing code and producing an~assembly, the~compiler is also capable of raising diagnostics, covering everything from syntax to semantics, and report them as errors, warnings or information messages~\cite{roslyn-succinctly}. This is achieved through the~compilers' Diagnostics APIs that allow developers to effectively plug-in to compiler pipeline, analyze the~source code using the~exposed object models, and surface custom diagnostics along with those defined by the~compiler itself. These APIs are integrated to both MSBuild~\footnote{The~Microsoft Build Engine \url{https://github.com/Microsoft/msbuild}} and Visual Studio (2015 and newer), providing seamless developer experience. Since the~practical part of~this thesis, and~both Chapter~\ref{chap:custom-roslyn-analyzers} and~\ref{chap:performance}, rely on~Diagnostic APIs to~provide custom diagnostics, they are discussed in~more detail in~Section~\ref{sec:analyzers-and-code-fixes}.
 
 \subsubsection{\textbf{Scripting APIs}}
 As a~part of the~compiler layer, Microsoft team has introduced new Scripting APIs that can be used for executing code snippets. These APIs were not shipped with .NET Compiler Platform 1.0 and are part of v2.0.0 RC3\footnote{Release candidate 3, as per \url{https://github.com/dotnet/roslyn/wiki/Scripting-API-Samples} [26-02-2017].}.
@@ -478,13 +478,13 @@ As explained in Chapter~\ref{chap:compilers}, even though syntax trees are enoug
 Its one of the~core compiler's responsibilities to populate symbol tables with information about all elements and their properties from the~source program. Attributes such as identifier name, type, allocated storage, scope; or for method names the~number and types of arguments and their return values; are all stored in order to be utilized later when producing intermediate language.
 
 \subsubsection{\textbf{Symbols}}
-In .NET Compiler Platform, a~single entry of a~symbol table is represented by a~class deriving from \texttt{ISymbol}. The symbol represents every distinct element (namespace, type, field, property, event, method or parameter) either declared in the~source code or imported as metadata from a~referenced assembly. Each specific symbol has its own methods and properties often directly referring to other symbols. For example \texttt{IMethodSymbol} has a~\texttt{ReturnType} property specifying what is the~type symbol the~method returns.
+In .NET Compiler Platform, a~single entry of a~symbol table is represented by a~class deriving from \texttt{ISymbol}. The~symbol represents every distinct element (namespace, type, field, property, event, method or parameter) either declared in the~source code or imported as metadata from a~referenced assembly. Each specific symbol has its own methods and properties often directly referring to other symbols. For example \texttt{IMethodSymbol} has a~\texttt{ReturnType} property specifying what is the~type symbol the~method returns.
 
 \subsubsection{\textbf{Compilation}}
-An important immutable type, that represents everything needed to compile a~C\# (or Visual Basic) program is a~\texttt{Compilation}. It contains all source files, compiler options and assembly references. Compilation provides convenient ways to access any discovered symbol. For instance, it is possible to access the~entire hierarchical symbol table rooted by global namespace, or look up type symbols by their common metadata names.
+An~important immutable type, that represents everything needed to compile a~C\# (or Visual Basic) program is a~\texttt{Compilation}. It contains all source files, compiler options and assembly references. Compilation provides convenient ways to access any discovered symbol. For instance, it is possible to access the~entire hierarchical symbol table rooted by global namespace, or look up type symbols by their common metadata names.
 
 \subsubsection{\textbf{Semantic Model}}
-When analyzing a~single source file of a~compilation, all its semantic information is available through a~\textit{semantic model}. The \texttt{SmeanticModel} object can answer many questions such as:
+When analyzing a~single source file of a~compilation, all its semantic information is available through a~\textit{semantic model}. The~\texttt{SmeanticModel} object can answer many questions such as:
   \begin{itemize}
   \item What symbol is declared at the~specific location in the~source?
   \item What is the~result type of an~expression?
@@ -496,66 +496,66 @@ This makes semantic model very useful when performing static code analysis conce
  
 \section{Analyzers and Code Fixes}
 \label{sec:analyzers-and-code-fixes}
-Thanks to the Compiler APIs it is possible for Visual Studio to provide live static code analysis detecting any code issues as programmer types. Apart from general analyzers that are shipped with Visual Studio, it is possible to define custom, domain specific rules. The tricky task of running the analysis on background thread, showing squiggles in the IDE, populating the \textit{Error List}, and providing the \textit{light bulb} with code fix suggestions, is left to Visual Studio.
+Thanks to the~Compiler APIs it is possible for Visual Studio to provide live static code analysis detecting any code issues as programmer types. Apart from general analyzers that are shipped with Visual Studio, it is possible to define custom, domain specific rules. The~tricky task of running the~analysis on background thread, showing squiggles in the~IDE, populating the~\textit{Error List}, and providing the~\textit{light bulb} with code fix suggestions, is left to Visual Studio.
 
-In order to understand the chapters describing the implementation part of the thesis, it is vital to know how the Diagnostic APIs work and how they are leveraged when writing a custom analyzer.
+In order to understand the~chapters describing the~implementation part of the~thesis, it is vital to know how the~Diagnostic APIs work and how they are leveraged when writing a~custom analyzer.
 
 \subsection{Diagnostic Analyzer}
-An analyzer is an instance of a type deriving from \texttt{Microsoft.CodeAnalysis.Diagnostics.DiagnosticAnalyzer} which must be annotated with \texttt{DiagnosticAnalyzer} attribute specifying the targeted programming language (C\# or Visual Basic)\cite{roslyn-succinctly}. In the text of this thesis, these instances are referred to as \textit{"end-analyzers"}, in order to distinguish them from abstract analyzers or helper classes containing analysis logic. The end-analyzer can contain one or more custom \textit{rules} for detecting domain specific errors or code issues. Each such rule is defined by \texttt{DiagnosticDescriptor}. Once the analyzer finds an issue, the diagnostic descriptor is used to create a \textit{diagnostic} which also includes data collected by the compiler, such as location.
+An~analyzer is an~instance of a~type deriving from \texttt{Microsoft.CodeAnalysis.Diagnostics.DiagnosticAnalyzer} which must be annotated with \texttt{DiagnosticAnalyzer} attribute specifying the~targeted programming language (C\# or Visual Basic)\cite{roslyn-succinctly}. In the~text of this thesis, these instances are referred to as \textit{"end-analyzers"}, in order to distinguish them from abstract analyzers or helper classes containing analysis logic. The~end-analyzer can contain one or more custom \textit{rules} for detecting domain specific errors or code issues. Each such rule is defined by \texttt{DiagnosticDescriptor}. Once the~analyzer finds an~issue, the~diagnostic descriptor is used to create a~\textit{diagnostic} which also includes data collected by the~compiler, such as location.
 
 \subsubsection{\textbf{Diagnostic Descriptor}}
-For any Roslyn end-analyzer it is mandatory to override an immutable property \texttt{SupportedDiagnostics}. It returns an immutable array of diagnostic descriptors which consist of:
+For any Roslyn end-analyzer it is mandatory to override an~immutable property \texttt{SupportedDiagnostics}. It returns an~immutable array of diagnostic descriptors which consist of:
 
 \smallskip
 \begin{compactitem}
-  \item[\texttt{\textbf{DiagnosticId}}] -- unique value identifying a single rule (e.g.~\textit{"BH103"}).
-  \item[\texttt{\textbf{Title}}, \texttt{\textbf{MessageFormat}}, \texttt{\textbf{Description}}] -- localizable strings that will be displayed in Error List or diagnostic's tooltip on hover. The message format can be also passed arguments upon diagnostic creation, to give more details about the concrete issue detected.
-  \item[\texttt{\textbf{Category}}] -- the category that the analyzer belongs to, such as code style, naming, design, etc. The list of categories defined for this thesis can be found in Section~\ref{sec:analyzer-categories}.
-  \item[\texttt{\textbf{DefaultSeverity}}] -- one of \texttt{Error}, \texttt{Warning}, \texttt{Info}, \texttt{Hidden}, \texttt{None}. Note, that only \texttt{Error} severity prevents the project from compiling successfully.
-  \item[\texttt{\textbf{IsEnabledByDefault}}] -- when this flag is set to \texttt{false}, the rule must be turned on manually in rule set editor.
+  \item[\texttt{\textbf{DiagnosticId}}] -- unique value identifying a~single rule (e.g.~\textit{"BH103"}).
+  \item[\texttt{\textbf{Title}}, \texttt{\textbf{MessageFormat}}, \texttt{\textbf{Description}}] -- localizable strings that will be displayed in Error List or diagnostic's tooltip on hover. The~message format can be also passed arguments upon diagnostic creation, to give more details about the~concrete issue detected.
+  \item[\texttt{\textbf{Category}}] -- the~category that the~analyzer belongs to, such as code style, naming, design, etc. The~list of categories defined for this thesis can be found in Section~\ref{sec:analyzer-categories}.
+  \item[\texttt{\textbf{DefaultSeverity}}] -- one of \texttt{Error}, \texttt{Warning}, \texttt{Info}, \texttt{Hidden}, \texttt{None}. Note, that only \texttt{Error} severity prevents the~project from compiling successfully.
+  \item[\texttt{\textbf{IsEnabledByDefault}}] -- when this flag is set to \texttt{false}, the~rule must be turned on manually in rule set editor.
   \item[\texttt{\textbf{HelpLinkUri}}] -- optional URI with online documentation.
 \end{compactitem}
 
-\subsubsection{\textbf{Performing the analysis}}
-Besides providing the code that performs the actual analysis (commonly referred to as \textit{action}), it is necessary to register the action to tell the .NET Compiler Platform when to invoked it. To do so, the end-analyzer must override the \texttt{Initialize} method. This method represents the entry point of the analyzer and is invoked exactly once per \textit{session}\footnote{For batch compilations the session is a single run of the compiler. For hosted environments, where the analysis runs on the background thread, the session can last as long as the IDE is open. For more information see~\cite{analyzer-action-semantics}}. The method accepts one argument, of type \texttt{AnalysisContext}, exposing number of methods for registering actions. Depending on when the action should be invoked, a callback with analysis logic is passed to one of these methods~\cite{analyzer-action-semantics}:
+\subsubsection{\textbf{Performing the~analysis}}
+Besides providing the~code that performs the~actual analysis (commonly referred to as \textit{action}), it is necessary to register the~action to tell the~.NET Compiler Platform when to invoked it. To do so, the~end-analyzer must override the~\texttt{Initialize} method. This method represents the~entry point of the~analyzer and is invoked exactly once per \textit{session}\footnote{For batch compilations the~session is a~single run of the~compiler. For hosted environments, where the~analysis runs on the~background thread, the~session can last as long as the~IDE is open. For more information see~\cite{analyzer-action-semantics}}. The~method accepts one argument, of type \texttt{AnalysisContext}, exposing number of methods for registering actions. Depending on when the~action should be invoked, a~callback with analysis logic is passed to one of these methods~\cite{analyzer-action-semantics}:
 
 \smallskip
 \begin{compactitem}
-  \item[\texttt{\textbf{RegisterSyntaxNodeAction}}] -- the action will be invoked on every syntax node encountered by the compiler if the kind of the node matches one of the kinds provided upon registration.
+  \item[\texttt{\textbf{RegisterSyntaxNodeAction}}] -- the~action will be invoked on every syntax node encountered by the~compiler if the~kind of the~node matches one of the~kinds provided upon registration.
   
-  \item[\texttt{\textbf{RegisterSymbolAction}}] -- the action will be invoked on complete semantic processing of a symbol that matches one of symbol kinds that the action was registered with.
+  \item[\texttt{\textbf{RegisterSymbolAction}}] -- the~action will be invoked on complete semantic processing of a~symbol that matches one of symbol kinds that the~action was registered with.
   
-  \item[\texttt{\textbf{RegisterSyntaxTreeAction}}] -- the action will be invoked as soon as whole document is parsed.
+  \item[\texttt{\textbf{RegisterSyntaxTreeAction}}] -- the~action will be invoked as soon as whole document is parsed.
   
-  \item[\texttt{\textbf{RegisterSemanticModelAction}}] -- the action will be invoked after the semantic analysis of the document is finished.
+  \item[\texttt{\textbf{RegisterSemanticModelAction}}] -- the~action will be invoked after the~semantic analysis of the~document is finished.
   
-  \item[\texttt{\textbf{RegisterCompilationStartAction}}] -- the action will be invoked when the compilation starts (before any other actions). The context can be then used to register other actions within the compilation as well as the corresponding \texttt{RegisterCompilationEndAction}.
+  \item[\texttt{\textbf{RegisterCompilationStartAction}}] -- the~action will be invoked when the~compilation starts (before any other actions). The~context can be then used to register other actions within the~compilation as well as the~corresponding \texttt{RegisterCompilationEndAction}.
   
-  \item[\texttt{\textbf{RegisterCodeBlockStartAction}}] -- action will be invoked before any of actions applicable to syntax nodes within the code block have been invoked. Optionally the analyzer might register the code block end action (\texttt{RegisterCodeBlockEndAction}).
+  \item[\texttt{\textbf{RegisterCodeBlockStartAction}}] -- action will be invoked before any of actions applicable to syntax nodes within the~code block have been invoked. Optionally the~analyzer might register the~code block end action (\texttt{RegisterCodeBlockEndAction}).
   
   \item[\texttt{\textbf{RegisterCompilationAction}}], \texttt{\textbf{RegisterCodeBlockAction}} -- the~action will be invoked once per~compilations, or~code block, respectively.
 \end{compactitem}
 
-The compilation or code block start actions are usually registered for so called \textit{stateful analyzers}. These report diagnostics about specific code unit, as syntax node or a symbol (same as \textit{stateless analyzers}), but within the enclosing unit of code block or the compilation. They have to be designed carefully to perform effectively and not cause any memory leaks. For both categories of analyzers it is vital to be written defensively and not to throw any exceptions. Otherwise, Visual Studio might disable it. 
+The~compilation or code block start actions are usually registered for so called \textit{stateful analyzers}. These report diagnostics about specific code unit, as syntax node or a~symbol (same as \textit{stateless analyzers}), but within the~enclosing unit of code block or the~compilation. They have to be designed carefully to perform effectively and not cause any memory leaks. For both categories of analyzers it is vital to be written defensively and not to throw any exceptions. Otherwise, Visual Studio might disable it. 
 
 \subsection{Code Fix Provider}
-A code fix is a quick action suggesting a possible solution to a diagnosed code issue found by the analyzer. It can be applied by invoking the quick actions (Ctrl+.) integrated into Visual Studio light bulb. Before applying, developer can view the live preview of the code fix action, as depicted in Figure~\ref{fig:codefix-example}.
+A code fix is a~quick action suggesting a~possible solution to a~diagnosed code issue found by the~analyzer. It can be applied by invoking the~quick actions (Ctrl+.) integrated into Visual Studio light bulb. Before applying, developer can view the~live preview of the~code fix action, as depicted in Figure~\ref{fig:codefix-example}.
 
 \begin{figure}[h!]
 		\centering
 			\includegraphics[scale=0.75]{img/codefix-example}
-		\caption{A example of a code fix live preview}
+		\caption{A example of a~code fix live preview}
 		\label{fig:codefix-example}
 \end{figure}
 
-A custom code fix is defined by a class deriving from \texttt{Microsoft.CodeAnalysis.odeFixes.CodeFixProvider}. By overriding the \texttt{FixableDiagnosticIds} it claims which diagnostics it solves. The logic of fixing the diagnosed issue is placed in \texttt{RegisterCodeFixAsync} method, which ultimately generates whole new fixed document.
+A custom code fix is defined by a~class deriving from \texttt{Microsoft.CodeAnalysis.odeFixes.CodeFixProvider}. By overriding the~\texttt{FixableDiagnosticIds} it claims which diagnostics it solves. The~logic of fixing the~diagnosed issue is placed in \texttt{RegisterCodeFixAsync} method, which ultimately generates whole new fixed document.
 
 \section{Deployment}
-There are two different approaches when it comes to deploying the analyzers and code fixes: NuGet package, or Visual Studio extension. 
+There are two different approaches when it comes to deploying the~analyzers and code fixes: NuGet package, or Visual Studio extension. 
 
-With the IDE extension, every developer has to install it manually from Visual Studio Gallery\footnote{Visual Studio Gallery provides an access to various tools that extend the default Visual Studio functionality.}. Once installed, the analysis is performed on any open solution or project. Therefore, it is only appropriate for analysis concerned with common language or framework guidelines.
+With the~IDE extension, every developer has to install it manually from Visual Studio Gallery\footnote{Visual Studio Gallery provides an~access to various tools that extend the~default Visual Studio functionality.}. Once installed, the~analysis is performed on any open solution or project. Therefore, it is only appropriate for analysis concerned with common language or framework guidelines.
 
-On the other hand, when tha analyzers are installed as a NuGet package. Only the project that has it installed will be analyzed. The reference to the NuGet is stored in shared repository, and everyone working with the project has the analyzers installed automatically. Moreover, only the NuGet installation influences the compilation process and, as such, can be run on build boxes as part of continuous integration process.
+On the~other hand, when tha analyzers are installed as a~NuGet package. Only the~project that has it installed will be analyzed. The~reference to the~NuGet is stored in shared repository, and everyone working with the~project has the~analyzers installed automatically. Moreover, only the~NuGet installation influences the~compilation process and, as such, can be run on build boxes as part of continuous integration process.
 
 % =================================================================
 % ============================= CHAPTER 5 =========================
@@ -564,11 +564,11 @@ On the other hand, when tha analyzers are installed as a NuGet package. Only the
 
 \chapter{Implementation of Custom Analyzers}
 \label{chap:custom-roslyn-analyzers}
-Kentico Software is an~IT company based in Brno, developing an~all-in-one solution for web content management, e-commerce, and online marketing, using the~ASP.NET\footnote{Open source framework for developing web applications by Microsoft.} architecture. The leading product is Kentico CMS (Content Management System). It has been on the~market since 2004 with the~11th version currently being developed. 
+Kentico Software is an~IT company based in Brno, developing an~all-in-one solution for web content management, e-commerce, and online marketing, using the~ASP.NET\footnote{Open source framework for developing web applications by Microsoft.} architecture. The~leading product is Kentico CMS (Content Management System). It has been on the~market since 2004 with the~11th version currently being developed. 
 
 Over the~course of almost 13 years, the~solution grew to an~enormous extent. To give an~overview, the~current version of the~Kentico CMS solution contains 249   projects and a~total of 14,881 documents. A lot of knowledge was accumulated with many internal utilities developed and guidelines created. Many features, such as globalization, were developed in-house first, only to be added as an~integral part of the~.NET Framework a~few years later.
 
-The size of the~company grew to more than 80 developers working on one product. It became significantly harder to share all the~knowledge about the~internal best practices and the~process of onboarding new employees was challenging. With the~increasing complexity of the~project, the~main focus of the~code reviews was shifted to the~general architecture and inspection of how the~new code influences the~other parts of the~system, in order not to break anything. The manual and often repetitive tasks of checking the~compliance with the~conventions and correct use of the~API during the~code review became very tiresome and dragged the~focus of the~reviewer away from the~higher perspective on the~code. This led to a~need for an~automated tool that would take care of the~repetitive checks that needed to be done by the~reviewer.
+The~size of the~company grew to more than 80 developers working on one product. It became significantly harder to share all the~knowledge about the~internal best practices and the~process of onboarding new employees was challenging. With the~increasing complexity of the~project, the~main focus of the~code reviews was shifted to the~general architecture and inspection of how the~new code influences the~other parts of the~system, in order not to break anything. The~manual and often repetitive tasks of checking the~compliance with the~conventions and correct use of the~API during the~code review became very tiresome and dragged the~focus of the~reviewer away from the~higher perspective on the~code. This led to a~need for an~automated tool that would take care of the~repetitive checks that needed to be done by the~reviewer.
 
 %company did not have the~motivation to invest too much into creating extremely complicated tool and at the~time (YYYY) it was very difficult to create something custom which would be robust and almost perfect at the~same time
 
@@ -578,15 +578,15 @@ The size of the~company grew to more than 80 developers working on one product. 
 %why we are only concerned with this and do not check the~naming conventions or advanced refactoings - tools already exist for this (StyleCop and ReSharper) and were not implemented in new BH version - usings sorting and such is provided by other tools
 
 % how ReSharper or StyleCop are used in Kentico
-\section{The Original BugHunter}
-BugHunter is a~simple console application developed at Kentico that searches for violations of internal rules and best practices in the~the CMS solution. Given the~file path to the~solution folder, the~BugHunter performs the~checks and outputs the~results to a~file. Each issue found is reported with a~short message plus additional information on its location in the~code (source file and line number). It contains various checks not, only for C\#, but also a~few for JavaScript (like no skipped tests allowed), ASPX\footnote{Active Server Page Extended is a file format used in Microsoft's APS.NET framework.} (preferred usage of Kentico controls to default ones), or XML files.
+\section{The~Original BugHunter}
+BugHunter is a~simple console application developed at Kentico that searches for violations of internal rules and best practices in the~the CMS solution. Given the~file path to the~solution folder, the~BugHunter performs the~checks and outputs the~results to a~file. Each issue found is reported with a~short message plus additional information on its location in the~code (source file and line number). It contains various checks not, only for C\#, but also a~few for JavaScript (like no skipped tests allowed), ASPX\footnote{Active Server Page Extended is a~file format used in Microsoft's APS.NET framework.} (preferred usage of Kentico controls to default ones), or XML files.
 
 Following sections explain the~main downsides of the~original BugHunter and how this thesis addresses them.
 
 \subsection{Need for Semantic Analysis}
-The biggest disadvantage of the~previous BugHunter was that the~tool performed the~checks purely by string comparison. It did not build any model of the~analyzed code, and therefore possessed no knowledge of the~semantics. 
+The~biggest disadvantage of the~previous BugHunter was that the~tool performed the~checks purely by string comparison. It did not build any model of the~analyzed code, and therefore possessed no knowledge of the~semantics. 
 
-This caused an~enormous number of false negatives. A typical example would be the~tool trying to prevent the~access to the~\texttt{Cookies} property of the~\texttt{HttpRequest} object. The old BugHunter check looked something like this:
+This caused an~enormous number of false negatives. A typical example would be the~tool trying to prevent the~access to the~\texttt{Cookies} property of the~\texttt{HttpRequest} object. The~old BugHunter check looked something like this:
 
 \begin{minted}[fontsize=\footnotesize]{csharp}
    if (line.Contains("Request.Cookies")) { /* report an~error */ }
@@ -597,7 +597,7 @@ If the~programmer used the~most common approach\footnote{Accessing the~static pr
 
 There were other use cases that could lead to false negatives when using just primitive string comparisons. For example, in C\# it is allowed to put an~arbitrary number of whitespace characters between the~object, the~dot token, and the~property being accessed. This could have been solved by using a~bit more complicated regular expression, but it would still cover only a~fraction of use cases. Things like using variable or even alias usings\footnote{\url{https://msdn.microsoft.com/en-us/library/aa664765(v=vs.71).aspx}} would stay undetected by the~tool. 
 
-However, all the above mentioned problems can be solved by introducing the~semantics into the~analysis. As discussed in Chapters~\ref{chap:compilers} and~\ref{chap:static-code-analysis}, once the source code is parsed, and both AST and symbol tables are available, the analysis tool should have all the information necessary for understanding of the analyzed code. This approach is far superior to plain string matching performed by the original BugHunter, and the analyzers developed as part of this thesis leverage it thanks to Roslyn Diagnostic APIs.
+However, all the~above mentioned problems can be solved by introducing the~semantics into the~analysis. As discussed in Chapters~\ref{chap:compilers} and~\ref{chap:static-code-analysis}, once the~source code is parsed, and both AST and symbol tables are available, the~analysis tool should have all the~information necessary for understanding of the~analyzed code. This approach is far superior to plain string matching performed by the~original BugHunter, and the~analyzers developed as part of this thesis leverage it thanks to Roslyn Diagnostic APIs.
 
 \subsection{Ease of Use}
 As mentioned in the~Chapter~\ref{chap:static-code-analysis}, the~key to success of a~static code analysis tool is the~ease of use. This means that running the~tool should not be complicated and interpreting the~results should be straightforward. If this is not the~case, programmers will not use the~tool or they will ignore the~results it produces. 
@@ -606,7 +606,7 @@ With the~original BugHunter, a~developer had to run the~separate application tha
 
 In a~discussion with the~developers at Kentico, they all admitted, that more often than not, they submitted the~changes to the~version control system without running the~BugHunter locally. 
 
-The console application was run by the~build server itself as part of the~continuous integration. If the~BugHunter detected any issues, the~developer who caused them would be notified by an~email and would have to fix them as part of the~no-warning policy. This process prolonged the~time it took to finish the~implementation and generated a~demand for a~more developer-friendly solution. 
+The~console application was run by the~build server itself as part of the~continuous integration. If the~BugHunter detected any issues, the~developer who caused them would be notified by an~email and would have to fix them as part of the~no-warning policy. This process prolonged the~time it took to finish the~implementation and generated a~demand for a~more developer-friendly solution. 
 
 Since Roslyn analyzers are part of Visual Studio IDE, programmers get an~instant feedback and see the~warnings before submitting the~code without the~need to run an~external application.
 
@@ -619,7 +619,7 @@ On the~other hand, Roslyn provides numerous ways to turn off a~certain rule for 
 
 \section{Defining Analyzer Categories}
 \label{sec:analyzer-categories}
-The \texttt{Category} property of the~\texttt{Microsoft.CodeAnalysis.DiagnosticDescriptor} class provides a way for semantically distinguishing the~analyzers and giving additional information on what type of problem the~particular category is concerned with. The original BugHunter did not group the~checks into the~semantic categories but was structured rather by the~technology targeted by the~check (C\#, ASPX, JavaScript, web parts, etc.). 
+The~\texttt{Category} property of the~\texttt{Microsoft.CodeAnalysis.DiagnosticDescriptor} class provides a~way for semantically distinguishing the~analyzers and giving additional information on what type of problem the~particular category is concerned with. The~original BugHunter did not group the~checks into the~semantic categories but was structured rather by the~technology targeted by the~check (C\#, ASPX, JavaScript, web parts, etc.). 
 
 Therefore, one of the~first tasks before the~implementation was to determine which checks are suitable candidates for refactoring into new Roslyn analyzers and subsequently group them into categories by the~type of the~task they performed. Basically, all the~checks that were not obsolete and were concerned with C\# internal guidelines were rewritten. Table~\ref{tab:analyzer-categories-compact-table} lists all implemented analyzers sorted into categories and following sections briefly elaborate on how the~categories were defined and what they represent. 
 
@@ -678,10 +678,10 @@ Therefore, one of the~first tasks before the~implementation was to determine whi
 % ---------------------------------------------------
 
 \subsection{Abstraction over Implementation}
-Analyzers in this category check that there is no "hard reference" on third party libraries in the~code. Violation of this rule would require clients to use a~particular version of the~library which might collide with the~references on other components they are using, resulting in so-called "dependency hell"\footnote{\url{https://devnet.kentico.com/articles/referencing-multiple-versions-of-the-same-assembly-in-a-single-application}}. Therefore, in CMS solution the~hard references are replaced with a~thin layer of interfaces and adapters. The analyzers make sure, only the~interfaces are used throughout the~solution.
+Analyzers in this category check that there is no "hard reference" on third party libraries in the~code. Violation of this rule would require clients to use a~particular version of the~library which might collide with the~references on other components they are using, resulting in so-called "dependency hell"\footnote{\url{https://devnet.kentico.com/articles/referencing-multiple-versions-of-the-same-assembly-in-a-single-application}}. Therefore, in CMS solution the~hard references are replaced with a~thin layer of interfaces and adapters. The~analyzers make sure, only the~interfaces are used throughout the~solution.
 
 \subsection{CMS API Replacements}
-In Kentico CMS solution there are many helpers that encapsulate the~traditional .NET API and might provide an~extended functionality. For example, determining the~current browser of the~user can be done by accessing the~\texttt{Browser} property of the~\texttt{HttpRequest} object. However, if this attempt fails there are still other ways to resolve it and the~CMS API typically has a~helper for such cases. The analyzers detect accesses to members that have an~equivalent in CMS API and suggest code fixes. 
+In Kentico CMS solution there are many helpers that encapsulate the~traditional .NET API and might provide an~extended functionality. For example, determining the~current browser of the~user can be done by accessing the~\texttt{Browser} property of the~\texttt{HttpRequest} object. However, if this attempt fails there are still other ways to resolve it and the~CMS API typically has a~helper for such cases. The~analyzers detect accesses to members that have an~equivalent in CMS API and suggest code fixes. 
 
 \subsection{CMS API Guidelines}
 These analyzers impose internal guidelines on the~CMS API usage. They forbid the~direct access to database from presentation layer (\texttt{ConnectionHelperExecutequeryAnalyzer}), point out usages of methods that may have more suitable or a~safer alternatives1 (\texttt{WhereLikeMethodAnalyzer} or \texttt{ValidationHelperGetAnalyzer}), or guide developers to use predefined constants where possible (\texttt{EventLogArgumentsAnalyzer}).
@@ -693,32 +693,32 @@ Similar to CMS API Replacements category, the~analyzers search for classes that 
 This category of analyzers makes sure that string comparison\footnote{\texttt{Equals()}, \texttt{Compare()}, \texttt{IndexOf()} and their variants} and manipulation\footnote{\texttt{ToLower()}, \texttt{ToUpper()}} methods are always used with the~overload specifying \texttt{StringComparison} or \texttt{CultureInfo} parameter explicitly. This is vital for an~application like CMS that is used with culture specific data. For more information on what issues can be caused when not following this rule, like the~\textit{"Turkish-I problem"}, see \cite{best-practices-for-using-strings-in-dot-net}. 
 
 \section{Strategy Classes for API Replacement Analyzers}
-The CMS API Replacement category contains 15 analyzers which represents almost one half of total 31 analyzers that were created. Vast majority of these analyzers search for a~particular member being accessed or invoked on a~particular type. Any such usage found by the~analyzer shall be reported as CMS API contains a~replacement for it, with a~code fix suggested where applicable.
+The~CMS API Replacement category contains 15 analyzers which represents almost one half of total 31 analyzers that were created. Vast majority of these analyzers search for a~particular member being accessed or invoked on a~particular type. Any such usage found by the~analyzer shall be reported as CMS API contains a~replacement for it, with a~code fix suggested where applicable.
 
 In order to prevent code duplication and ease the~process of adding new analyzers, the~analysis logic for the~analyzers in this category was extracted into two strategy classes\footnote{\url{http://www.oodesign.com/strategy-pattern.html}}: \texttt{ApiReplacementForMemberAnalyzer} and \texttt{ApiReplacementForMethodAnalyzer}. These are instantiated and configured by the~concrete end-analyzer to perform the~analysis on their behalf.
 
 \subsection{Configuration}
-There are only a~few things the~API replacement analyzer need to know in order to perform the~actual analysis. This information is encapsulated in \texttt{ApiReplacementConfig} object. The object is passed as a~constructor argument upon creation of the~API replacement analyzer. It contains following properties:
+There are only a~few things the~API replacement analyzer need to know in order to perform the~actual analysis. This information is encapsulated in \texttt{ApiReplacementConfig} object. The~object is passed as a~constructor argument upon creation of the~API replacement analyzer. It contains following properties:
 
 \begin{itemize}
   \item \texttt{ForbiddenMembers} -- member names to look for (e.g. \texttt{"Cookies"}), 
-  \item \texttt{ForbiddenTypes} -- names of fully qualified (super)types the~members belong to\footnote{The forbidden type is treated as the~highest type in the~inheritance hierarchy the~member could belong to.
+  \item \texttt{ForbiddenTypes} -- names of fully qualified (super)types the~members belong to\footnote{The~forbidden type is treated as the~highest type in the~inheritance hierarchy the~member could belong to.
 } (e.g. \texttt{"System.Web.HttpRequest"}), 
   \item \texttt{Rule} -- an~instance of \texttt{DiagnosticDescriptor} that defines the~diagnostic raised upon detection of a~forbidden usage.
 \end{itemize} 
 
-The main reason behind \texttt{ForbiddenTypes} being an~array of strings rather than a~single string, is the~lack of inheritance hierarchy between \texttt{HttpRequest} and \texttt{HttpRequestBase} objects in the~.NET framework. They basically contain the~same members but do not derive from one another\footnote{More information on why this is so can be found in \url{https://msdn.microsoft.com/en-us/library/system.web.httprequestwrapper.aspx}} and therefore, the~analyzer must treat both types separately. 
+The~main reason behind \texttt{ForbiddenTypes} being an~array of strings rather than a~single string, is the~lack of inheritance hierarchy between \texttt{HttpRequest} and \texttt{HttpRequestBase} objects in the~.NET framework. They basically contain the~same members but do not derive from one another\footnote{More information on why this is so can be found in \url{https://msdn.microsoft.com/en-us/library/system.web.httprequestwrapper.aspx}} and therefore, the~analyzer must treat both types separately. 
 
 On the~other hand, allowing for multiple forbidden members on one type under one diagnostic ID may also make sense, which is why \texttt{ForbiddenMembers} are also defined as an~array.
 
 \subsection{Analyzer for Member Replacement}
-The task for the~\texttt{ApiReplacementForMemberAnalyzer} is to subscribe to all possible member accesses and analyze them. If the~particular access is regarded as forbidden, given the~configuration supplied (\texttt{ApiReplacementConfig} object), the~analyzer raises a~diagnostic.
+The~task for the~\texttt{ApiReplacementForMemberAnalyzer} is to subscribe to all possible member accesses and analyze them. If the~particular access is regarded as forbidden, given the~configuration supplied (\texttt{ApiReplacementConfig} object), the~analyzer raises a~diagnostic.
 
 It is not enough for the~analyzer to subscribe only to \texttt{SimpleMemberAccessExpression} syntax kind. It also needs to analyze the~\texttt{ConditionalAccessExpression} (null conditional operator, '\texttt{?.}') which is a~new C\# 6.0 language feature\footnote{\url{https://msdn.microsoft.com/en-us/library/dn986595.aspx}}. 
 
 Even though it would be possible to subscribe to both kinds of syntax nodes with one callback, the~underlying syntax of these two is so much different, it would make the~code cluttered and full of if-statements. Moreover, if Microsoft decides to add another possibility to access members in next language version, the~existing code would have to be modified.
 
-Therefore, the~strategies for analyzing a~particular syntax node were encapsulated into separate classes. The API replacement for member analyzer instantiates the~strategy helpers, configures them, and tells them to run the~analysis methods as callbacks subscribed syntax node of a~particular kind. This makes the~code easily extendible.
+Therefore, the~strategies for analyzing a~particular syntax node were encapsulated into separate classes. The~API replacement for member analyzer instantiates the~strategy helpers, configures them, and tells them to run the~analysis methods as callbacks subscribed syntax node of a~particular kind. This makes the~code easily extendible.
 
 \begin{figure}[h!]
 		\centering
@@ -727,19 +727,19 @@ Therefore, the~strategies for analyzing a~particular syntax node were encapsulat
 		\label{fig:uml-api-replacement-for-member}
 \end{figure}
 
-The UML class diagram for \texttt{ApiReplacementForMemberAnalyzer} is depicted in Figure~\ref{fig:uml-api-replacement-for-member}. Note, that the~\texttt{DiagnosticAnalyzer} is an~abstract class defined in the~.NET Compiler Platform Diagnostics API and must be extended by the~custom end-analyzers.
+The~UML class diagram for \texttt{ApiReplacementForMemberAnalyzer} is depicted in Figure~\ref{fig:uml-api-replacement-for-member}. Note, that the~\texttt{DiagnosticAnalyzer} is an~abstract class defined in the~.NET Compiler Platform Diagnostics API and must be extended by the~custom end-analyzers.
 
 \subsection{Analyzer for Method Replacement}
-The class \texttt{ApiReplacementForMethodAnalyzer} is very similar to analyzer for members that was introduced in the~previous section. It also accepts a~configuration object defining the~invocations of which members on which types are forbidden. 
+The~class \texttt{ApiReplacementForMethodAnalyzer} is very similar to analyzer for members that was introduced in the~previous section. It also accepts a~configuration object defining the~invocations of which members on which types are forbidden. 
 Instead of subscribing to member accesses it is interested in syntax nodes of kind \texttt{InvocationExpression}. It delegates the~analysis itself to a~strategy defined in \texttt{MethodInvocationAnalyzer}, described in the~following section.
 
 \section{Strategy Class for Method Invocation Analyzer}
-This analyzer helper defines an~algorithm for analyzing invocation expression syntax nodes. The need for analyzing the~method invocations is not limited to the~API replacements. The same analysis needs to be performed when enforcing internal guidelines that are concerned with methods. It is important to locate the~specific methods invoked on specific types, before it is possible to analyze further whether or not they are used according to the~internal API conventions. 
+This analyzer helper defines an~algorithm for analyzing invocation expression syntax nodes. The~need for analyzing the~method invocations is not limited to the~API replacements. The~same analysis needs to be performed when enforcing internal guidelines that are concerned with methods. It is important to locate the~specific methods invoked on specific types, before it is possible to analyze further whether or not they are used according to the~internal API conventions. 
 
 \subsection{Template Method Pattern}
 This analyzer is utilized by all end-analyzers that involve method invocation analysis. In order to be easily extendible for advanced checks, it is implemented as a~template method pattern\footnote{\url{http://www.oodesign.com/template-method-pattern.html}}. Every step of the~template method defines a~criteria that must be met in order for the~analysis to proceed. Steps that can be overridden have default implementation that continues with the~analysis. 
 
-It is important to note that the~steps are ordered in a~way so that the~inexpensive checks are performed first, in order to cut off the~analysis of the~irrelevant nodes without significant performance costs. Figure~\ref{fig:uml-method-invocation-analyzer} shows the~class diagram of the~\texttt{MemberInvocationAnalyzer} depicting the~use of template method design pattern. Following section elaborate on respective steps of the~algorithm. Concrete use case depicting an instance of the analyzer can be seen in Figure~\ref{fig:uml-method-invocation-analyzer-object-diagram}.  
+It is important to note that the~steps are ordered in a~way so that the~inexpensive checks are performed first, in order to cut off the~analysis of the~irrelevant nodes without significant performance costs. Figure~\ref{fig:uml-method-invocation-analyzer} shows the~class diagram of the~\texttt{MemberInvocationAnalyzer} depicting the~use of template method design pattern. Following section elaborate on respective steps of the~algorithm. Concrete use case depicting an~instance of the~analyzer can be seen in Figure~\ref{fig:uml-method-invocation-analyzer-object-diagram}.  
 
 \begin{figure}[h!]
 		\centering
@@ -749,18 +749,18 @@ It is important to note that the~steps are ordered in a~way so that the~inexpens
 \end{figure}
 
 \subsubsection{\textbf{Check the~File Path}}
-Sometimes, an analyzer needs to pre-filter files that are relevant for the~diagnostic. For example, when looking for an~access to the~database layer from the~presentation layer, the~analyzer is only concerned with the~invocation expressions in the~files of presentation layer. These can be identified by inspecting the~\texttt{FilePath} property of the~\texttt{SyntaxTree} in which the~current invocation expression is located. If the~file path does not meet the~requirements, the~current invocation expression does not need to be analyzed further.
+Sometimes, an~analyzer needs to pre-filter files that are relevant for the~diagnostic. For example, when looking for an~access to the~database layer from the~presentation layer, the~analyzer is only concerned with the~invocation expressions in the~files of presentation layer. These can be identified by inspecting the~\texttt{FilePath} property of the~\texttt{SyntaxTree} in which the~current invocation expression is located. If the~file path does not meet the~requirements, the~current invocation expression does not need to be analyzed further.
 
 \subsubsection{\textbf{Method Name Syntax Analysis}}
 This step exists purely for performance optimization reasons and cannot be overridden by subclasses. It tries to extract the~name of the~method invoked and compares it to the~forbidden members. If the~method name is not among the~forbidden members, the~algorithm stops and no expensive operations had to be done. Otherwise, the~algorithm advances to the~next step.
 
-Since there are no constraints for what kind of syntax node the~\texttt{Expression} property of the~\texttt{InvocationExpressionSyntax} node could be, the~logic had to be implemented by hand. The heuristc inspects these three cases:
+Since there are no constraints for what kind of syntax node the~\texttt{Expression} property of the~\texttt{InvocationExpressionSyntax} node could be, the~logic had to be implemented by hand. The~heuristc inspects these three cases:
 \begin{itemize}
   \item \textbf{Identifier name} -- the~simplest case where the~method being invoked is a~member of the~enclosing class.
     
   \item \textbf{Simple member access expression} -- invocation on member that is being accessed on object, or class. Accesses can be possibly chained.    
 
-  \item \textbf{Conditional access expression} -- similar to the~previous case but the~access is conditional. The whole syntax tree is right-folded as opposed to the~simple member access left-folded syntax tree. 
+  \item \textbf{Conditional access expression} -- similar to the~previous case but the~access is conditional. The~whole syntax tree is right-folded as opposed to the~simple member access left-folded syntax tree. 
 \end{itemize}
 
 \subsubsection{\textbf{Method Name and Receiver Type Semantic Analysis}}
@@ -769,7 +769,7 @@ Here, semantic model is queried for \texttt{IMethodSymbol} that matches the~anal
 This method cannot be overridden as it is the~integral part of the~whole algorithm. It is also the~most expensive one, since the~checks in this method are performed on symbols obtained by querying the~semantic model. However, thanks to the~heuristics from the~previous step, the~majority of irrelevant cases was already filter out.
 
 \subsubsection{\textbf{Context of the~Invocation Usage}}
-If it is important to analyze the~specificities of the~invocation usage (mainly the~arguments supplied), the~subclasses can override \texttt{IsForbiddenUsage()} virtual method. The template method supplies it with two parameters: the~invocation expression and the~method symbol obtained in the~previous step.
+If it is important to analyze the~specificities of the~invocation usage (mainly the~arguments supplied), the~subclasses can override \texttt{IsForbiddenUsage()} virtual method. The~template method supplies it with two parameters: the~invocation expression and the~method symbol obtained in the~previous step.
 
 \subsubsection{\textbf{Diagnostic Creation}}
 If all the~steps above determined the~analyzed invocation is forbidden, the~last step of the~template method makes sure the~diagnostic is raised, using the~diagnostic descriptor provided upon creation. It is possible to configure the~diagnostic creation by providing optional instance of \texttt{IDiagnosticFormatter}. It is an~interface defined in \texttt{BugHunter} project that determines how the~diagnostic of certain syntax nodes shall be formatted (location and message text of the~diagnostic).
@@ -788,9 +788,9 @@ Then, this inner class is utilized by the~end-analyzer (\texttt{EventLogArgument
 
 \subsection{Analyzers for String and Culture Checks}
 \label{sec:string-and-culture-approach-explained}
-The analyzers in this category search for methods like \texttt{Equals()}, \texttt{CompareTo()}, or \texttt{IndexOf()}. Considering that methods with same names can be found on many other types as well (\texttt{Object}, \texttt{Collection}), the~first syntax check for method name will often fail to filter out the~unrelated usages. Although all these analyzers could use the~\texttt{MethodInvocationAnalyzer} as a~strategy, it was decided to take a~different approach here. 
+The~analyzers in this category search for methods like \texttt{Equals()}, \texttt{CompareTo()}, or \texttt{IndexOf()}. Considering that methods with same names can be found on many other types as well (\texttt{Object}, \texttt{Collection}), the~first syntax check for method name will often fail to filter out the~unrelated usages. Although all these analyzers could use the~\texttt{MethodInvocationAnalyzer} as a~strategy, it was decided to take a~different approach here. 
 
-The fact that they only need to analyze the~invocations on the~\texttt{String} type, makes the~complex analysis of the~forbidden types in \texttt{MethodInvocationAnalyzer} ineffective. String is a~sealed class\footnote{Sealed classes cannot be subclassed.}, and so no complicated traversal of inheritance hierarchy is needed. In fact, in C\# strings are a~\textit{special type} and therefore, only a~simple check like this is sufficient:
+The~fact that they only need to analyze the~invocations on the~\texttt{String} type, makes the~complex analysis of the~forbidden types in \texttt{MethodInvocationAnalyzer} ineffective. String is a~sealed class\footnote{Sealed classes cannot be subclassed.}, and so no complicated traversal of inheritance hierarchy is needed. In fact, in C\# strings are a~\textit{special type} and therefore, only a~simple check like this is sufficient:
 $$
 receiverType.SpecialType == SpecialType.System\_String
 $$
@@ -804,16 +804,16 @@ All analyzers that were implemented provide one or more code fixes. There are on
 \end{itemize} 
 
 % TODO consider deleting this
-The code fixes have one significant limitation -- providing a~fix to an~API replacement when the~forbidden access is conditional. This is due to the~nature of the~C\# grammar and the~way how null conditional operator is represented in the~syntax tree. If the access is chained, it would be very difficult to define the exact part of the syntax tree that should be replaced. In fact, there is even an issue\footnote{\url{https://github.com/dotnet/roslyn/issues/3110}} on GitHub of the Roslyn team explaining in detail why this is problematic. 
+The~code fixes have one significant limitation -- providing a~fix to an~API replacement when the~forbidden access is conditional. This is due to the~nature of the~C\# grammar and the~way how null conditional operator is represented in the~syntax tree. If the~access is chained, it would be very difficult to define the~exact part of the~syntax tree that should be replaced. In fact, there is even an~issue\footnote{\url{https://github.com/dotnet/roslyn/issues/3110}} on GitHub of the~Roslyn team explaining in detail why this is problematic. 
 
 Therefore, it was decided not to provide the~code fix in such complicated cases. There were two ways for preventing code fix from being suggested. First one was to give the~diagnostic on conditional access different diagnostic id from the~easily-fixable member access. This was deemed as not particularly user friendly and other options were sought.
 
-The approach taken was to provide an~additional information to the~diagnostic via the~\texttt{Properties} property\footnote{\url{http://www.coderesx.com/roslyn/html/93197CDD.htm}}. It is a~data structure were arbitrary key-value pairs can be stored when diagnostic is raised and can be later read in the~code fix class. The analyzer stores a~flag, telling the~diagnostic is raised for conditional member access. When the~code fix method is invoked, it can decide whether or not it is capable of providing a~fix for the~specific conditional member access.
+The~approach taken was to provide an~additional information to the~diagnostic via the~\texttt{Properties} property\footnote{\url{http://www.coderesx.com/roslyn/html/93197CDD.htm}}. It is a~data structure were arbitrary key-value pairs can be stored when diagnostic is raised and can be later read in the~code fix class. The~analyzer stores a~flag, telling the~diagnostic is raised for conditional member access. When the~code fix method is invoked, it can decide whether or not it is capable of providing a~fix for the~specific conditional member access.
 
 \section{Tests}
 Since it is infeasible to test the~functionality of all the~analyzers manually by running Visual Studio, it is crucial that all the~requirements are covered by an~automated set of tests. 
 
-Every analyzer and its code fixes have an~extensive suite of tests covering the~functionality. The extension methods and helper classes are covered by separate unit tests as well. The pre-generated boilerplate from Visual Studio for testing analyzers was reused and rewritten using NUnit framework~\footnote{Testing framework for .NET languages \url{https://www.nunit.org}}. Since the~default template did not allow to set anything apart from the~sources, it had to be customized and some additional features were added.
+Every analyzer and its code fixes have an~extensive suite of tests covering the~functionality. The~extension methods and helper classes are covered by separate unit tests as well. The~pre-generated boilerplate from Visual Studio for testing analyzers was reused and rewritten using NUnit framework~\footnote{Testing framework for .NET languages \url{https://www.nunit.org}}. Since the~default template did not allow to set anything apart from the~sources, it had to be customized and some additional features were added.
 
 A typical scenario for testing an~analyzer is to:
 \begin{compactenum}
@@ -829,7 +829,7 @@ To test the~code fix, it is run on the~source containing a~diagnostic and the~do
 As can be seen, when testing analyzers and code fixes, the~compilation is always created from the~source documents. For this to work, all references to the~libraries used by the~source code, or relied upon by the~tested analyzer, need to be linked. This contains not only the~Microsoft core assemblies that are always added, but in case of the~BugHunter analyzers, also Kentico libraries. Therefore, the~default testing template had to be enhanced with the~ability to explicitly reference desired DLLs in the~created compilation.
 
 \subsubsection{\textbf{Faking File Information of Documents in Compilation}}
-The outcomes of some analyzers are dependant on the~file path of the~analyzed document. Therefore, to test them, it is necessary to be able to fake the~name of the~source document that will be part of the~analyzed compilation. To accommodate this requirement, the~the testing template was extended with \texttt{FakeFileInfo} structure. It can be passed as an~optional argument to the~function testing the~analyzers, in order to replace the~default file name, path, or extension.
+The~outcomes of some analyzers are dependant on the~file path of the~analyzed document. Therefore, to test them, it is necessary to be able to fake the~name of the~source document that will be part of the~analyzed compilation. To accommodate this requirement, the~the testing template was extended with \texttt{FakeFileInfo} structure. It can be passed as an~optional argument to the~function testing the~analyzers, in order to replace the~default file name, path, or extension.
 
 \subsubsection{\textbf{Failing Tests on Uncompilable Sources}}
 Another important feature, that was not present in Microsoft template, is that when the~source documents are uncompilable (e.g contain a~typo), the~tests will fail, no matter if the~analyzer and/or code fix worked as expected. Since the~compilers generally, and, therefore, also the~analyzers themselves, are heavily reliant on string constants, it is very important to have this kind of check present.
@@ -851,16 +851,16 @@ This chapter presented selected implementation details and patterns utilized dur
 % =================================================================
 \chapter{Measuring and Optimizing the~Performance}
 \label{chap:performance}
-When implementing custom Roslyn analyzers, it is vital to consider their performance. The analyzers run on a background thread of Visual Studio (or parallel threads of compilation process, when outside of the IDE) and if implemented carelessly, they might significantly influence the processing power and the memory consumption.
+When implementing custom Roslyn analyzers, it is vital to consider their performance. The~analyzers run on a~background thread of Visual Studio (or parallel threads of compilation process, when outside of the~IDE) and if implemented carelessly, they might significantly influence the~processing power and the~memory consumption.
 
-This holds for any custom analyzers written, but even more so if they are to be used with large solutions like Kentico CMS. Developers at Kentico expressed concerns about the responsiveness of Visual Studio with an~opened CMS solution. Some had even uninstalled the ReSharper extension, since it slowed down the IDE to an unbearable extent and often caused it to crash. 
+This holds for any custom analyzers written, but even more so if they are to be used with large solutions like Kentico CMS. Developers at Kentico expressed concerns about the~responsiveness of Visual Studio with an~opened CMS solution. Some had even uninstalled the~ReSharper extension, since it slowed down the~IDE to an~unbearable extent and often caused it to crash. 
 
-Therefore, in order for the BugHunter analyzers to be usable, they have to be efficient. This chapter explains how the performance of the implemented analyzers was measured and provides a quick look at their optimizations. The final part of the chapter summarizes views of Kentico development team on the usability of new BugHunter.
+Therefore, in order for the~BugHunter analyzers to be usable, they have to be efficient. This chapter explains how the~performance of the~implemented analyzers was measured and provides a~quick look at their optimizations. The~final part of the~chapter summarizes views of Kentico development team on the~usability of new BugHunter.
 
 \section{CMS Solution Size}
-Before discussing the performance of the BugHunter analyzers, it is important to understand the structure of the CMS solution. This is helpful when considering which parts of the analyzers' code are crucial for the overall performance and which are not as critical.
+Before discussing the~performance of the~BugHunter analyzers, it is important to understand the~structure of the~CMS solution. This is helpful when considering which parts of the~analyzers' code are crucial for the~overall performance and which are not as critical.
 
-In order to collect relevant information, \textit{SolutionStatistics} project was created (the source code can be found in the IS attachment). The project loads the CMS solution and collects information on number of projects, documents, syntax nodes. The summary of the results is presented in Table~\ref{tab:solution-statistics}. Note, that just the data relevant for implemented analyzers are displayed. Therefore, only projects where NuGet with BugHunter analyzers is installed\footnote{Test and 3rd party projects were excluded from statistics, see Appendix~\ref{appendix:deployment}.} and relevant kinds of syntax nodes are considered.
+In order to collect relevant information, \textit{SolutionStatistics} project was created (the source code can be found in the~IS attachment). The~project loads the~CMS solution and collects information on number of projects, documents, syntax nodes. The~summary of the~results is presented in Table~\ref{tab:solution-statistics}. Note, that just the~data relevant for implemented analyzers are displayed. Therefore, only projects where NuGet with BugHunter analyzers is installed\footnote{Test and 3rd party projects were excluded from statistics, see Appendix~\ref{appendix:deployment}.} and relevant kinds of syntax nodes are considered.
 
 % ------------------ Solution Statistics Table ------------------
 \begin{table}
@@ -880,41 +880,41 @@ Number of syntax nodes        & 6,279,993 \\
 \bottomrule
 
 \end{tabularx}
-\caption{Statistics about the projects with installed analyzers.}
+\caption{Statistics about the~projects with installed analyzers.}
 \label{tab:solution-statistics}
 \end{table}
 % ---------------------------------------------------
 
-\section{Measuring the Performance}
-The goal of the performance measurements done in this thesis was to evaluate the effectiveness of implemented analyzers, in order to spot and eliminated possible anomalies in the implementation, and assess the overall impact of the analyzers on the length of MSBuild.
+\section{Measuring the~Performance}
+The~goal of the~performance measurements done in this thesis was to evaluate the~effectiveness of implemented analyzers, in order to spot and eliminated possible anomalies in the~implementation, and assess the~overall impact of the~analyzers on the~length of MSBuild.
 
-The challenge of measuring the performance of Roslyn analyzers lies in the fact, that their execution is tightly coupled with the compilation process of the project they are installed to. Therefore, it is difficult to measure the exact execution time from the outside. 
+The~challenge of measuring the~performance of Roslyn analyzers lies in the~fact, that their execution is tightly coupled with the~compilation process of the~project they are installed to. Therefore, it is difficult to measure the~exact execution time from the~outside. 
 
-In the early stages of development, the idea was to compute benchmarks for different analyzer versions using BenchmarkDotNet framework\footnote{\url{https://github.com/dotnet/BenchmarkDotNet}}. However, the overhead of creating the compilation made it virtually impossible to extract only the relevant information from the obtained results.
+In the~early stages of development, the~idea was to compute benchmarks for different analyzer versions using BenchmarkDotNet framework\footnote{\url{https://github.com/dotnet/BenchmarkDotNet}}. However, the~overhead of creating the~compilation made it virtually impossible to extract only the~relevant information from the~obtained results.
 
-Before considering the overall impact of BugHunter analyzers on the compilation of the CMS solution, it was important to tune the performance of separate analyzers. There seem to be no third-party tools for measuring analyzers performance at the time of writing. The final approach for measuring their execution times was to rely on the only official option -- \texttt{/ReportAnalyzer} compilation switch. In order to minimize the impact of any outliers, the measurement was repeated multiple times. The procedure is described in greater detail in the following section. The impact of the analyzers on total build time is discussed in Section~\ref{sec:build-times}.
+Before considering the~overall impact of BugHunter analyzers on the~compilation of the~CMS solution, it was important to tune the~performance of separate analyzers. There seem to be no third-party tools for measuring analyzers performance at the~time of writing. The~final approach for measuring their execution times was to rely on the~only official option -- \texttt{/ReportAnalyzer} compilation switch. In order to minimize the~impact of any outliers, the~measurement was repeated multiple times. The~procedure is described in greater detail in the~following section. The~impact of the~analyzers on total build time is discussed in Section~\ref{sec:build-times}.
 
-All the measurements were done on a desktop computer with 16 GB of RAM, i5 (TODO) processor and SSD disk -- same as all developers at Kentico work on. 
+All the~measurements were done on a~desktop computer with 16 GB of RAM, i5 (TODO) processor and SSD disk -- same as all developers at Kentico work on. 
 
 \subsection{Performance of Separate Analzyers}
-The only way that Microsoft provides for measuring the analyzers' execution times is \texttt{/ReportAnalyzer} switch in CSC (CSharp Compiler). As stated in~\cite{report-analyzer}, if the compiler is invoked with \texttt{/ReportAnalyzer} command line switch, its output will contain total wall clock time spent in executing the analyzers along with the absolute and the relative times of separate analyzers. Since the analyzers can run concurrently, the total time should only be treated as the upper bound. The relative times per analyzer are useful for comparing their performance and identifying any outliers.
+The~only way that Microsoft provides for measuring the~analyzers' execution times is \texttt{/ReportAnalyzer} switch in CSC (CSharp Compiler). As stated in~\cite{report-analyzer}, if the~compiler is invoked with \texttt{/ReportAnalyzer} command line switch, its output will contain total wall clock time spent in executing the~analyzers along with the~absolute and the~relative times of separate analyzers. Since the~analyzers can run concurrently, the~total time should only be treated as the~upper bound. The~relative times per analyzer are useful for comparing their performance and identifying any outliers.
 
-In order to compile the whole solution, one must use the MSBuild process, that internally uses the CSC.
-The command, that also reports the execution times, looks like this\footnote{Note, that the official documentation (\url{https://msdn.microsoft.com/en-us/library/ms164311.aspx}) does not provide any information on running the MSBuild with reporting the analyzers. The only approach that worked was the one shown above. The verbosity level set to \textit{diagnostic} is vital here, since \texttt{verbosity:debug} completely omitted any information on analyzer reporting.}:
+In order to compile the~whole solution, one must use the~MSBuild process, that internally uses the~CSC.
+The~command, that also reports the~execution times, looks like this\footnote{Note, that the~official documentation (\url{https://msdn.microsoft.com/en-us/library/ms164311.aspx}) does not provide any information on running the~MSBuild with reporting the~analyzers. The~only approach that worked was the~one shown above. The~verbosity level set to \textit{diagnostic} is vital here, since \texttt{verbosity:debug} completely omitted any information on analyzer reporting.}:
 
 \begin{center}
 \texttt{msbuild /t:Clean,Build /p:ReportAnalyzer=True /verbosity:diagnostic CMS.sln}
 \end{center}
 
 \subsubsection{\textbf{Parsing and Aggregating Per-project Results}}
-The size of resulting MSBuild output is over 500MB and, besides normal compiler output, it contains information on analyzers' execution times for every project that the analyzers' NuGet is installed to. For CMS solution this means 125 projects. For the purpose of this thesis, however, only performance over~the~whole solution is relevant. 
+The~size of resulting MSBuild output is over 500MB and, besides normal compiler output, it contains information on analyzers' execution times for every project that the~analyzers' NuGet is installed to. For CMS solution this means 125 projects. For the~purpose of this thesis, however, only performance over~the~whole solution is relevant. 
 
-In order to parse the results from the large output, a console application \textit{ReportAnalyzerTimes.Parser} was developed. It extracts all data related to the analyzers' execution times from the log (based on the format described in~\cite{report-analyzer}). After that, it sums up the absolute execution times\footnote{The smallest value, that can be reported, for the execution time is \texttt{<0.001s} and it is treated as 0.001s by the parsing application.} for same analyzers across the solution (sums per-project results) and outputs them into a file.
+In order to parse the~results from the~large output, a~console application \textit{ReportAnalyzerTimes.Parser} was developed. It extracts all data related to the~analyzers' execution times from the~log (based on the~format described in~\cite{report-analyzer}). After that, it sums up the~absolute execution times\footnote{The~smallest value, that can be reported, for the~execution time is \texttt{<0.001s} and it is treated as 0.001s by the~parsing application.} for same analyzers across the~solution (sums per-project results) and outputs them into a~file.
 
 \subsubsection{\textbf{Aggregating Results from Multiple Runs}}
-Since a single compiler run should not be relied upon to provide accurate results, a PowerShell script (\textit{Report-Analyzer.ps1}, see Figure~\ref{fig:uml-report-analyzer-dfd}) was written that executes the CMS solution MSBuild multiple times. After every run, it runs the above mentioned \textit{ReportAnalyzerTimes.Parser} application on the compiler output, and results from all runs are saved in multiple text files. 
+Since a~single compiler run should not be relied upon to provide accurate results, a~PowerShell script (\textit{Report-Analyzer.ps1}, see Figure~\ref{fig:uml-report-analyzer-dfd}) was written that executes the~CMS solution MSBuild multiple times. After every run, it runs the~above mentioned \textit{ReportAnalyzerTimes.Parser} application on the~compiler output, and results from all runs are saved in multiple text files. 
 
-Once the predefined number of builds were completed, another console application, \textit{ReportAnalyzerTimes.Aggregator}, is used to aggregate the results into a single CSV\footnote{Comma Separated Values} file. For every analyzer, there is a name and the accumulated per-project execution times from every run of the solution's build.
+Once the~predefined number of builds were completed, another console application, \textit{ReportAnalyzerTimes.Aggregator}, is used to aggregate the~results into a~single CSV\footnote{Comma Separated Values} file. For every analyzer, there is a~name and the~accumulated per-project execution times from every run of the~solution's build.
 
 \begin{figure}[h!]
 		\centering
@@ -924,36 +924,36 @@ Once the predefined number of builds were completed, another console application
 \end{figure}
 
 \section{Optimizations}
-The procedure described in the previous section was used to measure and compare the performance of implemented analyzers. The measurements were performed directly on the CMS solution.
+The~procedure described in the~previous section was used to measure and compare the~performance of implemented analyzers. The~measurements were performed directly on the~CMS solution.
 
-The slowest analyzers were iteratively optimized and the speed of different versions was also compared using the \textit{Report-Analyzer.ps1} script. The versions that performed the best where then integrated into the final NuGet package.
+The~slowest analyzers were iteratively optimized and the~speed of different versions was also compared using the~\textit{Report-Analyzer.ps1} script. The~versions that performed the~best where then integrated into the~final NuGet package.
 
-Some of the optimizations were already briefly mentioned in the previous chapter: customized approach for analyzers in \textit{String and Culture} category instead of generic \texttt{MethodInvocationAnalyzer}; or the syntax heuristics utilized in \texttt{MethodInvocationAnalyzer}. This section presents the iterative process of optimizing \texttt{SystemIOAnalyzer}, as well as its final version.
+Some of the~optimizations were already briefly mentioned in the~previous chapter: customized approach for analyzers in \textit{String and Culture} category instead of generic \texttt{MethodInvocationAnalyzer}; or the~syntax heuristics utilized in \texttt{MethodInvocationAnalyzer}. This section presents the~iterative process of optimizing \texttt{SystemIOAnalyzer}, as well as its final version.
 
-\subsection{Optimizing the SystemIOAnalyzer}
-After the initial versions of all analyzers were implemented, the first measurements showed that \texttt{SystemIOAnalyzer} is by far the slowest one. It took more than 18 seconds to run on the CMS solution, whereas almost all other analyzers executed in less than 0.3 seconds.
+\subsection{Optimizing the~SystemIOAnalyzer}
+After the~initial versions of all analyzers were implemented, the~first measurements showed that \texttt{SystemIOAnalyzer} is by far the~slowest one. It took more than 18 seconds to run on the~CMS solution, whereas almost all other analyzers executed in less than 0.3 seconds.
 
-This analyzer belongs to CMS API Replacement category and the motivation behind its existence is described in~\cite{system-io-motivation}. It forbids the access to all members from \texttt{System.IO} namespace, apart from \texttt{System.IO.IOException} and \texttt{System.IO.Stream} classes and their subclasses, plus \texttt{System.IO.SeekOrigin} enumeration\footnote{All other members of the namespace have CMS equivalents, that must be used instead to make sure all parts of the product can work with virtual file systems (like  Azure or Amazon storage).}.
+This analyzer belongs to CMS API Replacement category and the~motivation behind its existence is described in~\cite{system-io-motivation}. It forbids the~access to all members from \texttt{System.IO} namespace, apart from \texttt{System.IO.IOException} and \texttt{System.IO.Stream} classes and their subclasses, plus \texttt{System.IO.SeekOrigin} enumeration\footnote{All other members of the~namespace have CMS equivalents, that must be used instead to make sure all parts of the~product can work with virtual file systems (like  Azure or Amazon storage).}.
 
 \subsubsection{\textbf{Differences from Other CMS API Replacement Analyzers}}
-What makes this analyzer fundamentally different from all other analyzers in its category is, that instead of blacklisting particular members or methods from Microsoft API, it forbids the whole namespace (all classes, enums, methods, members, etc.) apart from few whitelisted, well defined, exceptions. Other analyzers in CMS API Replacement category can reliably cut off the analysis by looking at syntax and inspecting the name of an accessed member or method. Since only certain names are considered forbidden, vast majority of nodes will only be analyzed on the syntax level. 
+What makes this analyzer fundamentally different from all other analyzers in its category is, that instead of blacklisting particular members or methods from Microsoft API, it forbids the~whole namespace (all classes, enums, methods, members, etc.) apart from few whitelisted, well defined, exceptions. Other analyzers in CMS API Replacement category can reliably cut off the~analysis by looking at syntax and inspecting the~name of an~accessed member or method. Since only certain names are considered forbidden, vast majority of nodes will only be analyzed on the~syntax level. 
 
-However, it would be infeasible for \texttt{SystemIOAnalyzer} to list all possibilities of forbidden API usage. Therefore the analyzer needs to advance to perform more complicated and expensive analysis on symbols. It analyzers whether the symbol is defined in \texttt{System.IO} namespace and whether it is not whitelisted. Only then it raises the diagnostic.
+However, it would be infeasible for \texttt{SystemIOAnalyzer} to list all possibilities of forbidden API usage. Therefore the~analyzer needs to advance to perform more complicated and expensive analysis on symbols. It analyzers whether the~symbol is defined in \texttt{System.IO} namespace and whether it is not whitelisted. Only then it raises the~diagnostic.
 
-Unlike other analyzers in the category, that are bound to member access expressions or invocation expressions, the \texttt{SystemIOAnalyzer} must inspect all syntax nodes of kind \texttt{IdentifierName}. As seen in Table~\ref{tab:solution-statistics}, there are more than 1.4 million such nodes. With the naive implementation that directly accesses the semantic model, the performance of the analyzer degrades very quickly. The next two sections explain how the optimization of the analysis algorithm was achieved.
+Unlike other analyzers in the~category, that are bound to member access expressions or invocation expressions, the~\texttt{SystemIOAnalyzer} must inspect all syntax nodes of kind \texttt{IdentifierName}. As seen in Table~\ref{tab:solution-statistics}, there are more than 1.4 million such nodes. With the~naive implementation that directly accesses the~semantic model, the~performance of the~analyzer degrades very quickly. The~next two sections explain how the~optimization of the~analysis algorithm was achieved.
 
 \subsubsection{\textbf{Different versions of SystemIOAnalyzer}}
-The very first version of the analyzer (hereafter referred to as V1), had an action registered on syntax nodes of kind \texttt{IdentifierName}. It accessed the semantic model straight away in order to perform the analysis on symbols. The V1 took more than 18 seconds to run on the CMS solution.
+The~very first version of the~analyzer (hereafter referred to as V1), had an~action registered on syntax nodes of kind \texttt{IdentifierName}. It accessed the~semantic model straight away in order to perform the~analysis on symbols. The~V1 took more than 18 seconds to run on the~CMS solution.
 
-First optimization attempts were to register the syntax node action within compilation start action. The fastest version with this approach collected all diagnosed nodes in a collection. In the compilation end action, the diagnostics were raised for all collected nodes in a parallel for-loop. On average, this version of the analyzer performed almost 2-times faster than the V1.
+First optimization attempts were to register the~syntax node action within compilation start action. The~fastest version with this approach collected all diagnosed nodes in a~collection. In the~compilation end action, the~diagnostics were raised for all collected nodes in a~parallel for-loop. On average, this version of the~analyzer performed almost 2-times faster than the~V1.
 
-However, as pointed out by Roslyn development team on the official GitHub repository~\cite{compilation-end-action-1, compilation-end-action-2}, registering compilation start and its end action, can cause problems for large solutions. This holds particularly for IDE live analysis. Not only can be the analyzer's feedback delayed by several minutes, it might also lead to stale diagnostics in \textit{Error list} window.
+However, as pointed out by Roslyn development team on the~official GitHub repository~\cite{compilation-end-action-1, compilation-end-action-2}, registering compilation start and its end action, can cause problems for large solutions. This holds particularly for IDE live analysis. Not only can be the~analyzer's feedback delayed by several minutes, it might also lead to stale diagnostics in \textit{Error list} window.
 
-The next optimization approach was to minimize the number of actions that need to be invoked. The analyzer must inspect all 1.4 million identifier name nodes. It can either register its action on syntax node of this kind, as the previous versions did, or register a syntax tree action and look for identifier names on its own. This reduces the number of callbacks to at most 11,136 (number of documents). 
+The~next optimization approach was to minimize the~number of actions that need to be invoked. The~analyzer must inspect all 1.4 million identifier name nodes. It can either register its action on syntax node of this kind, as the~previous versions did, or register a~syntax tree action and look for identifier names on its own. This reduces the~number of callbacks to at most 11,136 (number of documents). 
 
-The logic, however, is more complicated, as the tree needs to be traversed in order to find the nodes to be inspected. On the other hand, if the document does not contain string \textit{".IO"} at all, there will be no diagnostic and its analysis can be skipped. For the fastest version with syntax tree action the analysis took over 9 seconds. Even though it was faster than the V1, it was still not ideal.
+The~logic, however, is more complicated, as the~tree needs to be traversed in order to find the~nodes to be inspected. On the~other hand, if the~document does not contain string \textit{".IO"} at all, there will be no diagnostic and its analysis can be skipped. For the~fastest version with syntax tree action the~analysis took over 9 seconds. Even though it was faster than the~V1, it was still not ideal.
 
-\subsubsection{\textbf{The Final Version}}
+\subsubsection{\textbf{The~Final Version}}
 \begin{figure}
 		\centering
 			\includegraphics[scale=0.98]{img/uml/system-io-activity-diagram}
@@ -961,15 +961,15 @@ The logic, however, is more complicated, as the tree needs to be traversed in or
 		\label{fig:uml-system-io-activity-diagram}
 \end{figure}
 
-None of the versions described above provided a significant performance improvement compared to V1. To understand the limitations of the analysis, two artificial analyzers were created, that registered an action on identifier name syntax nodes. The first one only registered an empty callback. The second one obtained the symbol of the inspected node from the semantic model and then did a dummy comparison of its name\footnote{This was just to make sure that the compiler did not skip the command of accessing the semantic model, as part of an optimization (if the obtained symbol had not been used at all).}. Neither analyzer raised any diagnostic in the CMS solution. 
+None of the~versions described above provided a~significant performance improvement compared to V1. To understand the~limitations of the~analysis, two artificial analyzers were created, that registered an~action on identifier name syntax nodes. The~first one only registered an~empty callback. The~second one obtained the~symbol of the~inspected node from the~semantic model and then did a~dummy comparison of its name\footnote{This was just to make sure that the~compiler did not skip the~command of accessing the~semantic model, as part of an~optimization (if the~obtained symbol had not been used at all).}. Neither analyzer raised any diagnostic in the~CMS solution. 
 
-The difference between the execution times of these analyzers was significant. While the empty callback took 0.54 seconds on average \footnote{The presented values are the averages from 100 MSBuild runs of the CMS solution, obtained from \textit{Report-Analyzer.ps1} script described in the previous section. The box plots can be seen in~Figure~\ref{fig:system-io-versions-boxplots}.}, the second one run for an average of 7.89 seconds. 
+The~difference between the~execution times of these analyzers was significant. While the~empty callback took 0.54 seconds on average \footnote{The~presented values are the~averages from 100 MSBuild runs of the~CMS solution, obtained from \textit{Report-Analyzer.ps1} script described in the~previous section. The~box plots can be seen in~Figure~\ref{fig:system-io-versions-boxplots}.}, the~second one run for an~average of 7.89 seconds. 
 
-These measurement clearly showed, that if the final version was to be faster, it had to implement some heuristic, that would allow to cut off the analysis of inspected node without need to access the semantic model. The analysis logic of the final solution is depicted by the activity diagram in Figure~\ref{fig:uml-system-io-activity-diagram}. 
+These measurement clearly showed, that if the~final version was to be faster, it had to implement some heuristic, that would allow to cut off the~analysis of inspected node without need to access the~semantic model. The~analysis logic of the~final solution is depicted by the~activity diagram in Figure~\ref{fig:uml-system-io-activity-diagram}. 
 
-The most important steps of the whole optimization are the second and the third node of the diagram (inspection of \textit{containing syntax tree} and \textit{containing dotted expression}\footnote{The \textit{outermost dotted expression of an identifier name} is the outermost dotted expression of its parent, if the parent is of kind \texttt{QualifiedName} or \texttt{SimpleMemberAccessExpression}, or the node itself otherwise. For example, for identifier name \texttt{Stream} which is part of \texttt{System.IO.Stream} expression, the outermost dotted expression is the whole expression.}). They are performed purely on syntax and are extremely efficient in eliminating most of the irrelevant nodes. 
+The~most important steps of the~whole optimization are the~second and the~third node of the~diagram (inspection of \textit{containing syntax tree} and \textit{containing dotted expression}\footnote{The~\textit{outermost dotted expression of an~identifier name} is the~outermost dotted expression of its parent, if the~parent is of kind \texttt{QualifiedName} or \texttt{SimpleMemberAccessExpression}, or the~node itself otherwise. For example, for identifier name \texttt{Stream} which is part of \texttt{System.IO.Stream} expression, the~outermost dotted expression is the~whole expression.}). They are performed purely on syntax and are extremely efficient in eliminating most of the~irrelevant nodes. 
 
-To prevent multiple inspections of same syntax tree for all its identifier name nodes, the information whether the tree contains \texttt{System.IO} using is cached in a concurrent dictionary. This optimization technique managed to shrink the analyzer's execution time on the CMS solution to an average of 2.40 seconds, whereas the non-cached version took 10.94 seconds on average. 
+To prevent multiple inspections of same syntax tree for all its identifier name nodes, the~information whether the~tree contains \texttt{System.IO} using is cached in a~concurrent dictionary. This optimization technique managed to shrink the~analyzer's execution time on the~CMS solution to an~average of 2.40 seconds, whereas the~non-cached version took 10.94 seconds on average. 
 
 \begin{figure}
 		\centering
@@ -978,55 +978,55 @@ To prevent multiple inspections of same syntax tree for all its identifier name 
 		\label{fig:system-io-versions-boxplots}
 \end{figure}
 
-A box plot diagram in Figure~\ref{fig:system-io-versions-boxplots} depicts the execution times of final analyzer (with non-cached version as well), V1 analyzer and artificial analyzers serving as baselines. It is clear that the cached version provides by far the best results and was chosen as the final implementation.
+A box plot diagram in Figure~\ref{fig:system-io-versions-boxplots} depicts the~execution times of final analyzer (with non-cached version as well), V1 analyzer and artificial analyzers serving as baselines. It is clear that the~cached version provides by far the~best results and was chosen as the~final implementation.
 
 %\subsection{Other Optimizations}
-%Apart from optimizations of \texttt{SystemIOAnalyzer}, other analyzers, that turned up slowest after the initial implementation, were improved in terms of their execution times.
+%Apart from optimizations of \texttt{SystemIOAnalyzer}, other analyzers, that turned up slowest after the~initial implementation, were improved in terms of their execution times.
 %
 %\subsubsection{\textbf{CMS Base Classes Analyzers}}
-%This optimization includes the whole category of analyzers that inspect what base class the classes derive from. The earliest version of these analyzers registered syntax tree action and inspected all its class declarations. This approach turned out to be TODO slower than the final one, in which a symbol action for named types is registered. The analyzers do not need to query the semantic model, because the information about the inspected symbol is already present in the symbol analysis context action parameter.
+%This optimization includes the~whole category of analyzers that inspect what base class the~classes derive from. The~earliest version of these analyzers registered syntax tree action and inspected all its class declarations. This approach turned out to be TODO slower than the~final one, in which a~symbol action for named types is registered. The~analyzers do not need to query the~semantic model, because the~information about the~inspected symbol is already present in the~symbol analysis context action parameter.
 %
-%Symbol actions get invoked exactly once per discovered named type. Since partial classes are declared on multiple locations, but they only have one symbol, the diagnostic is raised for the first location of all the symbol's locations. 
+%Symbol actions get invoked exactly once per discovered named type. Since partial classes are declared on multiple locations, but they only have one symbol, the~diagnostic is raised for the~first location of all the~symbol's locations. 
 %
 %\subsubsection{\textbf{Syntax Heuristics for Method Invocation Analyzer}}
 %Welp... this has not really helped.
 %stats on how much it speeded up relevant analyzers
 %
 %\subsubsection{\textbf{String Analyzers}}
-%As discussed in Section~\ref{sec:string-and-culture-approach-explained}, the analyzers in \textit{String and Culture} category do not use the \texttt{MethodInvocationAnalyzer} analysis helper as a strategy. They use customized approach based on the assumption, that all the diagnosed invocation will be on strings. The omission of the \texttt{MethodInvocationAnalyzer} from these analyzers led to approximate TODO increase in analyzers speed.
+%As discussed in Section~\ref{sec:string-and-culture-approach-explained}, the~analyzers in \textit{String and Culture} category do not use the~\texttt{MethodInvocationAnalyzer} analysis helper as a~strategy. They use customized approach based on the~assumption, that all the~diagnosed invocation will be on strings. The~omission of the~\texttt{MethodInvocationAnalyzer} from these analyzers led to approximate TODO increase in analyzers speed.
 
 \section{Impact on build times}
 \label{sec:build-times}
-After the deployment of BugHunter analyzers to the CMS solution, the impact on the overall build time had to be evaluated. In order to do that, the durations CMS solution's MSBuilds prior and after the analyzers deployment were collected. Both versions of the solution were built one hundred times and the results of the measurement are depicted in box plot diagram in Figure~\ref{fig:build-times-boxplots}.
+After the~deployment of BugHunter analyzers to the~CMS solution, the~impact on the~overall build time had to be evaluated. In order to do that, the~durations CMS solution's MSBuilds prior and after the~analyzers deployment were collected. Both versions of the~solution were built one hundred times and the~results of the~measurement are depicted in box plot diagram in Figure~\ref{fig:build-times-boxplots}.
 
 \begin{figure}[h!]
 		\centering   
 			\includegraphics[scale=0.26]{img/build-time-boxplots}
-		\caption{Box plots comparing the MSBuild time of CMS solution with and without BugHunter analyzers. Each dataset contains one~hundred~measurements.}
+		\caption{Box plots comparing the~MSBuild time of CMS solution with and without BugHunter analyzers. Each dataset contains one~hundred~measurements.}
 		\label{fig:build-times-boxplots}
 \end{figure}
 
-The~version without the~analyzers took an average of 5.09 minutes to build, whereas for the~version with installed BugHunter analyzers it was 5.24 minutes. This means an average of 9 seconds that were added to the~total build time. Considering this represents only 2.9\%, it is  not a significant slowdown.
+The~version without the~analyzers took an~average of 5.09 minutes to build, whereas for the~version with installed BugHunter analyzers it was 5.24 minutes. This means an~average of 9 seconds that were added to the~total build time. Considering this represents only 2.9\%, it is  not a~significant slowdown.
 
 \newpage
 \section{Tool Evaluation}
-One week after the~deployment of BugHunter analyzers, a questionnaire was sent to the~development team at Kentico. The full version, along with the results, can be found in Appendix~\ref{appendix:questionnaire}. 
+One week after the~deployment of BugHunter analyzers, a~questionnaire was sent to the~development team at Kentico. The~full version, along with the~results, can be found in Appendix~\ref{appendix:questionnaire}. 
 
-The primary goal was to evaluate these categories:
+The~primary goal was to evaluate these categories:
 
 \begin{itemize}
-\item[\textbf{Performance:}] Had they been experiencing any performance issues after the BugHunter analyzers' deployment? If so, what IDE set-up were the developers using?
+\item[\textbf{Performance:}] Had they been experiencing any performance issues after the~BugHunter analyzers' deployment? If so, what IDE set-up were the~developers using?
 
-\item[\textbf{Correctness:}] Had they encountered any false positives/negatives while using the tool?
+\item[\textbf{Correctness:}] Had they encountered any false positives/negatives while using the~tool?
 
 \item[\textbf{Code fixes:}] Had they already used any suggested code fix? Did they it useful?
 \end{itemize}
 
-Out of approximately 19 developers currently working on the product, 10 participated in the survey. None of them complained about any performance degradation. The interesting fact to find out was that 60\% of them did not use any third party tools for static code analysis, while the rest mostly used ReSharper.
+Out of approximately 19 developers currently working on the~product, 10 participated in the~survey. None of them complained about any performance degradation. The~interesting fact to find out was that 60\% of them did not use any third party tools for static code analysis, while the~rest mostly used ReSharper.
 
-When asked about the false positive or false negative results from the tool, more than three quarters responded that they had not encountered any, while the others answered \textit{"Not sure"}.
+When asked about the~false positive or false negative results from the~tool, more than three quarters responded that they had not encountered any, while the~others answered \textit{"Not sure"}.
 
-One half of the respondents had already been suggested a code fix and they had found it useful. Ninety percent of them also applied the suggested code fix and 7 out of 10 participants had believed the code fixes would help the new developers to learn the internal CMS guidelines more quickly.
+One half of the~respondents had already been suggested a~code fix and they had found it useful. Ninety percent of them also applied the~suggested code fix and 7 out of 10 participants had believed the~code fixes would help the~new developers to learn the~internal CMS guidelines more quickly.
 
 % TOOD mention "testing" of performance in VS.. codefixes?
 
@@ -1034,24 +1034,24 @@ One half of the respondents had already been suggested a code fix and they had f
 % ============================= CHAPTER 7 =========================
 % =================================================================
 \chapter{Conclusion}
-The goal of this thesis was to create a custom static code analysis tool for Kentico company, using the new .NET Compiler Platform (\textit{"Roslyn"}). The tool was developed to replace an existing console application that scanned the Kentico source codes, and searched for violations of company's internal rules and coding guidelines.
+The~goal of this thesis was to create a~custom static code analysis tool for Kentico company, using the~new .NET Compiler Platform (\textit{"Roslyn"}). The~tool was developed to replace an~existing console application that scanned the~Kentico source codes, and searched for violations of company's internal rules and coding guidelines.
 
-The theoretical part of the thesis explained the theory behind compiling the source code which was crucial for the following chapters about static code analysis. It listed static code analysis tools available for .NET and then presented the new .NET Compiler Platform and how it could be used for building custom  analyzers. The second part of this thesis described the implementation of the new BugHunter analyzers and discussed the added value for the company, as well as the need for measuring and optimizing their performance.
+The~theoretical part of the~thesis explained the~theory behind compiling the~source code which was crucial for the~following chapters about static code analysis. It listed static code analysis tools available for .NET and then presented the~new .NET Compiler Platform and how it could be used for building custom  analyzers. The~second part of this thesis described the~implementation of the~new BugHunter analyzers and discussed the~added value for the~company, as well as the~need for measuring and optimizing their performance.
 
-The objectives of the thesis were met and the developed tool has already been installed to Kentico's CMS solution. It represents a significant upgrade to the previous simple console application, in terms of correctness, user experience and presence of code fixes suggested for the diagnosed issues. The questionnaire sent to the development team, one week after the analyzers' deployment, did not reveal any issues concerning tool's stability nor performance.
+The~objectives of the~thesis were met and the~developed tool has already been installed to Kentico's CMS solution. It represents a~significant upgrade to the~previous simple console application, in terms of correctness, user experience and presence of code fixes suggested for the~diagnosed issues. The~questionnaire sent to the~development team, one week after the~analyzers' deployment, did not reveal any issues concerning tool's stability nor performance.
 
-Rewriting the internal rules to Roslyn enabled more involved semantic analysis of the source code and paved the way for advanced checks that were problematic in the previous solution. This not only led to discovering quite a few previously undetected issues in the code base, but it also enabled elimination of some obscure pieces of code, that were only present to avoid false positive results from the original BugHunter application. 
+Rewriting the~internal rules to Roslyn enabled more involved semantic analysis of the~source code and paved the~way for advanced checks that were problematic in the~previous solution. This not only led to discovering quite a~few previously undetected issues in the~code base, but it also enabled elimination of some obscure pieces of code, that were only present to avoid false positive results from the~original BugHunter application. 
 
-The extensive suite of unit tests, that was written for the new analyzers, makes it possible to track the API changes of the Kentico's solution and keep the analysis rules up to date with the analyzed source code. Moreover, they also helped to uncover number of bugs present in the original BugHunter.
+The~extensive suite of unit tests, that was written for the~new analyzers, makes it possible to track the~API changes of the~Kentico's solution and keep the~analysis rules up to date with the~analyzed source code. Moreover, they also helped to uncover number of bugs present in the~original BugHunter.
 
-The new analyzers run as part of the continuous integration process, enforcing the compliance to the internal rules across the whole company. The fact that they are also integrated to the Visual Studio minimizes the time the developer needs to wait for the first feedback on his code. Majority of the analyzers also provide a code fix for the issue which may help the new developers on the team to learn the practices followed in the company more quickly.
+The~new analyzers run as part of the~continuous integration process, enforcing the~compliance to the~internal rules across the~whole company. The~fact that they are also integrated to the~Visual Studio minimizes the~time the~developer needs to wait for the~first feedback on his code. Majority of the~analyzers also provide a~code fix for the~issue which may help the~new developers on the~team to learn the~practices followed in the~company more quickly.
 
-Many helpers methods and strategy classes for analysis were created, which makes the rule set easily extendible, even for someone without previous experience with Roslyn. The current version of the Roslyn API used by the analyzers is~1.3.2. During the course of writing this thesis, version~2.0 was released and it provides some new features and promises a better performance. However, since the most of developers at Kentico are still using Visual Studio 2015, the version of Roslyn was not updated because it requires Visual Studio 2017. Once the whole development team migrates to the new version of the IDE the version of the .NET Compiler Platform should be updated as well.
+Many helpers methods and strategy classes for analysis were created, which makes the~rule set easily extendible, even for someone without previous experience with Roslyn. The~current version of the~Roslyn API used by the~analyzers is~1.3.2. During the~course of writing this thesis, version~2.0 was released and it provides some new features and promises a~better performance. However, since the~most of developers at Kentico are still using Visual Studio 2015, the~version of Roslyn was not updated because it requires Visual Studio 2017. Once the~whole development team migrates to the~new version of the~IDE the~version of the~.NET Compiler Platform should be updated as well.
 
-Although the tool was primarily developed to aid the Kentico employees and enforce the guidelines within the company, in the future, it could be also used by the customers who work with the Kentico API or have purchased the licence that includes the Kentico source codes. The NuGet packages with BugHunter analyzers are currently only available at Kentico internal NuGet feed. However, after the tool is adopted company wide, the plan is to make it publicly available through the NuGet Gallery. Afterwards, anyone interested would be able to leverage the static code analysis guiding them to intended use of the Kentico API in their own projects.
+Although the~tool was primarily developed to aid the~Kentico employees and enforce the~guidelines within the~company, in the~future, it could be also used by the~customers who work with the~Kentico API or have purchased the~licence that includes the~Kentico source codes. The~NuGet packages with BugHunter analyzers are currently only available at Kentico internal NuGet feed. However, after the~tool is adopted company wide, the~plan is to make it publicly available through the~NuGet Gallery. Afterwards, anyone interested would be able to leverage the~static code analysis guiding them to intended use of the~Kentico API in their own projects.
 
 
-%Why stateful analyzers should not have compilation end actions -- for large solutions it can take more than one minute for the diagnostic to show up in VS... that is not usable at all and cannot be considered as "live" feedback.
+%Why stateful analyzers should not have compilation end actions -- for large solutions it can take more than one minute for the~diagnostic to show up in VS... that is not usable at all and cannot be considered as "live" feedback.
 
 %
 %\section{Roslyn as SDK and Its Usage -- Considerations and Remarks}
@@ -1091,7 +1091,7 @@ Although the tool was primarily developed to aid the Kentico employees and enfor
 \appendix %% Start the~appendices.
 \chapter{Source Codes in IS}
 \label{appendix:source-codes}
-  The main solution with new Roslyn analyzers (BugHunter.sln) consists of 6 projects within 2 folders: TODO - Do leave the~Vsix project there or delete???
+  The~main solution with new Roslyn analyzers (BugHunter.sln) consists of 6 projects within 2 folders: TODO - Do leave the~Vsix project there or delete???
 
 TODO - replace with a~screenshot???
 \begin{description}
@@ -1113,7 +1113,7 @@ TODO - replace with a~screenshot???
 
 TODO Describe each project.. why 2 for analyzers - nuget distribution
 
-The projects with analyzers use the~categories also for folder structure with each folder containing separate subfolders for analyzers and code fixes respectively.
+The~projects with analyzers use the~categories also for folder structure with each folder containing separate subfolders for analyzers and code fixes respectively.
 
 
 % =================================================================
@@ -1121,15 +1121,15 @@ The projects with analyzers use the~categories also for folder structure with ea
 % =================================================================
 \chapter{Questionnaire}
 \label{appendix:questionnaire}
-This appendix contains the original version of the questionnaire sent to the development team one week after the deployment along with the results:
+This appendix contains the~original version of the~questionnaire sent to the~development team one week after the~deployment along with the~results:
 
 \bigskip\noindent
 \textit{Hi, all!}
 
 \bigskip\noindent
-\textit{On 24.4.2017 new NuGet package with BugHunter Roslyn analyzers was installed to CMS Solution. It aims to replace the C\# checks of the original BugHunter (a console application that runs on build boxes) and provide a better developer experience with instant feedback inside of Visual Studio.}
+\textit{On 24.4.2017 new NuGet package with BugHunter Roslyn analyzers was installed to CMS Solution. It aims to replace the~C\# checks of the~original BugHunter (a console application that runs on build boxes) and provide a~better developer experience with instant feedback inside of Visual Studio.}
 
-\textit{The new analyzers were implemented as a part of diploma thesis on FI MUNI. The goal of this survey is to collect feedback from developers that are already using the tool on daily basis, in order to assess whether the goals of the thesis were met.}
+\textit{The~new analyzers were implemented as a~part of diploma thesis on FI MUNI. The~goal of this survey is to collect feedback from developers that are already using the~tool on daily basis, in order to assess whether the~goals of the~thesis were met.}
 
 \textit{There are only 8 required multiple choice questions, and it should not take you more than 3 minutes to fill in.}
 
@@ -1151,7 +1151,7 @@ This appendix contains the original version of the questionnaire sent to the dev
 \end{compactitem}
 
 \smallskip\noindent
-\textbf{What tools for static code analysis do you use?\footnote{Multiple answeres possible, the results do not have to sum up to 100\%.}}
+\textbf{What tools for static code analysis do you use?\footnote{Multiple answeres possible, the~results do not have to sum up to 100\%.}}
 \begin{compactitem}
 \item None \textit{70\%}
 \item ReSharper \textit{40\%}
@@ -1174,7 +1174,7 @@ This appendix contains the original version of the questionnaire sent to the dev
 \end{compactitem}
 
 \smallskip\noindent
-\textbf{Do you find the new code fixes useful?}
+\textbf{Do you find the~new code fixes useful?}
 \begin{compactitem}
 \item Yes \textit{50\%}
 \item No \textit{0\%}
@@ -1182,7 +1182,7 @@ This appendix contains the original version of the questionnaire sent to the dev
 \end{compactitem}
 
 \smallskip\noindent
-\textbf{Do you think the BugHunter analyzers and code fixes will help new developers to learn the internal CMS guidelines more quickly?}
+\textbf{Do you think the~BugHunter analyzers and code fixes will help new developers to learn the~internal CMS guidelines more quickly?}
 \begin{compactitem}
 \item Yes \textit{70\%}
 \item No \textit{10\%}
@@ -1194,7 +1194,7 @@ This appendix contains the original version of the questionnaire sent to the dev
 \end{center}
 
 \smallskip\noindent
-\textbf{Have you been experiencing unusual performance issues with your Visual Studio since the analyzers' deployment (Monday 24.4.2017)?}
+\textbf{Have you been experiencing unusual performance issues with your Visual Studio since the~analyzers' deployment (Monday 24.4.2017)?}
 \begin{compactitem}
 \item Yes \textit{90\%}
 \item No \textit{0\%}
@@ -1205,9 +1205,9 @@ This appendix contains the original version of the questionnaire sent to the dev
 \textbf{Correctness}
 \end{center}
 
-In the context of static code analysis:
-- a "false positive" is an issue that was incorrectly reported by the tool,
-- a "false negative" is an issue that is present in the code but was not detected by the tool.
+In the~context of static code analysis:
+- a~"false positive" is an~issue that was incorrectly reported by the~tool,
+- a~"false negative" is an~issue that is present in the~code but was not detected by the~tool.
 
 \smallskip\noindent
 \textbf{Have you encountered any false positive results?}
@@ -1250,7 +1250,7 @@ talk about the~old configuration of the~BH, and how this one maps to Roslyn vers
 
 \chapter{Analyzers' Documentation}
 TODO...
-same as will the online documentation?
+same as will the~online documentation?
 
 IDs, categories, which nuget, title, description, what for, severity, enabled by default...
 \end{document}
