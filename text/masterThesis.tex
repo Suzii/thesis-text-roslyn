@@ -550,13 +550,11 @@ On the~other hand, when the~analyzers are installed as a~NuGet package, only the
 % =================================================================
 % ============================= CHAPTER 5 =========================
 % =================================================================
-
-
 \chapter{Implementation of Custom Analyzers}
 \label{chap:custom-roslyn-analyzers}
-Kentico Software is an~IT company based in Brno, developing an~all-in-one solution for web content management, e-commerce, and online marketing, using the~ASP.NET\footnote{Open source framework for developing web applications by Microsoft.} architecture. The~leading product is Kentico CMS (Content Management System). It has been on the~market since 2004 with the~11th version currently being developed. 
+Kentico Software is an~IT company based in Brno, developing an~all-in-one solution for web content management, e-commerce, and online marketing, using the~ASP.NET\footnote{Open source framework for developing web applications by Microsoft.} architecture. Their leading product is Kentico CMS (Content Management System). It has been on the~market since 2004 with the~11th version currently being developed. 
 
-Over the~course of almost 13 years, the~solution grew to an~enormous extent. To give an~overview, the~current version of the~Kentico CMS solution contains 249   projects and a~total of 14,881 documents. A lot of knowledge was accumulated with many internal utilities developed and guidelines created. Many features, such as globalization, were developed in-house first, only to be added as an~integral part of the~.NET Framework a~few years later.
+Over the~course of almost 13 years, the~CMS solution grew to an~enormous extent. To give an~overview, the~current version contains 249 projects and a~total of 14,881 documents. A lot of knowledge was accumulated with many internal utilities developed and guidelines created. Many features, such as globalization, were developed in-house first, only to be added as an~integral part of the~.NET Framework a~few years later.
 
 The~size of the~company grew to more than 80 developers working on one product. It became significantly harder to share all the~knowledge about the~internal best practices and the~process of onboarding new employees was challenging. With the~increasing complexity of the~project, the~main focus of the~code reviews was shifted to the~general architecture and inspection of how the~new code influences the~other parts of the~system, in order not to break anything. The~manual and often repetitive tasks of checking the~compliance with the~conventions and correct use of the~API during the~code review became very tiresome and dragged the~focus of the~reviewer away from the~higher perspective on the~code. This led to a~need for an~automated tool that would take care of the~repetitive checks that needed to be done by the~reviewer.
 
@@ -569,28 +567,28 @@ The~size of the~company grew to more than 80 developers working on one product. 
 
 % how ReSharper or StyleCop are used in Kentico
 \section{The~Original BugHunter}
-BugHunter is a~simple console application developed at Kentico that searches for violations of internal rules and best practices in the~the CMS solution. Given the~file path to the~solution folder, the~BugHunter performs the~checks and outputs the~results to a~file. Each issue found is reported with a~short message plus additional information on its location in the~code (source file and line number). It contains various checks not, only for C\#, but also a~few for JavaScript (like no skipped tests allowed), ASPX\footnote{Active Server Page Extended is a~file format used in Microsoft's APS.NET framework.} (preferred usage of Kentico controls to default ones), or XML files.
+The~BugHunter is a~simple console application developed at Kentico that searches for violations of internal rules and best practices in the~CMS solution. Given the~file path to the~solution folder, the~BugHunter performs the~checks and outputs the~results to a~file. Each issue found is reported with a~short message plus additional an~information on its location in the~code (source file and line number). It contains various checks, not only for C\#, but also a~few for JavaScript (like no skipped tests allowed), ASPX\footnote{Active Server Page Extended is a~file format used in APS.NET framework.} (preferred usage of Kentico controls to default ones), or XML files.
 
-Following sections explain the~main downsides of the~original BugHunter and how this thesis addresses them.
+The~following sections explain the~main downsides of the~original BugHunter and explains how this thesis addresses them.
 
 \subsection{Need for Semantic Analysis}
-The~biggest disadvantage of the~previous BugHunter was that the~tool performed the~checks purely by string comparison. It did not build any model of the~analyzed code, and therefore possessed no knowledge of the~semantics. 
+The~biggest disadvantage of the~previous BugHunter was that the~tool performed the~checks purely by string comparison. It did not build any model of the~analyzed code, and, therefore, possessed no knowledge of the~semantics. 
 
-This caused an~enormous number of false negatives. A typical example would be the~tool trying to prevent the~access to the~\texttt{Cookies} property of the~\texttt{HttpRequest} object. The~old BugHunter check looked something like this:
+This caused an~enormous number of false negatives. A typical example would be the~tool trying to prevent an~access to the~\texttt{Cookies} property of the~\texttt{HttpRequest} object. The~old BugHunter check looked something like this:
 
 \begin{minted}[fontsize=\footnotesize]{csharp}
-   if (line.Contains("Request.Cookies")) { /* report an~error */ }
+   if (line.Contains("Request.Cookies")) { /* report an error */ }
 \end{minted}
 
 
-If the~programmer used the~most common approach\footnote{Accessing the~static property of the~class that is handling the~request.} of accessing the~\texttt{Cookies} collection on the~\texttt{Request} object, everything was fine and the~BugHunter correctly reported the~problem. However, it had no means of detecting other possible accesses to the~property. If the~\texttt{Request} object was passed to a~function as an~argument or stored in a~variable, the~accesses of the~cookies collection could not be detected by the~original BugHunter. 
+If the~programmer used the~most common approach\footnote{Accessing the~static property of the~class that is handling the~request.} of accessing the~\texttt{Cookies} collection on the~\texttt{Request} object, everything was fine, and the~BugHunter correctly reported the~problem. However, it had no means of detecting other possible accesses to the~property. If the~\texttt{Request} object was passed to a~function as an~argument or stored in a~variable, the~accesses to the~cookies collection could not be detected by the~original BugHunter. 
 
-There were other use cases that could lead to false negatives when using just primitive string comparisons. For example, in C\# it is allowed to put an~arbitrary number of whitespace characters between the~object, the~dot token, and the~property being accessed. This could have been solved by using a~bit more complicated regular expression, but it would still cover only a~fraction of use cases. Things like using variable or even alias usings\footnote{\url{https://msdn.microsoft.com/en-us/library/aa664765(v=vs.71).aspx}} would stay undetected by the~tool. 
+There were other use cases that could lead to false negatives when using just primitive string comparisons. For example, in C\# it is allowed to put an~arbitrary number of whitespace characters between the~object, the~dot token, and the~property being accessed. This could have been solved by using a~bit more complicated regular expression, but it would still cover only a~fraction of use cases. Things like using a~variable or even an~alias using\footnote{\url{https://msdn.microsoft.com/en-us/library/aa664765(v=vs.71).aspx}} would stay undetected by the~tool. 
 
-However, all the~above mentioned problems can be solved by introducing the~semantics into the~analysis. As discussed in Chapters~\ref{chap:compilers} and~\ref{chap:static-code-analysis}, once the~source code is parsed, and both AST and symbol tables are available, the~analysis tool should have all the~information necessary for understanding of the~analyzed code. This approach is far superior to plain string matching performed by the~original BugHunter, and the~analyzers developed as part of this thesis leverage it thanks to Roslyn Diagnostic APIs.
+However, all the~above mentioned problems can be easily solved by introducing the~semantics into the~analysis. As discussed in chapters~\ref{chap:compilers} and~\ref{chap:static-code-analysis}, once the~source code is parsed, and both AST and symbol tables are available, the~analysis tool should have all the~information necessary for understanding the~analyzed source code. This approach is far superior to plain string matching performed by the~original BugHunter, and the~analyzers developed as part of this thesis leverage it thanks to Roslyn Diagnostic APIs.
 
 \subsection{Ease of Use}
-As mentioned in the~Chapter~\ref{chap:static-code-analysis}, the~key to success of a~static code analysis tool is the~ease of use. This means that running the~tool should not be complicated and interpreting the~results should be straightforward. If this is not the~case, programmers will not use the~tool or they will ignore the~results it produces. 
+As mentioned in the~Chapter~\ref{chap:static-code-analysis}, the~key to success of a~static code analysis tool is the~ease of use. This means that running the~tool should not be complicated and interpreting the~results should be straightforward. If this is not the~case, programmers will not use the~tool at all or they will ignore the~results it produces. 
 
 With the~original BugHunter, a~developer had to run the~separate application that took for about 30 seconds. Then, he or she had to analyze the~results before going back to the~IDE in order to look up the~reported issues and fix them. 
 
@@ -605,11 +603,11 @@ Another downside of the~previous solution was the~way certain portions of the~co
 
 Moreover, the~only way to exclude a~certain piece of code from the~analysis was to put the~whole file, in which it appeared, into the~configuration of the~rule to be suppressed. This way of configuration lacked the~granularity and was opaque. 
 
-On the~other hand, Roslyn provides numerous ways to turn off a~certain rule for a~project, a~file, or even a~line of code. More information on which approach was taken when deploying the~analyzers can be fount in the~Appendix~\ref{appendix:deployment}.
+On the~other hand, Roslyn provides numerous ways to turn off a~certain rule for a~project, a~file, or even a~line of code. More information on which approach was taken when deploying the~analyzers can be found in the~Appendix~\ref{appendix:deployment}.
 
 \section{Defining Analyzer Categories}
 \label{sec:analyzer-categories}
-The~\texttt{Category} property of the~\texttt{Microsoft.CodeAnalysis.DiagnosticDescriptor} class provides a~way for semantically distinguishing the~analyzers and giving additional information on what type of problem the~particular category is concerned with. The~original BugHunter did not group the~checks into the~semantic categories but was structured rather by the~technology targeted by the~check (C\#, ASPX, JavaScript, web parts, etc.). 
+The~\texttt{Category} property of the~\texttt{DiagnosticDescriptor} class (described in Section~\ref{sec:analyzers-and-code-fixes}) provides a~way for semantically distinguishing the~analyzers and giving additional information on what type of problem the~particular category is concerned with. The~original BugHunter did not group the~checks into the~semantic categories, but was structured rather by the~technology targeted by the~check (C\#, ASPX, JavaScript, web parts, etc.). 
 
 Therefore, one of the~first tasks before the~implementation was to determine which checks are suitable candidates for refactoring into new Roslyn analyzers and subsequently group them into categories by the~type of the~task they performed. Basically, all the~checks that were not obsolete and were concerned with C\# internal guidelines were rewritten. Table~\ref{tab:analyzer-categories-compact-table} lists all implemented analyzers sorted into categories and following sections briefly elaborate on how the~categories were defined and what they represent. 
 
@@ -668,30 +666,30 @@ Therefore, one of the~first tasks before the~implementation was to determine whi
 % ---------------------------------------------------
 
 \subsection{Abstraction over Implementation}
-Analyzers in this category check that there is no "hard reference" on third party libraries in the~code. Violation of this rule would require clients to use a~particular version of the~library which might collide with the~references on other components they are using, resulting in so-called "dependency hell"\footnote{\url{https://devnet.kentico.com/articles/referencing-multiple-versions-of-the-same-assembly-in-a-single-application}}. Therefore, in CMS solution the~hard references are replaced with a~thin layer of interfaces and adapters. The~analyzers make sure, only the~interfaces are used throughout the~solution.
+Analyzers in this category check that there is no \textit{hard reference} on third party libraries in the~code. Violation of this rule would require clients to use a~particular version of the~library which might collide with the~references on other components they are using, resulting in so-called \textit{dependency hell}, described in~\cite{dependency-hell}. Therefore, in CMS solution the~hard references are replaced with a~thin layer of interfaces and adapters. The~analyzers make sure, only the~interfaces are used throughout the~solution.
 
 \subsection{CMS API Replacements}
-In Kentico CMS solution there are many helpers that encapsulate the~traditional .NET API and might provide an~extended functionality. For example, determining the~current browser of the~user can be done by accessing the~\texttt{Browser} property of the~\texttt{HttpRequest} object. However, if this attempt fails there are still other ways to resolve it and the~CMS API typically has a~helper for such cases. The~analyzers detect accesses to members that have an~equivalent in CMS API and suggest code fixes. 
+In CMS solution, there are many helpers encapsulating the~traditional .NET API and providing an~extended functionality. For example, determining the~current browser of the~user can be done by accessing the~\texttt{Browser} property of the~\texttt{HttpRequest} object. However, if this attempt fails, there are still other ways to resolve it and the~CMS API typically has a~helper class for such cases. The~analyzers detect accesses to members that have a~CMS~equivalent and suggest code fixes. 
 
 \subsection{CMS API Guidelines}
-These analyzers impose internal guidelines on the~CMS API usage. They forbid the~direct access to database from presentation layer (\texttt{ConnectionHelperExecutequeryAnalyzer}), point out usages of methods that may have more suitable or a~safer alternatives1 (\texttt{WhereLikeMethodAnalyzer} or \texttt{ValidationHelperGetAnalyzer}), or guide developers to use predefined constants where possible (\texttt{EventLogArgumentsAnalyzer}).
+These analyzers impose internal guidelines on the~CMS API usage. They forbid the~direct access to~the~database from presentation layer, point out usages of methods that may have more suitable or safer alternatives, or guide developers to use predefined constants where possible.
 
 \subsection{CMS Base Classes}
-Similar to CMS API Replacements category, the~analyzers search for classes that inherit from standard .NET classes with CMS alternatives and suggest the~correct CMS replacements.
+Similar to \textit{CMS API Replacements} category, the~analyzers search for classes that inherit from standard .NET classes with CMS alternatives, and suggest the~correct CMS replacements.
 
 \subsection{String and Culture}
-This category of analyzers makes sure that string comparison\footnote{\texttt{Equals()}, \texttt{Compare()}, \texttt{IndexOf()} and their variants} and manipulation\footnote{\texttt{ToLower()}, \texttt{ToUpper()}} methods are always used with the~overload specifying \texttt{StringComparison} or \texttt{CultureInfo} parameter explicitly. This is vital for an~application like CMS that is used with culture specific data. For more information on what issues can be caused when not following this rule, like the~\textit{"Turkish-I problem"}, see \cite{best-practices-for-using-strings-in-dot-net}. 
+This category of analyzers makes sure that string comparison\footnote{\texttt{Equals()}, \texttt{Compare()}, \texttt{IndexOf()} and their variants} and manipulation\footnote{\texttt{ToLower()}, \texttt{ToUpper()}} methods are always used with the~overload specifying \texttt{StringComparison} or \texttt{CultureInfo} parameter explicitly. This is vital for an~application like CMS that is used with culture specific data. For more information on what issues can be caused when not following this rule, see \cite{best-practices-for-using-strings-in-dot-net}. 
 
 \section{Strategy Classes for API Replacement Analyzers}
-The~CMS API Replacement category contains 15 analyzers which represents almost one half of total 31 analyzers that were created. Vast majority of these analyzers search for a~particular member being accessed or invoked on a~particular type. Any such usage found by the~analyzer shall be reported as CMS API contains a~replacement for it, with a~code fix suggested where applicable.
+The~\textit{CMS API Replacements} category contains 15 analyzers which represents more than one half of total 29 analyzers that were created. Vast majority of these analyzers searches for a~particular member being accessed or invoked on a~particular type. Any such usage found by the~analyzer shall be reported as CMS API contains a~replacement for it, with a~code fix suggested where applicable.
 
-In order to prevent code duplication and ease the~process of adding new analyzers, the~analysis logic for the~analyzers in this category was extracted into two strategy classes\footnote{\url{http://www.oodesign.com/strategy-pattern.html}}: \texttt{ApiReplacementForMemberAnalyzer} and \texttt{ApiReplacementForMethodAnalyzer}. These are instantiated and configured by the~concrete end-analyzer to perform the~analysis on their behalf.
+In order to prevent code duplication and ease the~process of adding new analyzers, the~analysis logic for analyzers in this category was extracted into two strategy classes\footnote{\url{http://www.oodesign.com/strategy-pattern.html}}: \texttt{ApiReplacementForMemberAnalyzer} and \texttt{ApiReplacementForMethodAnalyzer}. These are instantiated and configured by the~concrete end-analyzer to perform the~analysis on their behalf.
 
 \subsection{Configuration}
-There are only a~few things the~API replacement analyzer need to know in order to perform the~actual analysis. This information is encapsulated in \texttt{ApiReplacementConfig} object. The~object is passed as a~constructor argument upon creation of the~API replacement analyzer. It contains following properties:
+There are only a~few things the~API replacement analyzer needs to know in order to perform the~actual analysis. This information is encapsulated in \texttt{ApiReplacementConfig} object. The~object is passed as a~constructor argument upon creation of the~API replacement analyzer. It contains following properties:
 
 \begin{itemize}
-  \item \texttt{ForbiddenMembers} -- member names to look for (e.g. \texttt{"Cookies"}), 
+  \item \texttt{ForbiddenMembers} -- member names to look for (e.g. \texttt{"Cookies"}).
   \item \texttt{ForbiddenTypes} -- names of fully qualified (super)types the~members belong to\footnote{The~forbidden type is treated as the~highest type in the~inheritance hierarchy the~member could belong to.
 } (e.g. \texttt{"System.Web.HttpRequest"}), 
   \item \texttt{Rule} -- an~instance of \texttt{DiagnosticDescriptor} that defines the~diagnostic raised upon detection of a~forbidden usage.
@@ -699,21 +697,21 @@ There are only a~few things the~API replacement analyzer need to know in order t
 
 The~main reason behind \texttt{ForbiddenTypes} being an~array of strings rather than a~single string, is the~lack of inheritance hierarchy between \texttt{HttpRequest} and \texttt{HttpRequestBase} objects in the~.NET framework. They basically contain the~same members but do not derive from one another\footnote{More information on why this is so can be found in \url{https://msdn.microsoft.com/en-us/library/system.web.httprequestwrapper.aspx}} and therefore, the~analyzer must treat both types separately. 
 
-On the~other hand, allowing for multiple forbidden members on one type under one diagnostic ID may also make sense, which is why \texttt{ForbiddenMembers} are also defined as an~array.
+On the~other hand, allowing for multiple forbidden members on one type under one diagnostic ID may also make sense, which is why \texttt{ForbiddenMembers} are defined as an~array, as well.
 
 \subsection{Analyzer for Member Replacement}
 The~task for the~\texttt{ApiReplacementForMemberAnalyzer} is to subscribe to all possible member accesses and analyze them. If the~particular access is regarded as forbidden, given the~configuration supplied (\texttt{ApiReplacementConfig} object), the~analyzer raises a~diagnostic.
 
-It is not enough for the~analyzer to subscribe only to \texttt{SimpleMemberAccessExpression} syntax kind. It also needs to analyze the~\texttt{ConditionalAccessExpression} (null conditional operator, '\texttt{?.}') which is a~new C\# 6.0 language feature\footnote{\url{https://msdn.microsoft.com/en-us/library/dn986595.aspx}}. 
+Subscribing only to nodes of \texttt{SimpleMemberAccessExpression} syntax kind is not enough for the~analyzer. It also needs to analyze the~\texttt{ConditionalAccessExpression} (\texttt{"?."}, so-called \textit{null conditional operator}) which is a~new C\# 6.0 language feature\footnote{\url{https://msdn.microsoft.com/en-us/library/dn986595.aspx}}. 
 
-Even though it would be possible to subscribe to both kinds of syntax nodes with one callback, the~underlying syntax of these two is so much different, it would make the~code cluttered and full of if-statements. Moreover, if Microsoft decides to add another possibility to access members in next language version, the~existing code would have to be modified.
+Even though it would be possible to subscribe to both kinds of syntax nodes with one callback, the~underlying syntax of these two is so much different, it would make the~code cluttered and full of \textit{if-statements}. Moreover, if Microsoft decides to add another possibility to access members in the~next language version, the~existing code would have to be modified.
 
-Therefore, the~strategies for analyzing a~particular syntax node were encapsulated into separate classes. The~API replacement for member analyzer instantiates the~strategy helpers, configures them, and tells them to run the~analysis methods as callbacks subscribed syntax node of a~particular kind. This makes the~code easily extendible.
+Therefore, the~strategies for analyzing a~particular syntax node were encapsulated into separate classes. The~member replacement analyzer instantiates the~strategy helpers, configures them, and tells them to run the~analysis methods as callbacks subscribed syntax node of a~particular kind. This makes the~code easily extendible.
 
 \begin{figure}[h!]
 		\centering
 			\includegraphics[scale=0.8]{img/uml/api-replacement-for-member}
-		\caption{Class diagram for \texttt{ApiReplacementForMemberAnalyzer}}
+		\caption{Class diagram of \texttt{ApiReplacementForMemberAnalyzer}}
 		\label{fig:uml-api-replacement-for-member}
 \end{figure}
 
@@ -721,20 +719,20 @@ The~UML class diagram for \texttt{ApiReplacementForMemberAnalyzer} is depicted i
 
 \subsection{Analyzer for Method Replacement}
 The~class \texttt{ApiReplacementForMethodAnalyzer} is very similar to analyzer for members that was introduced in the~previous section. It also accepts a~configuration object defining the~invocations of which members on which types are forbidden. 
-Instead of subscribing to member accesses it is interested in syntax nodes of kind \texttt{InvocationExpression}. It delegates the~analysis itself to a~strategy defined in \texttt{MethodInvocationAnalyzer}, described in the~following section.
+Instead of subscribing to member accesses, it is interested in \texttt{InvocationExpression} syntax nodes. It delegates the~analysis itself to another strategy class defined in the~following section -- \texttt{MethodInvocationAnalyzer}.
 
-\section{Strategy Class for Method Invocation Analyzer}
-This analyzer helper defines an~algorithm for analyzing invocation expression syntax nodes. The~need for analyzing the~method invocations is not limited to the~API replacements. The~same analysis needs to be performed when enforcing internal guidelines that are concerned with methods. It is important to locate the~specific methods invoked on specific types, before it is possible to analyze further whether or not they are used according to the~internal API conventions. 
+\section{Strategy for Method Invocation Analysis}
+An~algorithm for analyzing invocation expression syntax nodes is defined by~\texttt{MethodInvocationAnalyzer}. The~need for analyzing the~method invocations is not limited to the~API replacements. The~same analysis needs to be performed when enforcing internal guidelines that are concerned with methods. It is important to locate the~specific methods invoked on specific types, before it is possible to analyze further whether or not they are used according to the~internal API conventions. 
 
 \subsection{Template Method Pattern}
 This analyzer is utilized by all end-analyzers that involve method invocation analysis. In order to be easily extendible for advanced checks, it is implemented as a~template method pattern\footnote{\url{http://www.oodesign.com/template-method-pattern.html}}. Every step of the~template method defines a~criteria that must be met in order for the~analysis to proceed. Steps that can be overridden have default implementation that continues with the~analysis. 
 
-It is important to note that the~steps are ordered in a~way so that the~inexpensive checks are performed first, in order to cut off the~analysis of the~irrelevant nodes without significant performance costs. Figure~\ref{fig:uml-method-invocation-analyzer} shows the~class diagram of the~\texttt{MemberInvocationAnalyzer} depicting the~use of template method design pattern. Following section elaborate on respective steps of the~algorithm. Concrete use case depicting an~instance of the~analyzer can be seen in Figure~\ref{fig:uml-method-invocation-analyzer-object-diagram}.  
+It is important to note that the~steps are ordered in a~way so that the~inexpensive checks are performed first, in order to cut off the~analysis of the~irrelevant nodes without significant performance costs. Figure~\ref{fig:uml-method-invocation-analyzer} shows the~class diagram of the~\texttt{MemberInvocationAnalyzer} depicting the~use of template method design pattern. Following sections elaborate on the~respective steps of the~algorithm. Concrete use case depicting an~instance of the~analyzer can be seen in Figure~\ref{fig:uml-method-invocation-analyzer-object-diagram}.  
 
 \begin{figure}[h!]
 		\centering
 			\includegraphics[scale=0.85]{img/uml/method-invocation-analyzer}
-		\caption{Class diagram for \texttt{MethodInvocationAnalyzer} depicting the~template method design pattern}
+		\caption{Class diagram of \texttt{MethodInvocationAnalyzer} depicting the~template method design pattern}
 		\label{fig:uml-method-invocation-analyzer}
 \end{figure}
 
@@ -742,63 +740,66 @@ It is important to note that the~steps are ordered in a~way so that the~inexpens
 Sometimes, an~analyzer needs to pre-filter files that are relevant for the~diagnostic. For example, when looking for an~access to the~database layer from the~presentation layer, the~analyzer is only concerned with the~invocation expressions in the~files of presentation layer. These can be identified by inspecting the~\texttt{FilePath} property of the~\texttt{SyntaxTree} in which the~current invocation expression is located. If the~file path does not meet the~requirements, the~current invocation expression does not need to be analyzed further.
 
 \subsubsection{\textbf{Method Name Syntax Analysis}}
-This step exists purely for performance optimization reasons and cannot be overridden by subclasses. It tries to extract the~name of the~method invoked and compares it to the~forbidden members. If the~method name is not among the~forbidden members, the~algorithm stops and no expensive operations had to be done. Otherwise, the~algorithm advances to the~next step.
+This step exists purely for performance optimization reasons and cannot be overridden by subclasses. It tries to extract the~name of the~invoked method, and compares it to the~forbidden members. If the~method name is not among the~forbidden members, the~algorithm stops and no expensive operations had to be done. Otherwise, the~algorithm advances to the~next step.
 
-Since there are no constraints for what kind of syntax node the~\texttt{Expression} property of the~\texttt{InvocationExpressionSyntax} node could be, the~logic had to be implemented by hand. The~heuristc inspects these three cases:
-\begin{itemize}
-  \item \textbf{Identifier name} -- the~simplest case where the~method being invoked is a~member of the~enclosing class.
+Since there are no constraints on kinds of syntax nodes that could be children of the~\texttt{InvocationExpressionSyntax} node, the~logic had to be implemented by hand. The~heuristic inspects these three cases:
+\begin{compactitem}
+  \item[\texttt{IdentifierName}] -- the~simplest case where the~method being invoked is a~member of the~enclosing class.
     
-  \item \textbf{Simple member access expression} -- invocation on member that is being accessed on object, or class. Accesses can be possibly chained.    
+  \item[\texttt{SimpleMemberAccessExpression}] -- invocation on member that is being accessed on object, or class. Accesses can be possibly chained.    
 
-  \item \textbf{Conditional access expression} -- similar to the~previous case but the~access is conditional. The~whole syntax tree is right-folded as opposed to the~simple member access left-folded syntax tree. 
-\end{itemize}
+  \item[\texttt{ConditionalAccessExpression}] -- similar to the~previous case but the~access is conditional. The~whole syntax tree is right-folded as opposed to the~simple member access left-folded syntax tree. 
+\end{compactitem}
 
 \subsubsection{\textbf{Method Name and Receiver Type Semantic Analysis}}
-Here, semantic model is queried for \texttt{IMethodSymbol} that matches the~analyzed \texttt{InvocationExpressionSyntax}. If the~method symbol is found, its property \texttt{Name} is checked against forbidden member names. If the~check passes, the~property \texttt{ReceiverType} is inspected and only if it is one of forbidden types or its subtype, the~algorithm proceeds. 
+In this step, the semantic model is queried for an~\texttt{IMethodSymbol} matching the~analyzed \texttt{InvocationExpressionSyntax}. If the~method symbol is found, its \texttt{Name} property is compared to forbidden member names. If the~check passes, the~property \texttt{ReceiverType} is inspected and only if it is one of forbidden (sub)types, the~algorithm proceeds. 
 
 This method cannot be overridden as it is the~integral part of the~whole algorithm. It is also the~most expensive one, since the~checks in this method are performed on symbols obtained by querying the~semantic model. However, thanks to the~heuristics from the~previous step, the~majority of irrelevant cases was already filter out.
 
 \subsubsection{\textbf{Context of the~Invocation Usage}}
-If it is important to analyze the~specificities of the~invocation usage (mainly the~arguments supplied), the~subclasses can override \texttt{IsForbiddenUsage()} virtual method. The~template method supplies it with two parameters: the~invocation expression and the~method symbol obtained in the~previous step.
+If it is important to analyze the~context of the~invocation usage (mainly supplied arguments), the~subclass can override \texttt{IsForbiddenUsage()} method. The~template method supplies it with two parameters: the~invocation expression and the~method symbol obtained in the~previous step.
 
 \subsubsection{\textbf{Diagnostic Creation}}
-If all the~steps above determined the~analyzed invocation is forbidden, the~last step of the~template method makes sure the~diagnostic is raised, using the~diagnostic descriptor provided upon creation. It is possible to configure the~diagnostic creation by providing optional instance of \texttt{IDiagnosticFormatter}. It is an~interface defined in \texttt{BugHunter} project that determines how the~diagnostic of certain syntax nodes shall be formatted (location and message text of the~diagnostic).
+If all the~steps above determined that the~analyzed invocation is forbidden, the~last step of the~template method makes sure the~diagnostic is raised, using the~diagnostic descriptor provided upon creation. It is possible to configure the~diagnostic creation by providing optional instance of \texttt{IDiagnosticFormatter}. It is an~interface defined in the~\textit{BugHunter} project that constructs a~correctly formatted diagnostic (mainly its location and message text) for certain syntax nodes.
 
 \subsection{Usage}
 \label{sec:method-invocation-analyzer-usage}
-Prime example how to use this template method is \texttt{EventLogArgumentsAnalyzer}, depicted in~Figure~\ref{fig:uml-method-invocation-analyzer-object-diagram}. It defines an~inner class that subclasses the~\texttt{MethodInvocationAnalyzer}, overriding its \texttt{IsForbiddenUsage()} method.
+The~\texttt{EventLogArgumentsAnalyzer} is a~prime example on how to use this template method, see~Figure~\ref{fig:uml-method-invocation-analyzer-object-diagram}. It defines an~inner class that subclasses the~\texttt{MethodInvocationAnalyzer}, and redefines one step of the analysis algorithm by overriding the  \texttt{IsForbiddenUsage()} method.
 
-Then, this inner class is utilized by the~end-analyzer (\texttt{EventLogArgumentsAnalyzer}) to perform the~analysis. Upon instantiation the~end-analyzer provides it with~a~configuration object and a~custom diagnostic formatter. 
+Then, this inner class is utilized by the~end-analyzer to perform the~analysis. Upon instantiation the~end-analyzer provides it with~a~configuration object and a~custom diagnostic formatter. 
+
 \begin{figure}[h!]
 		\centering
 			\includegraphics[scale=0.75]{img/uml/method-invocation-analyzer-object-diagram}
-		\caption{Object diagram for \texttt{EventLogArgumentsAnalyzer} using inner class that derives from \texttt{MethodInvocationAnalyzer}}
+		\caption{Object diagram of \texttt{EventLogArgumentsAnalyzer} using inner class that derives from \texttt{MethodInvocationAnalyzer}}
 		\label{fig:uml-method-invocation-analyzer-object-diagram}
 \end{figure}
 
 \subsection{Analyzers for String and Culture Checks}
 \label{sec:string-and-culture-approach-explained}
-The~analyzers in this category search for methods like \texttt{Equals()}, \texttt{CompareTo()}, or \texttt{IndexOf()}. Considering that methods with same names can be found on many other types as well (\texttt{Object}, \texttt{Collection}), the~first syntax check for method name will often fail to filter out the~unrelated usages. Although all these analyzers could use the~\texttt{MethodInvocationAnalyzer} as a~strategy, it was decided to take a~different approach here. 
+The~analyzers in \textit{String and Culture} category search for methods like \texttt{Equals()}, \texttt{CompareTo()}, or \texttt{IndexOf()}. Considering that the methods with same names can be found on many other types as well (\texttt{Object}, \texttt{Collection}), the~first syntax check for method name will often fail to filter out the~unrelated usages. Although all these analyzers could use the~\texttt{MethodInvocationAnalyzer} as a~strategy, a~different approach was applied here. 
 
-The~fact that they only need to analyze the~invocations on the~\texttt{String} type, makes the~complex analysis of the~forbidden types in \texttt{MethodInvocationAnalyzer} ineffective. String is a~sealed class\footnote{Sealed classes cannot be subclassed.}, and so no complicated traversal of inheritance hierarchy is needed. In fact, in C\# strings are a~\textit{special type} and therefore, only a~simple check like this is sufficient:
-$$
-receiverType.SpecialType == SpecialType.System\_String
-$$
+The~need of only analyzing the~invocations on \texttt{String} type, makes the~analysis of forbidden types in \texttt{MethodInvocationAnalyzer} unnecessarily complex. String is a~sealed class\footnote{Sealed classes cannot be subclassed.} and so, no complicated traversal of inheritance hierarchy is needed. In fact, in C\# strings are a~\textit{special type} and therefore, only a~simple check like this is sufficient:
+
+\begin{minted}{csharp}
+  receiverType.SpecialType == SpecialType.System_String
+\end{minted}
 
 \section{Code Fixes}
 \label{sec:code-fixes}
 All analyzers that were implemented provide one or more code fixes. There are only two exceptions:
 \begin{itemize}
-  \item \texttt{SystemIoAnalyzer}, since there is no one to one mapping between \texttt{CMS.IO} and \texttt{System.IO} APIs so it is not feasible to provide a~code fix in every situation,
+  \item \texttt{SystemIoAnalyzer}, since there is no one to one mapping between \texttt{CMS.IO} and \texttt{System.IO} APIs, it is not feasible to provide a~code fix in every situation,
+
   \item \texttt{ConnectionHelperExecuteQueryAnalyzer}, which a~detects database access from presentation layer that points out a~possible design flaw without an~automated solution.
 \end{itemize} 
 
 % TODO consider deleting this
 The~code fixes have one significant limitation -- providing a~fix to an~API replacement when the~forbidden access is conditional. This is due to the~nature of the~C\# grammar and the~way how null conditional operator is represented in the~syntax tree. If the~access is chained, it would be very difficult to define the~exact part of the~syntax tree that should be replaced. In fact, there is even an~issue\footnote{\url{https://github.com/dotnet/roslyn/issues/3110}} on GitHub of the~Roslyn team explaining in detail why this is problematic. 
 
-Therefore, it was decided not to provide the~code fix in such complicated cases. There were two ways for preventing code fix from being suggested. First one was to give the~diagnostic on conditional access different diagnostic id from the~easily-fixable member access. This was deemed as not particularly user friendly and other options were sought.
+Therefore, it was decided not to provide the~code fix in such complicated cases. There were two options how to prevent the~code fix from being suggested. The~first one was to give the~diagnostic on conditional access a~different diagnostic id from the~easily-fixable member access. This was deemed as not particularly user friendly and other options were sought.
 
-The~approach taken was to provide an~additional information to the~diagnostic via the~\texttt{Properties} property\footnote{\url{http://www.coderesx.com/roslyn/html/93197CDD.htm}}. It is a~data structure were arbitrary key-value pairs can be stored when diagnostic is raised and can be later read in the~code fix class. The~analyzer stores a~flag, telling the~diagnostic is raised for conditional member access. When the~code fix method is invoked, it can decide whether or not it is capable of providing a~fix for the~specific conditional member access.
+The~approach taken was to provide an~additional information to the~diagnostic via the~\texttt{Properties} property\footnote{\url{http://www.coderesx.com/roslyn/html/93197CDD.htm}}. It is a~data structure were arbitrary key-value pairs can be stored when diagnostic is raised and can be later read in the~code fix class. The~analyzer stores a~flag, telling that the~diagnostic is raised for conditional access. When the~code fix method is invoked, it can decide whether or not it is capable of providing a~fix for the~diagnosed node.
 
 \section{Tests}
 Since it is infeasible to test the~functionality of all the~analyzers manually by running Visual Studio, it is crucial that all the~requirements are covered by an~automated set of tests. 
@@ -816,20 +817,20 @@ A typical scenario for testing an~analyzer is to:
 To test the~code fix, it is run on the~source containing a~diagnostic and the~document with applied code fix is compared to the~expected result.
 
 \subsubsection{\textbf{Referencing Kentico Libraries in Tests}}
-As can be seen, when testing analyzers and code fixes, the~compilation is always created from the~source documents. For this to work, all references to the~libraries used by the~source code, or relied upon by the~tested analyzer, need to be linked. This contains not only the~Microsoft core assemblies that are always added, but in case of the~BugHunter analyzers, also Kentico libraries. Therefore, the~default testing template had to be enhanced with the~ability to explicitly reference desired DLLs in the~created compilation.
+As can be seen, when testing analyzers and code fixes, the~compilation is always created from the~source documents. For this to work, all references to the~libraries used by the~source code, or relied upon by the~tested analyzer, need to be linked. This contains not only the~Microsoft core assemblies that are always added, but in case of the~BugHunter analyzers, also Kentico libraries. Therefore, the~default testing template had to be enhanced with the~ability to explicitly reference desired DLLs\footnote{Dynamically Linked Libraries} in the~created compilation.
 
 \subsubsection{\textbf{Faking File Information of Documents in Compilation}}
-The~outcomes of some analyzers are dependant on the~file path of the~analyzed document. Therefore, to test them, it is necessary to be able to fake the~name of the~source document that will be part of the~analyzed compilation. To accommodate this requirement, the~the testing template was extended with \texttt{FakeFileInfo} structure. It can be passed as an~optional argument to the~function testing the~analyzers, in order to replace the~default file name, path, or extension.
+The~outcomes of some analyzers are dependant on the~file path of the~analyzed document. Therefore, to test them, it is necessary to be able to fake the~name of the~source document that will be part of the~analyzed compilation. To accommodate this requirement, the~testing template was extended with \texttt{FakeFileInfo} structure. It can be passed as an~optional argument to the~function testing the~analyzers, in order to replace the~default file name, path, or extension.
 
 \subsubsection{\textbf{Failing Tests on Uncompilable Sources}}
-Another important feature, that was not present in Microsoft template, is that when the~source documents are uncompilable (e.g contain a~typo), the~tests will fail, no matter if the~analyzer and/or code fix worked as expected. Since the~compilers generally, and, therefore, also the~analyzers themselves, are heavily reliant on string constants, it is very important to have this kind of check present.
+Another important feature, that was not present in the~Microsoft template is, that when the~source documents are uncompilable (e.g contain a~typo), the~tests will fail, no matter if the~analyzer and/or code fix worked as expected. Since the~compilers generally, and, therefore, also the~analyzers themselves, are heavily reliant on string constants, it is very important to have this kind of check present.
 
-Failing the~build upon uncompilable source was added later in the~development and it uncovered quite a~few errors. Some of them were rooted back in the~original BugHunter. For example it checked for \texttt{HttpRequest.Redirect()} which actually does not exist, because \texttt{Redirect()} method is member of \texttt{HttpResponse} object, not \texttt{HttpRequest}.
+Failing the~test upon uncompilable tested source was added later in the~development and it uncovered quite a~few errors. Some of them were rooted back in the~original BugHunter. For example it checked for \texttt{HttpRequest.Redirect()} which actually does not exist, because \texttt{Redirect()} method is a~member of \texttt{HttpResponse} object, not \texttt{HttpRequest}.
 
 \subsubsection{\textbf{Tracking the~CMS API Changes}}
-In order to supply the~Kentico DLLs to be referenced in the~tested on-demand compilation, the~test projects have a~dependency on \texttt{Kentico.Libraries} NuGet package. This, together with tests failing on uncompilable source, has a~very pleasant side effect: It tracks any breaking changes in CMS API that affect the~analyzers' or code fixes' logic.
+In order to supply the~Kentico DLLs to be referenced in the~tested on-demand compilation, the~test projects have a~dependency on \textit{Kentico.Libraries} NuGet package. This, together with tests failing on uncompilable source, has a~very pleasant side effect: It tracks any breaking changes in CMS API that affect the~analyzers' or code fixes' logic.
 
-For instance, if some method from Kentico API changes the~number of arguments, code fix, that introduces the~method to the~source code, is invalid and its tests will fail. They will also provide a~detailed compiler error message, so the~developer knows instantly what issues need to be fixed after the~upgrade.
+For instance, if some method from the~Kentico API changes the~number of arguments, code fix, that introduces the~method to the~source code, is invalid and its tests will fail. They will also provide a~detailed compiler error message, so that the~developer knows instantly what issues need to be fixed after the~upgrade.
 
 Only major versions can contain a~breaking change and these are released once a~year in Kentico. To keep the~BugHunter analyzers up to date, the~referenced NuGet should to be upgraded regularly.
 
