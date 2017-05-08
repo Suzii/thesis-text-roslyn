@@ -128,7 +128,7 @@ The~compilation process can be divided into~two parts: \textit{analysis} and \te
 
 The~purpose of~the~analysis part is~to break~up the~source program into~chunks and build~up a~grammatical structure that it corresponds~to, based on~the~source language grammar. This structure is subsequently transformed into an~intermediate representation of the~source program. Along the~way, the~compiler collects information about the~program and stores it into a~data structure called \textit{symbol table}. If~any~errors in~syntax or semantics are encountered, analysis part shall inform the~programmer about the~problem. Otherwise, both intermediate representation and symbol table are passed to~the~synthesis part where they are used for~the~construction of~the~target program.
 
-The~two main steps of compilation process internally consist of different phases as shown in Figure~\ref{fig:compiler-phases}. Each phase transforms one representation of source language into another, and passes it to the~following phase while working with the~symbol table during the~process. In synthesis phase, an~optional machine-independent optimizations can take place and are done on the~top of intermediate representation. After target machine code is generated, additional machine-dependent code optimizations are performed.
+The~two main steps of compilation process internally consist of different phases as shown in Figure~\ref{fig:compiler-phases}. Each phase transforms one representation of source language into another, and passes it to the~following phase while working with the~symbol table during the~process. In synthesis phase, an~optional machine-independent optimizations can take place and are done on the~top of~the~intermediate representation. After the~target machine code is generated, additional machine-dependent code optimizations are performed.
 
 \begin{figure}[h!]
 		\centering
@@ -140,11 +140,11 @@ The~two main steps of compilation process internally consist of different phases
 For the~purpose of this thesis, mainly the~analysis part is relevant and following section will elaborate on its respective phases.
 
   \section{Lexical analysis}
-The~compilation process starts with \textit{lexical analysis} or \textit{scanning}. The~scanner transforms stream of characters of the~source program, as written by the~programmer, into the~series of meaningful sequences called \textit{lexemes}. Most programming languages allow for an~arbitrary number of white spaces to be present in the~source text to aid readability. However, white spaces, similarly as comments, are unimportant for the~target code generation itself, and thus the~lexical analyzer is responsible for discarding them completely.
+The~compilation process starts with \textit{lexical analysis} or \textit{scanning}. The~scanner transforms a~stream of characters of the~source program, as written by the~programmer, into a~series of meaningful sequences called \textit{lexemes}. Most programming languages allow for an~arbitrary number of white spaces to be present in the~source text to aid readability. However, white spaces, similarly as comments, are unimportant for the~target code generation itself, and thus the~lexical analyzer is responsible for discarding them completely.
 
-In order to be able to correctly recognize the~lexeme, lexical analyzer may need to read ahead. For example, in C--like languages if the~scanner sees \texttt{<} character, it cannot decide whether it is a~lexeme for \textit{"less than"} operator or it is s part of \textit{"less then or equal to"} lexeme. In order to do that, it needs to read ahead and see if the~following character is \texttt{=} or not. Reading ahead is usually implemented with an~input buffer which the~lexical analyzer can read from and push back to. The~use of buffer also boosts the~performance as fetching block of characters is more efficient as fetching one at a~time~\cite{dragon-book}.
+In order to be able to correctly recognize the~lexeme, lexical analyzer may need to read ahead. For example, in C--like languages if the~scanner sees \textit{<} character, it cannot decide whether it is a~lexeme for \textit{"less than"} operator or it is s part of \textit{"less then or equal to"} lexeme. In order to do that, it needs to read ahead and see if the~following character is \textit{=} or not. Reading ahead is usually implemented with an~input buffer which the~lexical analyzer can read from and push back to. As pointed out in~\cite{dragon-book}, the~use of buffer also boosts the~performance since fetching block of characters is more efficient than fetching one at a~time.
 
-The~lexical analyzer typically uses regular expressions to identify the~lexemes and for each lexeme, it outputs a~\textit{token} (or \textit{token object}) of the~form 
+The~lexical analyzer typically uses regular expressions to identify the~lexemes and for each lexeme, it outputs a~\textit{token} (or~\textit{token object}) of~the~form 
 \begin{equation}
   \langle token \textnormal{-} name, attribute \textnormal{-} name \rangle \textnormal{.}
 \end{equation}
@@ -168,12 +168,12 @@ the scanner output could be
 
 Lexemes can be divided into logical groups such as identifiers, relational operators, arithmetical operators, constants or keywords as seen in the~example above. The~scanner often uses regular expressions to identify tokens.
 
-Each identifier (\texttt{id}) has an~attribute which points to the~entry of the~symbol table, where information about identifier name, type or position in the~source text is stored. Similar holds for constants like "42" in the~example. In the~(2.3) example, the~assignment and addition symbols do not have attributes but different representation can be used, such as $ \langle bin \textnormal{-} op, 2 \rangle $. In this case, \texttt{bin-op} would denote it is a~binary operator and number two would be a~pointer to symbol table with all symbols for binary operations while the~second index suggests that it represents an~addition.
+Each identifier (\textit{id}) has an~attribute which points to the~entry of the~symbol table, where information about identifier name, type or position in the~source text is stored. Similar holds for constants like \textit{42} in the~example. In the~(2.3) example, the~assignment and addition symbols do not have attributes, but different representation can be used, such as $ \langle bin \textnormal{-} op, 2 \rangle $. In this case, \textit{bin-op} would denote it is a~binary operator. A~number two would be a~pointer to~the~symbol table with all~the~symbols for binary operations, while the~second index suggests that it represents an~addition.
 
   \section{Syntax Analysis}
-The~stream of token objects along with partially populated symbol table is an~input for the~subsequent compiler phase -- \textit{syntax analysis} or \textit{parsing}. The~parser has to verify that the~sequence of token names can be produced by the~grammar for the~source language and for a~well-formed program, it shall output a~\textit{syntax tree} or often referred to as an~abstract syntax tree (AST)\footnote{The~AST is an~intermediate representation of source program in which each interior node represents an~operation (programming construct) with the~children of the~node representing the~arguments of that operation. As opposed to \textit{parse syntax tree}, in which interior nodes are nonterminals of the~grammar, ASTs are more lightweight and they might omit some nodes which exist purely as a~result of grammar's production rules~\cite{secure-programming-with-sca}.}.
+The~stream of token objects along with partially populated symbol table is an~input for the~subsequent compiler phase -- \textit{syntax analysis}, or \textit{parsing}. The~parser has to verify that the~sequence of token names can be produced by the~source language grammar. For a~well-formed program, it shall output a~\textit{syntax tree}, often referred to as an~abstract syntax tree (AST)\footnote{The~AST is an~intermediate representation of~the~source program in which each interior node represents an~operation (programming construct) with the~children of the~node representing the~arguments of that operation. As opposed to \textit{parse syntax tree}, in which interior nodes are nonterminals of the~grammar, ASTs are more lightweight and they might omit some nodes which exist purely as a~result of grammar's production rules~\cite{secure-programming-with-sca}.}.
 
-The~resulting AST for the~token stream generated in (2.2) is depicted in Figure~\ref{fig:compilers-abstract-syntax-tree}. The~tree shows how multiplication precedence rule of the~language's grammar was applied on the~expression.
+The~resulting AST for the~token stream generated in (2.2) is depicted in Figure~\ref{fig:compilers-abstract-syntax-tree}. The~tree shows how multiplication precedence rule of the~ grammar has been applied on~the~expression.
 
 \begin{figure}
   \centering
@@ -202,7 +202,7 @@ The~syntax analyzer uses a~context free grammar (CFG) to form the~syntax tree. T
   \item[Productions] -- rules that specify how nonterminals can be rewritten to sequences of zero or more terminal and nonterminal symbols. 
 \end{description}
 
-An~example of a~production denoting the~construction of a~\texttt{while-cycle} would be
+An~example of a~production denoting the~construction of a~\textit{while-cycle} would be
 \begin{equation}
   stmt 
   \rightarrow 
@@ -212,47 +212,44 @@ An~example of a~production denoting the~construction of a~\texttt{while-cycle} w
   \textnormal{,}
 \end{equation}
 \noindent
-where nonterminals \textit{stmt} and \textit{expr} stand for a~statement and expression respectively (defined further by other productions). Symbols in bold represent terminals of the~grammar -- open and close parenthesis, and curly braces, \texttt{while} keyword.
+where nonterminals \textit{stmt} and \textit{expr} stand for a~statement and expression respectively (defined further by other productions). Symbols in bold represent terminals of the~grammar (open and close parenthesis, and curly braces, \textit{while} keyword).
 
-  \subsection{Error Handling}
-  % TODO bullet points
+\subsection{Error Handling}
 There are several types of errors that can be encountered during the~compilation process:
 \begin{compactitem}
   \item\textbf{lexical errors}, such as misspelling the~identifier name,
   \item\textbf{syntactic errors}, for example a~missing semicolon,
   \item\textbf{semantic error}, like incorrect number of function arguments,
-  \item\textbf{logical errors}, that do not really prevent the~program from compiling, but can indicate possible mistakes (for instance using the~assignment operator \texttt{=} instead of the~comparison operator \texttt{==} in condition of an~if-statement).
+  \item\textbf{logical errors}, that do not really prevent the~program from compiling, but can indicate possible mistakes (for instance using the~assignment operator \textit{=} instead of the~comparison operator \textit{==} in condition of an~\textit{if-statement}).
 \end{compactitem} 
-%\textit{Lexical errors} such as misspelling the~identifier name, \textit{syntactic errors} like missing semicolon, \textit{semantic error}, for example incorrect number of function arguments or \textit{logical errors} that do not really prevent the~program from compiling but can indicate possible mistakes (for instance using the~assignment operator \texttt{=} instead of the~comparison operator \texttt{==} in condition of an~if-statement).
 
-It's parser responsibility to report the~presence of potential syntactic error and recover from the~error in order to continue with syntactic analysis and be able to detect any subsequent errors. There are two main strategies for the~error recovery~\cite{dragon-book}
+It is parser responsibility to report the~presence of potential syntactic error and recover from the~error in order to continue with syntactic analysis and be able to detect any subsequent errors. In~\cite{dragon-book}, two main strategies for the~error recovery are presented: \textit{panic-mode} and \textit{phrase-level} recovery.
 
-  \subsubsection{\textbf{Panic-Mode Recovery}}
-In this method, after parser encounters an~error, it searches for a~\textit{synchronizing token} (usually delimiters such as semicolon or close brace) and until found, all the~symbols are thrown away one by one. Even though panic-mode recovery often discards significant amount of input while searching for the~synchronization token, it is guaranteed not to end up in an~infinite loop.
+\subsubsection{\textbf{Panic-Mode Recovery}}
+In this method, after the~parser encounters an~error, it searches for a~\textit{synchronizing token} (usually delimiters such as semicolon or close brace) and, until found, all the~symbols are thrown away one by one. Even though panic-mode recovery often discards significant amount of input while searching for the~synchronization token, it is guaranteed not to end up in an~infinite loop.
 
-  \subsubsection{\textbf{Phrase-Level Recovery}}
+\subsubsection{\textbf{Phrase-Level Recovery}}
 Another approach the~parser can take to recover from an~erroneous input is to try to perform a~local correction. This can be achieved by replacing the~prefix of the~following input by some tokens that would enable syntactic analyzer to continue parsing. A prime example of phrase-level recovery is inserting a~missing semicolon or replacing comma with a~semicolon. Even though this technique is very powerful, as it can cope with all possible problems in the~input, it might lead to infinite loops (e.g. always inserting symbols ahead of the~current symbol).
 
-  \section{Semantic Analysis}
-While syntax analysis is able to check the~conformance of the~program to the~grammar of the~source language, it is not an~ultimate tool. Some language rules cannot be implied by CFG and an~additional step is needed to ensure semantic consistency. To do this, the~semantic analyzer uses the~AST and the~information from symbol tables collected in previous phases. While working, it can also add more details about symbols or even modify the~AST. 
+\section{Semantic Analysis}
+Although the~syntax analysis is able to check the~conformance of the~program to the~grammar of the~source language, it is not an~ultimate tool. Some language rules cannot be implied by CFG and an~additional step is needed to ensure semantic consistency. To do this, the~semantic analyzer uses the~AST and the~information from symbol tables collected in previous phases. While working, it can also add more details about symbols or even modify the~AST. 
 
-A vital part of semantic analysis for any statically typed language\footnote{In statically typed language, type errors are reported by compiler during translation process, whereas in dynamically typed programming languages conversions between incompatible types are only discovered during runtime and can cause program failure.} is \textit{type checking}. Semantic analyzer has to ensure, that each operator is applied to matching operands. For example, a~multiplication operator can be called with either a~pair of integers or a~pair of floating-point numbers, that also implies the~result of the~operation. If the~semantic analyzer encounters an~expression where multiplication is used with numbers of different types, it must perform a~type conversion called \textit{coercion}. To coerce the~integer into floating-point representation it may be necessary to alter the~AST and insert an~additional node to explicitly state that integer should be treated as floating-point~\cite{dragon-book}. 
+A vital part of semantic analysis for any statically typed language\footnote{In statically typed language, type errors are reported by compiler during translation process, whereas in dynamically typed languages conversions between incompatible types are only discovered during runtime and can cause program failure.} is \textit{type checking}. Semantic analyzer has to ensure, that each operator is applied to matching operands. For example, a~multiplication operator can be called with either a~pair of integers or a~pair of floating-point numbers, that also implies the~result of the~operation. If the~semantic analyzer encounters an~expression where multiplication is used with numbers of different types, it must perform a~type conversion called \textit{coercion}. To coerce the~integer into floating-point representation, it may be necessary to alter the~AST and insert an~additional node to explicitly state that integer should be treated as floating-point~\cite{dragon-book}. 
 
 Semantic analyzer utilizes the~information from symbol table to perform all sorts of other checks, to prevent semantic errors such as:
 \begin{compactitem}
   \item \textbf{wrong arguments} -- number and types of arguments applied to a~function call,
-  \item \textbf{multiple declaration} -- variable with the~same name declared more than once in one scope,
+  \item \textbf{multiple declaration} -- variable with the~same name declared more than once per~scope,
   \item \textbf{undeclared variable} -- usage of a~variable before its declaration.
 \end{compactitem}
     
   \section{Intermediate Code Generation}
-The~semantic analysis is followed by the~\textit{intermediate code generation} which completes the~front end part of the~compilation process. Depending on the~specific compiler implementation, the~\textit{intermediate representation} (\textit{IR}) that is the~result of this phase can take different forms. The~IR should be easy to produce and easy to translate into the~target machine code. For some compilers, the~IR may be the~abstract syntax tree itself.
+The~semantic analysis is followed by an~\textit{intermediate code generation} which completes the~front end part of the~compilation process. Depending on the~specific compiler implementation, the~\textit{intermediate representation} (\textit{IR}) that is the~result of this phase can take different forms. The~IR should be easy to produce and easy to translate into the~target machine code. For some compilers, the~IR may be the~abstract syntax tree itself.
+
+Together with symbol table, IR is passed to~the~back end part of the~compiler -- synthesis, where machine independent optimizations can be performed. These contain \textit{control flow analysis} where control flow graph is constructed and utilized in the~subsequent \textit{data flow analysis}. As a~result of these optimizations, compiler might remove dead code from the~IR or perform other optimizations that will lead to shorter and more efficient target code.
 
 \bigskip
-Together with symbol table, IR is passed to back end part of compiler -- synthesis, where machine independent optimizations can be performed. These contain \textit{control flow analysis} where control flow graph is constructed and utilized in subsequent \textit{data flow analysis}. As a~result of these optimizations, compiler might remove dead code from the~IR or perform other optimizations that will lead to shorter and more efficient target code.
-
-\bigskip
-The~following chapters on static code analysis and .NET compiler platform will build upon fundamentals presented here and show how these concepts are relevant when considering the~implementation of a~static code analyzer.
+The~following chapters on static code analysis and .NET compiler platform will build upon the~fundamentals presented here and show how these concepts are relevant when considering the~implementation of a~static code analyzer.
 
 % =================================================================
 % ============================= CHAPTER 3 =========================
