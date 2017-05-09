@@ -1,10 +1,10 @@
 DFD vs pseudo-activity diagram
-build times in minutes, or minutes + seconds?
+Captions under figures - are they ok?
+URL for an online docummentation - should this be an super-short appendix as well, or where should I put the link?
+Structured introduction?
 
-History of static codee analysis -- add to bibliography
-http://www.coverity.com/library/pdf/Coverity_White_Paper-SAT-Next_Generation_Static_Analysis.pdf
+TODO:
+Acknowledgement, Abstract, Appendix on IS attachment, Appendix on configuration & deployment
 
-OK Intro into compilers chapter
-OK Intro into SCA chapter, mention tools available for .NET
-- Add some sources to the definition of SCA
-- issue/flaw/buf/problem
+
+

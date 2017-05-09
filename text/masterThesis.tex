@@ -83,11 +83,11 @@ Software bugs have been around for as long as the~software itself. Even for a~pr
 
 Every year, billions of dollars are lost due to software that does not perform as expected. 
 %Hours of downtime, maintenance costs, countless calls to customer support, and angry users among the~visible implications of the~software product not meeting its requirements. 
-While the~conformance to the~customer requirements is mostly validated by functional testing, there is more to software quality than that. To cover the~attributes like maintenance, readability, reusability or testability, that directly affect customers' perception of product's quality, other inspection techniques need to be involved as well. Different possibilities from formal inspections of the~code, peer code reviews, pair programming, or use of automated tools for static code analysis, can be applied to ensure the~quality of the~code. The~key to achieving quality software lies in the~combination of these techniques. 
+While the~conformance to the~customer requirements is mostly validated by functional testing, there is more to software quality than that. To cover the~attributes like maintenance, readability, reusability or testability, that directly affect customers' perception of product's quality, other inspection techniques need to be involved as well. Different possibilities from formal inspections of the~code, peer code reviews, pair programming, to use of automated tools for static code analysis, can be applied to ensure the~quality of the~code. The~key to achieving quality software lies in the~combination of these techniques. 
 
 With the~ever-growing sizes of the~software products, arose the~need for automated tools that would help with identifying code issues. Applying static code analysis on a~software project brings a~first form of code review before the~software is even run. They can be applied in the~earliest stages of the~software development lifecycle. Unlike testing, static code analysis can be done on unfinished or even uncompilable source code. Moreover, it identifies the~root causes of the~bugs, unlike dynamic testing which only points out to their consequences. 
 
-Use of static code analysis tools provides an~obvious solution for they are great in unveiling bugs that are commonly missed by unit, integration or system testing. Furthermore, they are cheaper, repeatable and more efficient than manual code reviews. 
+Use of static code analysis tools provides an~obvious solution for they are great in unveiling bugs that are commonly missed by unit, integration or system testing. Furthermore, they are cheaper, repeatable, and more efficient than manual code reviews. 
 
 For a~software company like Kentico, that develops a~product for thousands of other developers and marketers building their own business on the~top of Kentico's CMS, high source code quality is extremely important. It means faster time-to-market, less maintenance effort, fewer bugs, and therefore reduced costs for customer support. It enables engineers to focus on developing new features rather then dealing with unmaintainable code base. 
 
@@ -99,21 +99,20 @@ Occasional false positive results meant that some pieces of the~code had to be w
 
 %+ the~goal(s) of the~thesis that needs to be reached
 %+ the~contribution that the~the thesis provides to a~reader (e.g. also a~prototype software is a~contribution)\
-The~goal of this thesis is to create a~new static code analysis tool, that would replace the~original C\# checks in BugHunter, and would mitigate the~flaws of the~previous solution. The~tool should be written using the~new .NET Compiler Platform (code-named \textit{"Roslyn"}) and should be integrated to both Visual Studio and the~Continuous Integration process at Kentico. The~new BugHunter analyzers should raise warnings for code that does not comply to Kentico's internal guidelines. Where suitable, the~tool should also provide an~instant code fix. Since the~tool will be deployed in the~production, it needs to be thoroughly tested and be efficient, so that it does not degrade the~developers' experience.
+The~goal of this thesis is to create a~new static code analysis tool, that would replace the~original C\# checks in BugHunter, and would mitigate the~flaws of the~previous solution. The~tool should be written using the~new .NET Compiler Platform (code-named \textit{"Roslyn"}) and should be integrated to both Visual Studio and the~continuous integration process at Kentico. The~new BugHunter analyzers should raise warnings for code that does not comply to Kentico's internal guidelines. Where suitable, the~tool should also provide an~instant code fix. Since the~tool will be deployed in the~production, it needs to be thoroughly tested and be efficient, so that it does not degrade the~developers' experience.
 
 The~implemented analyzers are not be concerned with naming or ordering conventions, since there are already many (also Roslyn-based) tools dealing with this problem. These can be easily configured to specific needs of the~development team. Instead, the~new analyzers will only focus on the~rules which require tailored approach that cannot be found in other available solutions. 
 
 %+ the~structure for all the~chapters in the~thesis
-The~second chapter provides a~theoretical background behind the~static code analysis tools in general -- source code compilation. It shortly describes the~phases of the~compilation process and focuses on the~analysis or \textit{front end} part which is fundamental for any static code analysis tool.
+The~second chapter provides a~theoretical background behind the~static code analysis tools in general -- source code compilation. It shortly describes the~phases of the~compilation process and focuses on the~analysis, or \textit{front end} part, which is fundamental for any static code analysis tool.
 
-In the~third chapter, the~concept of the~static code analysis is described. It informs the~reader about the~possibilities of analyzing the~compiled code and then focuses on the~analysis of the~source code. It provides an~overview of the~problems that can be solved by static code analysis and lists the~advantages and disadvantages. The~last section presents the~tools for static code analysis available for .NET platform.
+In the~third chapter, the~concept of the~static code analysis is described. It informs the~reader about the~possibilities of analyzing the~compiled code and then focuses on the~analysis of the~source code. It provides an~overview of the~problems that can be solved by static code analysis, and lists the~advantages and disadvantages. The~last section presents the~tools for static code analysis available for .NET platform.
 
 The~fourth chapter of the~thesis concludes the~theoretical part by introducing the~.NET Compiler Platform which was utilized during the~development. It gives an~insight into the~internals of the~CSharp compiler, familiarizes the~reader with the~immutable data structures used when working with Roslyn, and demonstrates how the~Diagnostic APIs\footnote{Application Programming Interfaces} can be applied to build custom static code analyzers and code fixes.
 
-The~second part of the~thesis is concerned with the~implementation of the~new BugHunter analyzers. In the~fifth chapter the~original BugHunter application is introduced, along with the~issues that are being addressed by this thesis. It defines the~analyzers' categories and shows some of the~design patterns that were utilized during the~implementation. The~chapter shortly mentions the~implemented code fixes and discusses the~importance of tests.
+The~second part of the~thesis is concerned with the~implementation of the~new BugHunter analyzers. In the~fifth chapter the~original BugHunter application is introduced, along with its~issues, that are being addressed by this thesis. It defines the~analyzers' categories and shows some of the~design patterns that were utilized during the~development. The~chapter shortly mentions the~implemented code fixes and discusses the~importance of tests.
 
-Lastly, the~sixth chapter focuses on the~performance aspect of the~developed tool. It explains how the~performance of the~separate analyzers was measured and specifically points out the~iterative optimization of one particular analyzer. It also assesses the~impact of the~analyzers on build times and summarizes the~views on the~development team on the~new tool.
-
+Lastly, the~sixth chapter focuses on the~performance aspect of the~developed tool. It explains how the~performance of the~separate analyzers was measured and specifically points out the~iterative optimization of one particular analyzer. It also assesses the~impact of the~analyzers on build times and summarizes the~views of the~development team on the~new tool.
 
 % =================================================================
 % ============================= CHAPTER 2 =========================
@@ -539,7 +538,8 @@ A code fix is a~quick action suggesting a~possible solution to a~diagnosed code 
 
 A custom code fix can be defined by creating a~class deriving from \texttt{Microsoft.CodeAnalysis.CodeFixes.CodeFixProvider}. To declare which diagnostics it solves, the~\texttt{FixableDiagnosticIds} property must be overridden. The~logic of fixing the~diagnosed issue is placed in \texttt{RegisterCodeFixAsync} method, which ultimately generates a~new document.
 
-\section{Deployment}
+\newpage
+\subsection{Deployment}
 There are two different approaches when it comes to deploying the~analyzers and code fixes: NuGet package, or Visual Studio extension. 
 
 With the~IDE extension, every developer has to install it manually from Visual Studio Gallery\footnote{Visual Studio Gallery provides an~access to various tools that extend the~default Visual Studio functionality.}. Once installed, the~analysis is performed on any open project or solution. Therefore, it is only appropriate for analysis concerned with common language or framework guidelines.
@@ -1032,11 +1032,11 @@ The~objectives of the~thesis were met and the~developed tool has already been in
 
 Rewriting the~internal rules to Roslyn enabled more involved semantic analysis of the~source code and paved the~way for advanced checks that were problematic in the~previous solution. This not only led to discovering quite a~few previously undetected issues in the~code base, but it also enabled elimination of some obscure pieces of code, that were only present to avoid false positive results from the~original BugHunter application. 
 
-The~extensive suite of unit tests, that was written for the~new analyzers, makes it possible to track the~API changes of the~Kentico's solution and keep the~analysis rules up to date with the~analyzed source code. Moreover, they also helped to uncover number of bugs present in the~original BugHunter.
+The~extensive suite of unit tests, that was written for the~new analyzers, makes it possible to track the~API changes of the~Kentico's solution, and keep the~analysis rules up to date with the~analyzed source code. Moreover, they also helped to uncover number of bugs present in the~original BugHunter.
 
 The~new analyzers run as part of the~continuous integration process, enforcing the~compliance to the~internal rules across the~whole company. The~fact that they are also integrated to the~Visual Studio minimizes the~time the~developer needs to wait for the~first feedback on his code. Majority of the~analyzers also provide a~code fix for the~issue which may help the~new developers on the~team to learn the~practices followed in the~company more quickly.
 
-Many helpers methods and strategy classes for analysis were created, which makes the~rule set easily extendible, even for someone without previous experience with Roslyn. The~current version of the~Roslyn API used by the~analyzers is~1.3.2. During the~course of writing this thesis, version~2.0 was released and it provides some new features and promises a~better performance. However, since the~most of developers at Kentico are still using Visual Studio 2015, the~version of Roslyn was not updated because it requires Visual Studio 2017. Once the~whole development team migrates to the~new version of the~IDE the~version of the~.NET Compiler Platform should be updated as well.
+Many helpers methods and strategy classes for analysis were created, which makes the~rule set easily extendible, even for someone without a~previous experience with Roslyn. The~current version of the~Roslyn API used by the~analyzers is~1.3.2. During the~course of writing this thesis, version~2.0 was released and it provides some new features and promises a~better performance. However, since the~most of developers at Kentico are still using Visual Studio 2015, the~version of Roslyn was not updated because it requires Visual Studio 2017. Once the~whole development team migrates to the~new version of the~IDE, the~version of the~.NET Compiler Platform should be updated as well.
 
 Although the~tool was primarily developed to aid the~Kentico employees and enforce the~guidelines within the~company, in the~future, it could be also used by the~customers who work with the~Kentico API or have purchased the~licence that includes the~Kentico source codes. The~NuGet packages with BugHunter analyzers are currently only available at Kentico internal NuGet feed. However, after the~tool is adopted company wide, the~plan is to make it publicly available through the~NuGet Gallery. Afterwards, anyone interested would be able to leverage the~static code analysis guiding them to intended use of the~Kentico API in their own projects.
 
@@ -1065,11 +1065,11 @@ Although the~tool was primarily developed to aid the~Kentico employees and enfor
 % =============================== STUFF ===========================
 % =================================================================
 % From template
-\makeatletter\thesis@blocks@clear\makeatother
-\phantomsection %% Print the~index and insert it into the
-\addcontentsline{toc}{chapter}{\indexname} %% table of contents.
+%\makeatletter\thesis@blocks@clear\makeatother
+%\phantomsection %% Print the~index and insert it into the
+%\addcontentsline{toc}{chapter}{\indexname} %% table of contents.
 
-\printindex
+%\printindex
     
 % =================================================================
 % =========================== BIBLIOGRAPHY ========================
@@ -1081,9 +1081,12 @@ Although the~tool was primarily developed to aid the~Kentico employees and enfor
 \appendix %% Start the~appendices.
 \chapter{Source Codes in IS}
 \label{appendix:source-codes}
-  The~main solution with new Roslyn analyzers (BugHunter.sln) consists of 6 projects within 2 folders: TODO - Do leave the~Vsix project there or delete???
+TODO...
 
-TODO - replace with a~screenshot???
+The~main solution with new Roslyn analyzers (BugHunter.sln) consists of 6 projects within 2 folders: 
+
+TODO - Do leave the~Vsix project there or delete???
+
 \begin{description}
   \item[Analyzers folder] with Roslyn analyzers
   \begin{itemize}
@@ -1104,7 +1107,6 @@ TODO - replace with a~screenshot???
 TODO Describe each project.. why 2 for analyzers - nuget distribution
 
 The~projects with analyzers use the~categories also for folder structure with each folder containing separate subfolders for analyzers and code fixes respectively.
-
 
 % =================================================================
 % ============================= APPENDIX B =========================
@@ -1227,20 +1229,28 @@ In the~context of static code analysis:
 % =================================================================
 % ============================= APPENDIX C =========================
 % =================================================================
-\chapter{Deployment and Versioning}
+\chapter{Deployment, Configuration and Versioning}
 \label{appendix:deployment}
 TODO...
+
 \section{Two NuGet packages with BugHunter Analyzers}
-Why, how -- only referr to appendices where this is described
+Why, how are the analyzers divided into 2 packages.
 
-\section{Applying old BH configuration}
-what approaches were taken - ruleset file, pragma statements, not installing analzyer nuget at all...
+\section{Applying the configuration of original BugHunter}
+Mention the original BH configuration file
 
-talk about the~old configuration of the~BH, and how this one maps to Roslyn version (suppression pragmas vs supression files, some analyzers look at the~filepath or file extension directly.. some chcecks like SystemIO had to be supressed - level set to none in ruleset file - for files that it did not make sense for... helpers that wrap the~"forbidden" functionality were marked with pragma statements around the~whole class so that it is clearly visible in code)
+what approaches were taken:
 
-\chapter{Analyzers' Documentation}
-TODO...
-same as will the~online documentation?
+- pragma statements (for single line/whole file), 
 
-IDs, categories, which nuget, title, description, what for, severity, enabled by default...
+- ruleset file, 
+
+- not installing analzyer nuget at all...
+
+\section{Versioning}
+Semantic versioning and upgrades
+
+\chapter{Online Documentation}
+TODO: Add link for online documentation?
+
 \end{document}
