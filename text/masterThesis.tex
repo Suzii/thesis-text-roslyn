@@ -33,8 +33,8 @@
     advisor       = Bruno Rossi PhD,
     title         = {Custom Roslyn Tool for Static Code Analysis},
     TeXtitle      = {Custom Roslyn Tool for Static Code Analysis},
-    keywords      = {static code analysis, Roslyn, .NET compiler platform, C\#, compilers, code review, Kentico, analyzer, code fix, ...},
-    TeXkeywords   = {static code analysis, Roslyn, .NET compiler platform, C\#, compilers, code review, Kentico, analyzer, code fix, \ldots},
+    keywords      = {static code analysis, software quality, Roslyn, .NET compiler platform, C\#, compilers, code review, Kentico, analyzer, code fix, ...},
+    TeXkeywords   = {static code analysis, software quality, Roslyn, .NET compiler platform, C\#, compilers, code review, Kentico, analyzer, code fix, \ldots},
 }
 \thesislong{abstract}{
     TODO: This is the~abstract ...
@@ -104,11 +104,11 @@ The~goal of this thesis is to create a~new static code analysis tool, that would
 The~implemented analyzers are not be concerned with naming or ordering conventions, since there are already many (also Roslyn-based) tools dealing with this problem. These can be easily configured to specific needs of the~development team. Instead, the~new analyzers will only focus on the~rules which require tailored approach that cannot be found in other available solutions. 
 
 %+ the~structure for all the~chapters in the~thesis
-The~second chapter provides a~theoretical background behind the~static code analysis tools in general -- source code compilation. It shortly describes the~phases of the~compilation process and focuses on the~analysis, or \textit{front end} part, which is fundamental for any static code analysis tool.
+Discussing the~thesis structure, the~second chapter provides a~theoretical background behind the~static code analysis tools in general -- source code compilation. It shortly describes the~phases of the~compilation process and focuses on the~analysis, or \textit{front end} part, which is fundamental for any static code analysis tool.
 
 In the~third chapter, the~concept of the~static code analysis is described. It informs the~reader about the~possibilities of analyzing the~compiled code and then focuses on the~analysis of the~source code. It provides an~overview of the~problems that can be solved by static code analysis, and lists the~advantages and disadvantages. The~last section presents the~tools for static code analysis available for .NET platform.
 
-The~fourth chapter of the~thesis concludes the~theoretical part by introducing the~.NET Compiler Platform which was utilized during the~development. It gives an~insight into the~internals of the~CSharp compiler, familiarizes the~reader with the~immutable data structures used when working with Roslyn, and demonstrates how the~Diagnostic APIs\footnote{Application Programming Interfaces} can be applied to build custom static code analyzers and code fixes.
+The~fourth chapter of the~thesis concludes the~theoretical part by introducing the~.NET Compiler Platform which was utilized during the~development. It gives an~insight into the~internals of the~CSharp compiler, familiarizes the~reader with the~immutable data structures used when working with Roslyn, and demonstrates how the~Diagnostic APIs (Application Programming Interfaces) can be applied to build custom static code analyzers and code fixes.
 
 The~second part of the~thesis is concerned with the~implementation of the~new BugHunter analyzers. In the~fifth chapter the~original BugHunter application is introduced, along with its~issues, that are being addressed by this thesis. It defines the~analyzers' categories and shows some of the~design patterns that were utilized during the~development. The~chapter shortly mentions the~implemented code fixes and discusses the~importance of tests.
 
