@@ -1,8 +1,3 @@
-DFD vs pseudo-activity diagram
-Captions under figures - are they ok?
-URL for an online docummentation - should this be an super-short appendix as well, or where should I put the link?
-Structured introduction?
-
 TODO:
 Acknowledgement, Abstract, Appendix on IS attachment, Appendix on configuration & deployment
 
