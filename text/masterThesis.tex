@@ -412,7 +412,7 @@ The~Roslyn's architecture consists of two main layers - Compiler and Workspaces 
 \begin{figure}[h!]
 		\centering
 			\includegraphics[scale=0.85]{img/roslyn-compiler-architecture}
-		\caption{.NET Compiler Platform Architecture~\cite{roslyn-succinctly}}
+		\caption{.NET Compiler Platform Architecture, adopted from~\cite{roslyn-succinctly}}
 		\label{fig:roslyn-compiler-architecture}
 \end{figure}
 
@@ -770,7 +770,7 @@ Then, this inner class is utilized by the~end-analyzer to perform the~analysis. 
 \begin{figure}[h!]
 		\centering
 			\includegraphics[scale=0.75]{img/uml/method-invocation-analyzer-object-diagram}
-		\caption{Object diagram of \texttt{EventLogArgumentsAnalyzer} using inner class that derives from \texttt{MethodInvocationAnalyzer}}
+		\caption{Object diagram of \texttt{EventLogArgumentsAnalyzer} using inner class deriving from \texttt{MethodInvocationAnalyzer}}
 		\label{fig:uml-method-invocation-analyzer-object-diagram}
 \end{figure}
 
@@ -870,7 +870,7 @@ Number of syntax nodes        & 6,279,993 \\
 \bottomrule
 
 \end{tabularx}
-\caption{Statistics about the~projects with installed analyzers.}
+\caption{Statistics about the~projects with installed analyzers}
 \label{tab:solution-statistics}
 \end{table}
 % ---------------------------------------------------
@@ -947,7 +947,7 @@ The~logic, however, is more complicated, as the~tree needs to be traversed in or
 \begin{figure}
 		\centering
 			\includegraphics[scale=0.98]{img/uml/system-io-activity-diagram}
-		\caption{Activity diagram of \texttt{SystemIOAnalyzer} action.}
+		\caption{Activity diagram of \texttt{SystemIOAnalyzer} action}
 		\label{fig:uml-system-io-activity-diagram}
 \end{figure}
 
