@@ -37,8 +37,9 @@
     TeXkeywords   = {static code analysis, software quality, Roslyn, .NET compiler platform, C\#, compilers, code review, Kentico, analyzer, code fix, \ldots},
 }
 \thesislong{abstract}{
-    TODO: This is the~abstract ...
+The~aim of~this~thesis is to create a~custom Roslyn tool for static code analysis that would check the~compliance to the~internal coding rules and guidelines followed by~developers at~Kentico Software, providing an~automated code fix where suitable. The~theoretical part of the~thesis discusses the~theory behind the~static code analysis, lists the~tools available for~Microsoft .NET platform, and focuses on the~.NET Compiler Platform explaining how it can be leveraged to write own analyzers and code fixes. The~practical part presents some interesting patterns utilized during the~implementation, and discusses why the~performance of the~analyzers is important, how it was measured and optimized. Lastly, the appendices contain the~questionnaire sent to the~development team, notes on the~deployment and configuration of the~tool and also a~link for an~online documentation.
 }
+
 \thesislong{thanks}{
 I wish to~thank my advisor Dr.~Bruno Rossi for his~constant feedback and~valuable advice during the~work on~this thesis. I~would also like to~thank my~consultants Vít Svoboda and Petr Svirák, who never hesitated to~explain the~dark corners of~the~Kentico CMS solution. Furthermore, to~Vít Svoboda for his~incredible diligence and patience when deploying the~analyzers. Finally, I~want to thank my~parents and my~boyfriend Pavol for~their love, support and patience not~only in~the~last year but~also throughout the~whole course of~my~studies.
 }
@@ -100,7 +101,7 @@ Occasional false positive results meant that some pieces of the~code had to be w
 %+ the~contribution that the~the thesis provides to a~reader (e.g. also a~prototype software is a~contribution)\
 The~goal of this thesis is to create a~new static code analysis tool, that would replace the~original C\# checks in BugHunter, and would mitigate the~flaws of the~previous solution. The~tool should be written using the~new .NET Compiler Platform (code-named \textit{"Roslyn"}) and should be integrated to both Visual Studio and the~continuous integration process at Kentico. The~new BugHunter analyzers should raise warnings for code that does not comply to Kentico's internal guidelines. Where suitable, the~tool should also provide an~instant code fix. Since the~tool will be deployed in the~production, it needs to be thoroughly tested and be efficient, so that it does not degrade the~developers' experience.
 
-The~implemented analyzers are not be concerned with naming or ordering conventions, since there are already many (also Roslyn-based) tools dealing with this problem. These can be easily configured to specific needs of the~development team. Instead, the~new analyzers will only focus on the~rules which require tailored approach that cannot be found in other available solutions. 
+The~implemented analyzers will not be concerned with naming or ordering conventions, since there are already many (also Roslyn-based) tools dealing with this problem. These can be easily configured to specific needs of the~development team. Instead, the~new analyzers will only focus on the~rules which require tailored approach that cannot be found in other available solutions. 
 
 %+ the~structure for all the~chapters in the~thesis
 Discussing the~thesis structure, the~second chapter provides a~theoretical background behind the~static code analysis tools in general -- source code compilation. It shortly describes the~phases of the~compilation process and focuses on the~analysis, or \textit{front end} part, which is fundamental for any static code analysis tool.
