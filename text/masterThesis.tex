@@ -1231,27 +1231,57 @@ In the~context of static code analysis:
 % =================================================================
 \chapter{Deployment, Configuration and Versioning}
 \label{appendix:deployment}
-TODO...
+The aim of this appendix is to explain the details about the installation and the initial configuration that had to be set up in order for the new analyzers to mimic the configuration of the original BugHunter checks. It also shortly mentions how the NuGet updates are to be performed. An online documentation for all developed analyzers, created as part of the thesis, can be found~\cite{online-documentation} TODO.
+
+On 24.4.2017 the developed BugHunter analyzers were installed to the \textit{CMS} solution in form of two NuGet packages. This means that everybody working with the solution locally, as well as the build machines on TeamCity (continuous integration server), are already using it. This process required upgrade of the Visual Studio on the TeamCity servers, since the analyzers need VS2015 with Update 3 to work. 
 
 \section{Two NuGet packages with BugHunter Analyzers}
-Why, how are the analyzers divided into 2 packages.
+In the original BugHunter, some of the checks were only performed in \textit{CMSApp} project -- a project with the web application that is shipped to the customers. Although it was possible to disable the corresponding analyzers for all other projects in the \textit{CMS} solution, more suitable option seemed to be separating those analyzers into a standalone NuGet package that would be installed to the \textit{CMSApp} project only. This way, the configuration is not bloated with unnecessary settings.
 
-\section{Online Documentation}
-TODO: add link for online documentation
+The main NuGet package is called \textit{BugHunter.Analyzers} and it contains total of 24 analyzers (for more information on which those analyzers are, see the online documentation~\cite{online-documentation}. It is installed to 125 projects of the \textit{CMS} solution. Projects containing tests, as well as some some projects containing the third-party libraries, were excluded from the installation.
+
+The second NuGet package, installed solely to the \textit{CMSApp} project, is called \textit{BugHunter.Web.Analyzers} and contains 5~analyzers.
+
+The current version for both NuGet packages installed is \textit{1.0.0}. This version is compatible with Kentico version 10.0.13. The idea is for the versioning to follow the rules of the semantic versioning\footnote{\url{http://semver.org}}.
+
+An important thing to mention is that the packages are not yet available via the official Microsoft NuGet Gallery and are downloaded from Kentico's internal NuGet feed.
 
 \section{Applying the configuration of original BugHunter}
-Mention the original BH configuration file
+The above mentioned separation into two NuGet packages was only the first step of applying the old configuration. The old BugHunter contained a long \textit{app.config} file, containing excluded paths per check (for whole folders or separate files). These settings had to be reflected in order to get rid of over 500 warnings produced by new analyzers right after the installation.
 
-what approaches were taken:
+\subsubsection{\textbf{Disabling Analyzers for Projects -- Rule Set File}}
+The \textit{.ruleset} files\footnote{\url{https://github.com/dotnet/roslyn/blob/master/docs/compilers/Rule\%20Set\%20Format.md}} are a convenient way to turn the analyzers on and off and configure their severity per project. All implemented analyzer are enabled by default and severity is set to warning in their diagnostic descriptors. However, since some analyzers, mainly \texttt{SystemIOAnalyzer}, are not meant to analyze every project, but it would be pointless to create NuGet with only one analyzer, the Rule Sets were used. 
 
-- pragma statements (for single line/whole file), 
+The SystemIOAnalyzer has the rule action set to \texttt{None} in some of the projects which means they are effectively turned off in those projects. Those projects include \textit{CMS.IO} project, that is basically a \textit{CMS} wrapper of \textit{System.IO} namespace, and also projects that provide I/O operations for other file systems like Azure or Amazon storage. List of all the excluded projects can be found in the online documentation.
 
-- ruleset file, 
+\subsubsection{\textbf{Disabling Analyzers in Code -- Pragma Warnings}}
+One of the advantages of Roslyn, compared to the old BugHunter, is that the disabling of the analyzers is more granular and the configuration is placed directly in the code. There are two options for suppressing the analyzers' warnings for a piece of code:
+\begin{itemize}
+  \item \textbf{pragma warning}\footnote{\url{https://docs.microsoft.com/en-us/dotnet/articles/csharp/language-reference/preprocessor-directives/preprocessor-pragma-warning}} -- preprocessor directive for temporary disabling and later enabling the analysis for any line(s) of code,
+  \item \textbf{supress message}\footnote{\url{https://msdn.microsoft.com/en-us/library/ms244717.aspx}} -- attribute for disabling an analyzer over specified unit (member, type, namespace, or module).
+\end{itemize}
 
-- not installing analzyer nuget at all...
+Since in context of \textit{CMS} solution, sometimes supressing the analysis over single line of code is necessary and mixing the two approaches was undesirable, pragma warnings were applied.
 
-\section{Versioning}
-Semantic versioning and upgrades
+For helper classes serving as CMS replacements for traditional Microsoft API, the concrete \textit{CMS API Replacement} analyzer was disabled for the whole file using explicit pragma warning statements around the class code. For example, whole class \texttt{BrowserHelper} (which should be always used instead of directly accessing the \texttt{Browser} property of \texttt{HttpRequest} object) has the \texttt{HttpRequestBrowserAnalyzer} (id \textit{BH1007} disabled like this:
 
+\begin{minted}{csharp}
+// Enable use of 'Request.Browser' for this file
+#pragma warning disable BH1007 
+public static class BrowserHelper
+{
+    // methods
+}
+#pragma warning restore BH1007
+\end{minted}
+
+Pragma warnings were also applied in some rare cases, where the issue reported by the analyzer could have been fixed.
+
+\subsubsection{\textbf{Fixing outstanding issues}}
+After applying the old configuration, there were still over one hundred warnings reported by the BugHunter analyzers. These were all false negative results that had not been previously detected by the original BugHunter. 
+
+The most common were errors from \textit{String and Culture} category, where the semantic analysis uncovered quite a few usages of \texttt{Equals()} or \texttt{IndexOf} methods without specifying string comparison or culture info argument. All of those had to be manually fixed and the automated code fixes made the job a lot easier.
+
+Another large group of warnings was from previously most problematic check -- \texttt{System.IO}. The new analyzer exposed many forbidden usages of \texttt{System.IO} members that were missed by the old tool. In most of the  cases, the warnings were fixed, sometimes pragma warnings were used to diable the analyzer with an appropriate message.
 
 \end{document}
