@@ -848,6 +848,7 @@ This holds for any custom analyzers written, but even more so if they are to be 
 Therefore, in order for the~BugHunter analyzers to be usable, they have to be efficient. This chapter explains how the~performance of the~implemented analyzers was measured and provides a~quick look at their optimizations. The~final part of the~chapter summarizes views of Kentico development team on the~usability of new BugHunter.
 
 \section{CMS Solution Size}
+\label{sec:cms-solution-size}
 Before discussing the~performance of the~BugHunter analyzers, it is important to understand the~structure of the~CMS solution. This is helpful when considering which parts of the~analyzers' code are crucial for the~overall performance and which are not as critical.
 
 In order to collect relevant information, \textit{SolutionStatistics} project was created (the source code can be found in the~IS attachment). The~project loads the~CMS solution and collects information on number of projects, documents, syntax nodes. The~summary of the~results is presented in Table~\ref{tab:solution-statistics}. Note, that just the~data relevant for implemented analyzers are displayed. Therefore, only projects where NuGet with BugHunter analyzers is installed\footnote{Test and 3rd party projects were excluded from statistics, see Appendix~\ref{appendix:deployment}.} and relevant kinds of syntax nodes are considered.
@@ -876,6 +877,7 @@ Number of syntax nodes        & 6,279,993 \\
 % ---------------------------------------------------
 
 \section{Measuring the~Performance}
+\label{sec:measuring-performance}
 The~goal of the~performance measurements done in this thesis was to evaluate the~effectiveness of implemented analyzers, in order to spot and eliminate possible anomalies in the~implementation, and assess the~overall impact of the~analyzers on the~length of MSBuild.
 
 In the~early stages of development, the~idea was to compute benchmarks for different analyzer versions using \textit{BenchmarkDotNet} framework\footnote{\url{https://github.com/dotnet/BenchmarkDotNet}}. However, the~overhead of creating the~compilation made it virtually impossible to extract only the~relevant information from the~obtained results.
@@ -1079,36 +1081,21 @@ Although the~tool was primarily developed to aid the~Kentico employees and enfor
 % ============================ APPENDIX A =========================
 % =================================================================    
 \appendix %% Start the~appendices.
-\chapter{Source Codes in IS}
+\chapter{List of Attachments}
 \label{appendix:source-codes}
-TODO...
+Electronic attachments can be found in the~thesis archive of the Information System. They are included in the~\texttt{thesis-roslyn.zip} archive, containing following directories:
 
-!!!VS2015 with Update 3 to work. !!!
+\begin{itemize}
+\item[\textit{\textbf{BugHunter}}] -- Solution containing developed analyzers and code fixes along with tests. The~analyzers are divided into two separate projects (\textit{BugHunter.Analyzers} and \textit{BugHunter.Web.Analyzers} (for more information, see~\ref{appendix:deployment}). Project \textit{BugHunter.AnalyzerVersions} contains different versions of some analyzers, used for performance optimizations, and is not part of the~production.
 
-The~main solution with new Roslyn analyzers (BugHunter.sln) consists of 6 projects within 2 folders: 
+\item[\textit{\textbf{SolutionStatistics}}] -- Project for computing \textit{CMS} solution statistics, presented in~\ref{sec:cms-solution-size}.
 
-TODO - Do leave the~Vsix project there or delete???
+\item[\textit{\textbf{ReportAnalyzerTimes}}] -- Solution containing projects that were utilized for analyzers' performance testing, along with \textit{Report-Analyzer.ps1} script discussed in~\ref{sec:measuring-performance}. Another script, \textit{MsBuild-Times.ps1}, was used for running the MsBuild of the~\textit{CMS} solution multiple times.
 
-\begin{description}
-  \item[Analyzers folder] with Roslyn analyzers
-  \begin{itemize}
-    \item BugHunter.Core
-    \item BugHunter.Analyzers
-    \item BugHunter.Web.Analyzers
-  \end{itemize}
-  
-  \item[Tests folder] with tests:
-  \begin{itemize}
-    \item BugHunter.TestUtils
-    \item BugHunter.Core.Test
-    \item BugHunter.Analyzers.Test
-    \item BugHunter.Web.Analyzers.Test
-  \end{itemize}
-\end{description}
+\item[\textit{\textbf{SampleProject}}] -- Sample C\# project with installed BugHunter NuGets, containing at least one diagnostic for each analyzer that was developed. This project demonstrates how the~developed analyzers and code fixes work inside of Visual Studio.
+\end{itemize}
 
-TODO Describe each project.. why 2 for analyzers - nuget distribution
-
-The~projects with analyzers use the~categories also for folder structure with each folder containing separate subfolders for analyzers and code fixes respectively.
+Note, that the projects require Visual Studio 2015 Update 3 or newer to run. 
 
 % =================================================================
 % ============================= APPENDIX B =========================
