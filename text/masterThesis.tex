@@ -602,7 +602,7 @@ Another downside of the~previous solution was the~way certain portions of the~co
 
 Moreover, the~only way to exclude a~certain piece of code from the~analysis was to put the~whole file, in which it appeared, into the~configuration of the~rule to be suppressed. This way of configuration lacked the~granularity and was opaque. 
 
-On the~other hand, Roslyn provides numerous ways to turn off a~certain rule for a~project, a~file, or even a~line of code. More information on which approach was taken when deploying the~analyzers can be found in the~Appendix~\ref{appendix:deployment}.
+On the~other hand, Roslyn provides numerous ways to turn off a~certain rule for a~project, a~file, or even a~line of code. More information on possible approaches can be found in Appendix~\ref{appendix:deployment}.
 
 \section{Defining Analyzer Categories}
 \label{sec:analyzer-categories}
@@ -851,7 +851,7 @@ Therefore, in order for the~BugHunter analyzers to be usable, they have to be ef
 \label{sec:cms-solution-size}
 Before discussing the~performance of the~BugHunter analyzers, it is important to understand the~structure of the~CMS solution. This is helpful when considering which parts of the~analyzers' code are crucial for the~overall performance and which are not as critical.
 
-In order to collect relevant information, \textit{SolutionStatistics} project was created (the source code can be found in the~IS attachment). The~project loads the~CMS solution and collects information on number of projects, documents, syntax nodes. The~summary of the~results is presented in Table~\ref{tab:solution-statistics}. Note, that just the~data relevant for implemented analyzers are displayed. Therefore, only projects where NuGet with BugHunter analyzers is installed\footnote{Test and 3rd party projects were excluded from statistics, see Appendix~\ref{appendix:deployment}.} and relevant kinds of syntax nodes are considered.
+In order to collect relevant information, \textit{SolutionStatistics} project was created (the source code can be found in the~IS attachment). The~project loads the~CMS solution and collects information on number of projects, documents, syntax nodes. The~summary of the~results is presented in Table~\ref{tab:solution-statistics}. Note, that just the~data relevant for implemented analyzers are displayed. Therefore, only projects where NuGet with BugHunter analyzers is installed\footnote{Test and 3rd party projects were excluded from statistics.} and relevant kinds of syntax nodes are considered.
 
 % ------------------ Solution Statistics Table ------------------
 \begin{table}
@@ -1221,41 +1221,53 @@ In the~context of static code analysis:
 % =================================================================
 % ============================= APPENDIX C =========================
 % =================================================================
-\chapter{Deployment, Configuration and Versioning}
+\chapter{Installation and Configuration}
 \label{appendix:deployment}
-This appendix explains the~details of the~installation and the~initial configuration that had to be set~up in~order for the~new analyzers to~mimic the~configuration of the~original BugHunter checks. It also shortly mentions the current NuGet versions and their dependencies. An~online documentation for all developed analyzers, created as~part of the~thesis, can be found in~\cite{online-documentation}.
+This appendix explains how to install and configure the~NuGet packages containing the analyzers that have been developed. The~online documentation for all analyzers is available at~\url{https://kentico.github.io/bug-hunter}.
 
-\section{Two NuGet packages with BugHunter Analyzers}
-In the~original BugHunter, some of the~checks were only performed in~\textit{CMSApp} project -- a~project with the~web application that is shipped to the~customers. Although it was possible to~disable the~corresponding analyzers for all other projects in the~\textit{CMS} solution, more suitable option seemed to be separating those analyzers into a~standalone NuGet package that would be installed to the~\textit{CMSApp} project only. This way, the~configuration is not bloated with unnecessary settings.
 
-The~main NuGet package is called \textit{BugHunter.Analyzers} and it contains total of 24~analyzers (for more information on which those analyzers are, see the~online documentation~\cite{online-documentation}). It is installed to 125~projects of the~\textit{CMS} solution. Projects containing tests, as well as some some projects containing third-party libraries, were excluded from the~installation.
+\section{NuGet packages with BugHunter Analyzers}
+The~implemented analyzers are separated into two standalone NuGet packages:
 
-The~second NuGet package, installed solely to the~\textit{CMSApp} project, is called \textit{BugHunter.Web.Analyzers} and contains 5~analyzers.
-
-The~current version for both NuGet packages installed is \textit{1.0.0}. This version is compatible with \textit{Kentico.Libraries 10.0.13}. The~idea is for the versioning to follow the~rules of the~semantic versioning\footnote{\url{http://semver.org}} and keep the~analyzers up to date with the major releases of Kentico CMS. 
-
-Both NuGet packages have a~dependency on the~.NET Compiler Platform in version \textit{1.3.2}. An update to version \textit{2.0}, that was released in March 2017, is not possible yet, since the~development team mostly uses Visual Studio~2015 while the~Roslyn version \textit{2.0} requires at least Visual Studio~2017. 
-
-An~important thing to mention is that the~packages are not yet available via the~official Microsoft NuGet Gallery and the~\textit{CMS} solution downloads them from Kentico's internal NuGet feed.
-
-\section{Applying Configuration of the~Original BugHunter}
-The~above mentioned separation into two~NuGet packages was only the~first step of applying the~old configuration. The~original BugHunter had a~long \textit{app.config} file, containing excluded paths per check (for whole folders or separate files). These settings had~to be reflected in~order to get rid of over 500~warnings produced by new analyzers right after the~installation.
-
-\subsubsection{\textbf{Disabling Analyzers for Projects -- Rule Set File}}
-The \textit{.ruleset} files\footnote{\url{https://github.com/dotnet/roslyn/blob/master/docs/compilers/Rule\%20Set\%20Format.md}} are a~convenient way to turn the~analyzers on and off and to configure their severity per~project. All~implemented analyzer are enabled by~default and the~severity is set to warning in their diagnostic descriptors. However, since some analyzers (mainly \texttt{SystemIOAnalyzer}) were not meant to run in every project, the~Rule Sets were used to disable them on project level. 
-
-The \texttt{SystemIOAnalyzer} has the~rule action set to \texttt{None} in some of the~projects which means they are effectively turned off and the instance of the~analyzers should not be even created for those projects. These projects include \textit{CMS.IO} project, that is basically a~\textit{CMS} wrapper of \textit{System.IO} namespace, and also projects that provide I/O operations for other file systems like Azure or Amazon storage. List of all the excluded projects can be found in the~online documentation~\cite{online-documentation}.
-
-\subsubsection{\textbf{Disabling Analyzers in Code -- Pragma Warnings}}
-One of the~advantages of~Roslyn, compared to the~original BugHunter, is that the~disabling of the~analyzers is more granular and the~configuration is placed directly in the~code. There are two options for suppressing the~analyzers' warnings for a~piece of code:
 \begin{itemize}
-  \item \textbf{pragma warning}\footnote{\url{https://docs.microsoft.com/en-us/dotnet/articles/csharp/language-reference/preprocessor-directives/preprocessor-pragma-warning}} -- preprocessor directive for temporary disabling and later enabling the~analysis for any line(s) of code,
-  \item \textbf{suppress message}\footnote{\url{https://msdn.microsoft.com/en-us/library/ms244717.aspx}} -- attribute for disabling an~analyzer over specified unit (member, type, namespace, or module).
+\item \textbf{BugHunter.Analyzers} -- contains a~total of 24~analyzers (for more information, see the~online documentation).
+
+\item \textbf{BugHunter.Web.Analyzers} -- contains 5~web application-specific analyzers.
 \end{itemize}
 
-Since in the~context of \textit{CMS} solution, sometimes suppressing the analysis over a~single line of code is necessary and mixing the~two approaches was undesirable, pragma warnings were applied.
+The~packages are not yet available via the~official Microsoft NuGet Gallery and the~\textit{CMS} solution downloads them from Kentico's internal NuGet feed. To try them locally, one must:
 
-For helper classes serving as CMS replacements for traditional Microsoft API, the~concrete \textit{CMS API Replacement} analyzer was disabled for the~whole file, using explicit pragma warning statements around the~class's code. For example, whole \texttt{BrowserHelper} class (which should be always used instead of directly accessing the~\texttt{Browser} property of \texttt{HttpRequest} object) has the~\texttt{HttpRequestBrowserAnalyzer} (id \textit{BH1007}) disabled like this:
+\begin{enumerate}
+\item Build the~\textit{BugHunter} solution in the~\textit{Release} mode (requires VS2015 Update 3 or newer).
+
+\item Copy the~respective compiled \textit{.nupkg} files from \textit{bin/Release} folders to the~folder that serves as local NuGet feed\footnote{For information on how to set up the~local feeds, go to \url{https://docs.microsoft.com/en-us/nuget/hosting-packages/local-feeds}}.
+
+\item Install\footnote{Installation of NuGet packages via~Visual Studio Package Manager UI is described in \url{https://docs.microsoft.com/en-us/nuget/tools/package-manager-ui\#finding-and-installing-a-package}. Note that the~\textit{package source} must set to~local feed.} one or both analyzer NuGets to the~desired projects.
+\end{enumerate}
+ 
+The~current version for both NuGet packages is \textit{1.0.1}. This version is compatible with \textit{Kentico.Libraries 10.0.13}. The~idea is for the versioning to follow the~rules of the~semantic versioning\footnote{\url{http://semver.org}} and keep the~analyzers up to date with the major releases of Kentico CMS. Referenced version of .NET Compiler Platform is \textit{1.3.2}.
+
+\section{Configuration}
+There are numerous ways to~disable an~analyzer for a~project, file, method, or a~single line of~code. 
+
+\subsection{Rule Set File -- Project Level Settings}
+The~\textit{.ruleset} files\footnote{\url{https://github.com/dotnet/roslyn/blob/master/docs/compilers/Rule\%20Set\%20Format.md}} are a~convenient way to turn the~analyzers on and off and to configure their severity per~project. All analyzers implemented in this thesis are enabled by~default and the~severity is set to warning in their diagnostic descriptors. However, sometimes it might be desirable to change the~severity of the~diagnostic, or to turn off an~analyzer completely.
+
+The Rule Set file has XML format, however, Visual Studio allows to configure the~severity of the~rules simply by right-clicking on the~analyzer reference in \textit{Solution Explorer} window, as seen in Figure~\ref{fig:setting-analyzer-severity}.
+
+\begin{figure}[h!]
+		\centering
+			\includegraphics[scale=0.85]{img/rule-set-severity}
+		\caption{Setting the analyzer's severity for project}
+		\label{fig:setting-analyzer-severity}
+\end{figure}
+
+\newpage
+\subsection{Disabling Analyzers in Code}
+One of the~big advantages of Roslyn analyzers is that they can be disabled directly in the~code, which allows for granular and transparent configuration. There are two options for suppressing the~analyzers' warnings for a~piece of code\footnote{The examples show the~two approaches applied on Kentico's \texttt{BrowserHelper} class having the~\texttt{HttpRequestBrowserAnalyzer} (id \textit{BH1007}) disabled. As per Kentico internal guidelines, this class should be always used instead of directly accessing the~\texttt{Browser} property of \texttt{HttpRequest} object.}:
+
+\begin{itemize}
+  \item[\textbf{Pragma warning}]\footnote{\url{https://docs.microsoft.com/en-us/dotnet/articles/csharp/language-reference/preprocessor-directives/preprocessor-pragma-warning}} -- preprocessor directive for temporary disabling and later enabling the~analysis for any line(s) of code:
 
 \begin{minted}{csharp}
 // Enable use of 'Request.Browser' for this file
@@ -1266,10 +1278,19 @@ public static class BrowserHelper
 }
 #pragma warning restore BH1007
 \end{minted}
+  
+  \item[\textbf{Suppress message}]\footnote{\url{https://msdn.microsoft.com/en-us/library/ms244717.aspx}} -- attribute for disabling an~analyzer over specified unit (member, type, namespace, or module):
 
-\subsubsection{\textbf{Fixing outstanding issues}}
-After applying the~old configuration, there were still over one~hundred warnings reported by the~BugHunter analyzers. These were all false negative results that had not been previously detected by the~original BugHunter. 
-
-The~new analyzer exposed many forbidden usages of \texttt{SystemIO} members that were missed by the~old tool and had to be fixed. Other errors were from \textit{String and Culture} category, where the~semantic analysis uncovered usages of \texttt{Equals()} or \texttt{IndexOf()} methods without specifying \textit{string comparison} or \textit{culture info} argument. All of those had been fixed with the help of automated code fixes.
+\begin{minted}{csharp}
+[System.Diagnostics.CodeAnalysis.SuppressMessage(
+    "CmsApiReplacements", "BH1007:'Request.Browser'", 
+    Justification = "Enable for the helper class.")]
+public static class BrowserHelper
+{
+    // methods
+}
+\end{minted}
+  
+\end{itemize}
 
 \end{document}
