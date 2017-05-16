@@ -190,7 +190,7 @@ The~resulting AST for the~token stream generated in (2.2) is depicted in Figure~
   \label{fig:compilers-abstract-syntax-tree}
 \end{figure}
 
-The~syntax analyzer uses a~context free grammar (CFG) to form the~syntax tree. The~CFG is defined by a~4-tuple consisting of:
+The~syntax analyzer uses a~context free grammar (CFG) to form the~syntax tree. The~CFG is defined by a~4-tuple consisting of~\cite{dragon-book}:
 \begin{description}
   \item[Terminals] -- token names (first component of the~token) as obtained from the~previous compilation step.
   \item[Nonterminals] -- syntactic variables that help to impose the~hierarchical structure of the~language and represent set of strings.
@@ -219,10 +219,10 @@ There are several types of errors that can be encountered during the~compilation
   \item\textbf{logical errors}, that do not really prevent the~program from compiling, but can indicate possible mistakes (for instance using the~assignment operator \textit{=} instead of the~comparison operator \textit{==} in condition of an~\textit{if-statement}).
 \end{compactitem} 
 
-It is parser's responsibility to report the~presence of potential syntactic error and recover from the~error in order to continue with syntactic analysis and be able to detect any subsequent errors. In~\cite{dragon-book}, two main strategies for the~error recovery are presented: \textit{panic-mode} and \textit{phrase-level} recovery.
+It is parser's responsibility to report the~presence of potential syntactic error and recover from the~error in order to continue with syntactic analysis and be able to detect any subsequent errors. In~\cite{principles-of-compilers}, two main strategies for the~error recovery are presented: \textit{panic-mode} and \textit{phrase-level} recovery.
 
 \subsubsection{\textbf{Panic-Mode Recovery}}
-In this method, after the~parser encounters an~error, it searches for a~\textit{synchronizing token} (usually delimiters such as semicolon or close brace) and, until found, all the~symbols are thrown away one by one. Even though panic-mode recovery often discards significant amount of input while searching for the~synchronization token, it is guaranteed not to end up in an~infinite loop.
+In this method, after the~parser encounters an~error, it searches for a~\textit{synchronizing token} (usually delimiters such as semicolon, close brace or \textit{end} keyword) and, until found, all the~symbols are thrown away one by one. Even though panic-mode recovery often discards significant amount of input while searching for the~synchronization token, it is guaranteed not to end up in an~infinite loop.
 
 \subsubsection{\textbf{Phrase-Level Recovery}}
 Another approach the~parser can take to recover from an~erroneous input is to try to perform a~local correction. This can be achieved by replacing the~prefix of the~following input by some tokens that would enable syntactic analyzer to continue parsing. A prime example of phrase-level recovery is inserting a~missing semicolon or replacing comma with a~semicolon. Even though this technique is very powerful, as it can cope with all possible problems in the~input, it might lead to infinite loops (e.g. always inserting symbols ahead of the~current symbol).
@@ -242,7 +242,7 @@ Semantic analyzer utilizes the~information from symbol table to perform all sort
 \section{Intermediate Code Generation}
 The~semantic analysis is followed by an~\textit{intermediate code generation} which completes the~front end part of the~compilation process. Depending on the~specific compiler implementation, the~\textit{intermediate representation} (\textit{IR}), that is the~result of this phase, can take different forms. The~IR should be easy to produce and easy to translate into the~target machine code. For some compilers, the~IR may be the~abstract syntax tree itself.
 
-Together with symbol table, IR is passed to~the~back end part of the~compiler -- synthesis, where machine independent optimizations can be performed. These contain \textit{control flow analysis} where control flow graph is constructed and utilized in the~subsequent \textit{data flow analysis}. As a~result of these optimizations, compiler might remove dead code from the~IR or perform other optimizations that will lead to shorter and more efficient target code.
+Together with symbol table, IR is passed to~the~back end part of the~compiler -- synthesis, where machine independent optimizations can be performed. These contain \textit{control flow analysis} where control flow graph is constructed and utilized in the~subsequent \textit{data flow analysis}. As a~result of these optimizations, compiler might remove dead code from the~IR or perform other optimizations that will lead to shorter and more efficient target code~\cite{dragon-book}.
 
 \bigskip
 \noindent
@@ -692,7 +692,7 @@ There are only a~few things the~API replacement analyzer needs to know in order 
   \item \texttt{Rule} -- an~instance of \texttt{DiagnosticDescriptor} that defines the~diagnostic raised upon detection of a~forbidden usage.
 \end{itemize} 
 
-The~main reason behind \texttt{ForbiddenTypes} being an~array of strings rather than a~single string, is the~lack of inheritance hierarchy between \texttt{HttpRequest} and \texttt{HttpRequestBase} objects in the~.NET framework. They basically contain the~same members but do not derive from one another\footnote{More information can be found in \url{https://msdn.microsoft.com/en-us/library/system.web.httprequestwrapper.aspx}} and therefore, the~analyzer must treat both types separately. 
+The~main reason behind \texttt{ForbiddenTypes} being an~array of strings rather than a~single string, is the~lack of inheritance hierarchy between \texttt{HttpRequest} and \texttt{HttpRequestBase} objects in the~.NET framework. They basically contain the~same members but do not derive from one another\footnote{More information can be found in \url{https://msdn.microsoft.com/en-us/library/system.web.httprequestwrapper.aspx}.} and therefore, the~analyzer must treat both types separately. 
 
 On the~other hand, allowing for multiple forbidden members on one type under one diagnostic ID may also make sense, which is why \texttt{ForbiddenMembers} are defined as an~array, as well.
 
