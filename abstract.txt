@@ -1,0 +1,8 @@
+The aim of this thesis is to create a custom Roslyn tool for static code analysis that would check the compliance to the internal coding rules and guidelines followed by developers at Kentico Software, providing an automated code fix where possible. 
+
+The theoretical part of the thesis discusses the theory behind the static code analysis, lists the tools available for Microsoft .NET platform, and focuses on the .NET Compiler Platform explaining how it can be leveraged to write custom analyzers and code fixes. 
+
+The practical part presents selected details of the implementation including utilized design patterns. Furthermore, it discusses why the performance of the analyzers is important, how it was measured and optimized.
+
+----
+Cieľom tejto práce je vytvoriť nástroj na statickú analýzu kódu pomocou technológie Roslyn, ktorý bude kontrolovať dodržiavanie interných pravidiel a smerníc ustanovených developermi v Kentico Software. Nástroj bude taktiež poskytovať automatickú opravu kódu, v prípadoch, kde to bude možné. Teoretická časť práce pojednáva o teórii statickej analýzy kódu, vymenováva nástroje ktoré sú dostupné pre platformu Microsoft .NET a zameriava sa na .NET Compiler Platform, pričom popisuje, ako je možné túto platformu využiť pri písaní vlastných analyzátorov a opráv kódu. Praktická časť popisuje vybrané detaily implementácie v rátane použitých návrhových vzorov. Ďalej sa zaoberá dôležitosťou výkonu analyzátorov a popisuje ako bol výkon meraný a optimalizovaný.
